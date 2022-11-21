@@ -1,0 +1,21 @@
+<form id="openkimkeystoreForm" onsubmit="return false;">
+
+    <div class="form-group needs-validation">
+        <label for="privateKey">Privatekey</label>
+        <textarea class="form-control" name="privateKey" id="privateKey" rows="15" required></textarea>
+    </div>
+
+    <div class="form-group needs-validation">
+        <label for="certChain">Zertifikatskette</label>
+        <textarea class="form-control" name="certChain" id="certChain" rows="15" required></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="konfigUebersicht()">Schließen</button>
+    <button class="btn btn-primary" onclick="notSelfsignedOpenkimKeystoreSpeichern()">Speichern</button>
+    <div class="spinner-border" id="openkim-spinner" role="status" style="display: none">
+        <span class="sr-only">Laden...</span>
+    </div>
+
+    <div class="alert alert-danger" role="alert" style="display:none" id="openkimkeystoreFormError">
+    </div>
+</form>

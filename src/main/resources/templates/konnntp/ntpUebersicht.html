@@ -1,0 +1,25 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span style="font-weight: bold">Abfrage der Systemzeit über den Konnektor </span><span
+            th:text="${konnektor.ip}">ID</span><br/>
+    </div>
+    <div th:if="${fehler}" class="col-sm-8 col-lg-7 mb-3 p-0 pr-1" style="color:red">
+        <span>Beim Durchsuchen ist ein Fehler aufgetreten</span>
+    </div>
+    <div th:if="${!logs.trim().isEmpty()}" class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span class="font-weight-bold">Logs/Performancelogs</span>
+        <span th:utext="${logs}"></span>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-12 col-lg-4 mb-3 p-0 pr-1">
+        <button type="button" id="backBtn" class="btn btn-primary btn-block" onclick="ntpUebersichtClose();">
+            Zurück zu den Konnektoreinstellungen
+        </button>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1 font-weight-bold">
+        <span th:utext="${ergebnis}">ergebnis</span>
+    </div>
+</div>

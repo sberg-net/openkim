@@ -1,0 +1,163 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span style="font-weight: bold">Durchsuchen des Gematik-Verzeichnisdienstes über den Konnektor </span><span
+            th:text="${konnektor.ip}">ID</span><br/>
+        <span style="font-weight: bold">Angezeigt werden maximal 100 Einträge</span><br/>
+        <span style="font-weight: bold">Durchsucht werden die Attribute: cn, sn, displayName, mail und givenName</span>
+    </div>
+    <div th:if="${fehler}" class="col-sm-8 col-lg-7 mb-3 p-0 pr-1" style="color:red">
+        <span>Beim Durchsuchen ist ein Fehler aufgetreten</span>
+    </div>
+    <div th:if="${!logs.trim().isEmpty()}" class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span class="font-weight-bold">Logs/Performancelogs</span>
+        <span th:utext="${logs}"></span>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-6 col-lg-4 mb-3 p-0 pr-1">
+        <input type="text" class="form-control pr-0" id="search" placeholder="Suchbegriff">
+    </div>
+    <div class="col-sm-1 col-lg-2 mb-3 p-0 pr-1">
+        <input type="checkbox" id="searchWithCerts">
+        <label>Ergebnisse mit Zertifikaten</label>
+    </div>
+    <div class="col-sm-1 col-lg-2 mb-3 p-0 pr-1">
+        <button type="button" id="searchBtn" class="btn btn-primary btn-block"
+                th:attrappend="data-konnid=${konnektor.uuid}" onclick="vzdUebersicht($(this).attr('data-konnid'));">
+            <span data-feather="search"></span>
+            Suchen
+        </button>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-12 col-lg-4 mb-3 p-0 pr-1">
+        <button type="button" id="backBtn" class="btn btn-primary btn-block" onclick="vzdUebersichtClose();">
+            Zurück zu den Konnektoreinstellungen
+        </button>
+    </div>
+    <div class="col-12 mb-3 p-0">
+    <span class="font-weight-bolder">
+      <span th:text="${#lists.size(eintraege)}"></span>&nbsp;VZD-Einträge vorhanden
+    </span>
+    </div>
+</div>
+<div id="accordion">
+    <div>
+        <div class="card-header" id="headingCollapseAllVzdAttributes">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseAllVzdAttributes"
+                        aria-expanded="true" aria-controls="collapseAllVzdAttributes">
+                    Anzeigen aller Attribute
+                </button>
+            </h5>
+        </div>
+        <div id="collapseAllVzdAttributes" class="collapse" aria-labelledby="headingCollapseAllVzdAttributes"
+             data-parent="#accordion">
+            <div>
+                <table class="table" xmlns:th="http://www.thymeleaf.org">
+                    <thead>
+                    <tr>
+                        <th>TelematikID</th>
+                        <th>Cn</th>
+                        <th>Sn</th>
+                        <th>Givenname</th>
+                        <th>Displayname</th>
+                        <th>Mails</th>
+                        <th>Uid</th>
+                        <th>KOM-LE-Version</th>
+                        <th>Personalentry</th>
+                        <th>Changedatetime</th>
+                        <th>Countrycode</th>
+                        <th>Datafromauthority</th>
+                        <th>Domainid</th>
+                        <th>Entrytype</th>
+                        <th>Location</th>
+                        <th>Organization</th>
+                        <th>Othername</th>
+                        <th>Postalcode</th>
+                        <th>Professionoid</th>
+                        <th>Specialization</th>
+                        <th>St</th>
+                        <th>Street</th>
+                        <th>Title</th>
+                        <th>Zertifikatszusammenfassung</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${eintraege.isEmpty()}">
+                        <td colspan="2">Keine VZD-Einträge verfügbar</td>
+                    </tr>
+                    <tr th:each="n : ${eintraege}">
+                        <td><span th:text="${n.telematikID}">ID</span></td>
+                        <td><span th:text="${n.cn}">CN</span></td>
+                        <td><span th:text="${n.sn}">SN</span></td>
+                        <td><span th:text="${n.givenName}">GivenName</span></td>
+                        <td><span th:text="${n.displayName}">GivenName</span></td>
+                        <td><span th:text="${n.createMailStr()}">Mail</span></td>
+                        <td><span th:text="${n.uid}">Mail</span></td>
+                        <td><span th:text="${n.komleVersion}">Mail</span></td>
+                        <td><span th:text="${n.personalEntry}">Mail</span></td>
+                        <td><span th:text="${n.changeDateTime}">Mail</span></td>
+                        <td><span th:text="${n.countryCode}">Mail</span></td>
+                        <td><span th:text="${n.dataFromAuthority}">Mail</span></td>
+                        <td><span th:text="${n.domainID}">Mail</span></td>
+                        <td><span th:text="${n.entryType}">Mail</span></td>
+                        <td><span th:text="${n.l}">Mail</span></td>
+                        <td><span th:text="${n.organization}">Mail</span></td>
+                        <td><span th:text="${n.otherName}">Mail</span></td>
+                        <td><span th:text="${n.postalCode}">Mail</span></td>
+                        <td><span th:text="${n.professionOID}">Mail</span></td>
+                        <td><span th:text="${n.specialization}">Mail</span></td>
+                        <td><span th:text="${n.st}">Mail</span></td>
+                        <td><span th:text="${n.street}">Mail</span></td>
+                        <td><span th:text="${n.title}">Mail</span></td>
+                        <td><span th:utext="${n.certSummary}">Mail</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="card-header" id="headingCollapseImportantVzdAttributes">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseImportantVzdAttributes"
+                        aria-expanded="true" aria-controls="collapseImportantVzdAttributes">
+                    Anzeigen der wichtigsten Attribute
+                </button>
+            </h5>
+        </div>
+        <div id="collapseImportantVzdAttributes" class="collapse"
+             aria-labelledby="headingCollapseImportantVzdAttributes" data-parent="#accordion">
+            <div>
+                <table class="table" xmlns:th="http://www.thymeleaf.org">
+                    <thead>
+                    <tr>
+                        <th>TelematikID</th>
+                        <th>Cn</th>
+                        <th>Sn</th>
+                        <th>Givenname</th>
+                        <th>Displayname</th>
+                        <th>Mail</th>
+                        <th>Zertifikatszusammenfassung</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${eintraege.isEmpty()}">
+                        <td colspan="2">Keine VZD-Einträge verfügbar</td>
+                    </tr>
+                    <tr th:each="n : ${eintraege}">
+                        <td><span th:text="${n.telematikID}">ID</span></td>
+                        <td><span th:text="${n.cn}">CN</span></td>
+                        <td><span th:text="${n.sn}">SN</span></td>
+                        <td><span th:text="${n.givenName}">GivenName</span></td>
+                        <td><span th:text="${n.displayName}">GivenName</span></td>
+                        <td><span th:text="${n.createMailStr()}">Mail</span></td>
+                        <td><span th:utext="${n.certSummary}">Mail</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

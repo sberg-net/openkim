@@ -1,0 +1,37 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <input type="text" class="form-control pr-0" id="search" placeholder="Suchbegriff">
+    </div>
+    <div class="col-sm-4 col-lg-2 mb-3 p-0 pr-1">
+        <button type="button" id="searchBtn" class="btn btn-primary btn-block" th:attr="data-typ=${typ}"
+                onclick="logUebersicht($(this).attr('data-typ'), $('#search').val());">
+            <span data-feather="search"></span>
+            Suchen
+        </button>
+    </div>
+    <div class="col-12 mb-3 p-0">
+    <span class="font-weight-bolder">
+      <span th:text="${#lists.size(logs)}"></span>&nbsp;Logs vorhanden
+    </span>
+    </div>
+</div>
+<table class="table" id="logTable" xmlns:th="http://www.thymeleaf.org">
+    <thead>
+    <tr>
+        <th>Uuid</th>
+        <th>Geändert</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${logs.isEmpty()}">
+        <td colspan="2">Keine Logs verfügbar</td>
+    </tr>
+    <tr th:each="n : ${logs}">
+        <td>
+            <span th:text="${n.id}">ID</span>&nbsp;&nbsp;
+            <a target="_blank" th:href="@{/log/lade/{typ}/{logId}(typ=${n.logTyp},logId=${n.id})}">Log anzeigen</a>
+        </td>
+        <td><span th:text="${#temporals.format(n.geaendert, 'yyyy-MM-dd HH:mm:ss')}"></span></td>
+    </tr>
+    </tbody>
+</table>

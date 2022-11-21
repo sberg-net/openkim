@@ -1,0 +1,328 @@
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="konfigForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Allgemeine-Einstellungen</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="gatewayHost">OpenKIM-Host</label>
+                                <input type="text" th:value="${konfig.gatewayHost}" class="form-control"
+                                       id="gatewayHost" name="gatewayHost" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="mailSizeLimitInMB">Maximale Mailgröße in MB</label>
+                                <input type="text" th:value="${konfig.mailSizeLimitInMB}" class="form-control"
+                                       id="mailSizeLimitInMB" name="mailSizeLimitInMB" disabled>
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input"
+                                       th:attr="checked=${konfig.logPersonalInformations?'true':'false'}"
+                                       id="logPersonalInformations">
+                                <label class="form-check-label" for="logPersonalInformations">Loggen von persönlichen
+                                    Informationen (Achtung: NUR zu Debuggingzwecken aktivieren)</label>
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input"
+                                       th:attr="checked=${konfig.logKonnektorExecute?'true':'false'}"
+                                       id="logKonnektorExecute">
+                                <label class="form-check-label" for="logKonnektorExecute">Loggen von Aktionen bzgl.
+                                    Konnektor-Aktivitäten (WebSerivces, ....) (Achtung: NUR zu Debuggingzwecken
+                                    aktivieren)</label>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="ttlEncCertInHours">Time to Live für gecachte Verschlüsselungszertifikate und
+                                    Prüfergebnisse in Stunden</label>
+                                <input type="number" th:value="${konfig.ttlEncCertInHours}" class="form-control"
+                                       id="ttlEncCertInHours" name="ttlEncCertInHours" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="ttlEmailIccsnInDays">Time to Live für gecachte Zuordnungen von
+                                    E-Mail-Adressen der Sender bzw. Empfänger zu ICCSNs von deren HBAs/SM-Bs in
+                                    Tagen</label>
+                                <input type="number" th:value="${konfig.ttlEmailIccsnInDays}" class="form-control"
+                                       id="ttlEmailIccsnInDays" name="ttlEmailIccsnInDays" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="ttlProtsInDays">Time to Live für Protokolldateien in Tagen</label>
+                                <input type="number" th:value="${konfig.ttlProtsInDays}" class="form-control"
+                                       id="ttlProtsInDays" name="ttlProtsInDays" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">(!!!WICHTIG!!!) Fachdienstinformationen - Anmelden an den
+                                Fachdiensten</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="fachdienstKasTimeOutInSeconds">Timeout in Sekunden für den KAS-Service (KAS
+                                    = Kim Attachment Service)</label>
+                                <input type="number" th:value="${konfig.fachdienstKasTimeOutInSeconds}"
+                                       class="form-control" id="fachdienstKasTimeOutInSeconds"
+                                       name="fachdienstKasTimeOutInSeconds" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fachdienstCertAuthPwd">Clientzertifikats-Keystore-Passwort</label>
+                                <input type="password" th:value="${konfig.fachdienstCertAuthPwd}" class="form-control"
+                                       id="fachdienstCertAuthPwd" name="fachdienstCertAuthPwd">
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="fachdienstCertAuthPwdCheck"
+                                       onclick="togglePwdVisibility('fachdienstCertAuthPwd')">
+                                <label class="form-check-label" for="fachdienstCertAuthPwdCheck">Passwort in Klartext
+                                    anzeigen</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fachdienstCertFile">Clientzertifikats-Keystore-Datei</label>
+                                <input type="file" class="form-control-file" id="fachdienstCertFile"
+                                       name="fachdienstCertFile">
+                                <span th:if="${konfig.fachdienstCertFilename != null}"
+                                      th:text="${konfig.fachdienstCertFilename}">dateiname</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">(!!!WICHTIG!!!) Kontextinformationen für die Konnektoren - In den
+                                einzelnen Konnektoren muss der Kontext hinterlegt sein</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="mandantId">Mandant-ID für das Registrieren von OpenKIM in den
+                                    Konnektoren</label>
+                                <input type="text" th:value="${konfig.mandantId}" class="form-control" id="mandantId"
+                                       name="mandantId" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="workplaceId">Workplace-ID für das Registrieren von OpenKIM in den
+                                    Konnektoren</label>
+                                <input type="text" th:value="${konfig.workplaceId}" class="form-control"
+                                       id="workplaceId" name="workplaceId" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="clientSystemId">Clientsystem-ID für das Registrieren von OpenKIM in den
+                                    Konnektoren</label>
+                                <input type="text" th:value="${konfig.clientSystemId}" class="form-control"
+                                       id="clientSystemId" name="clientSystemId" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">OpenKIM-SMTP-Einstellungen</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="smtpGatewayPort">OpenKIM-SMTP-Port</label>
+                                <input type="number" th:value="${konfig.smtpGatewayPort}" class="form-control"
+                                       id="smtpGatewayPort" name="smtpGatewayPort" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="smtpGatewayConnectionSec">OpenKIM-SMTP-Security</label>
+                                <select class="form-control" id="smtpGatewayConnectionSec"
+                                        name="smtpGatewayConnectionSec" required>
+                                    <option value="NONE" th:if="${konfig.smtpGatewayConnectionSec != null}"
+                                            th:attrappend="selected=${konfig.smtpGatewayConnectionSec.name() == 'NONE'?'selected':''}">
+                                        Keine
+                                    </option>
+                                    <option value="STARTTLS" th:if="${konfig.smtpGatewayConnectionSec != null}"
+                                            th:attrappend="selected=${konfig.smtpGatewayConnectionSec.name() == 'STARTTLS'?'selected':''}">
+                                        StartTLS
+                                    </option>
+                                    <option value="SSLTLS" th:if="${konfig.smtpGatewayConnectionSec != null}"
+                                            th:attrappend="selected=${konfig.smtpGatewayConnectionSec.name() == 'SSLTLS'?'selected':''}">
+                                        SSL/TLS
+                                    </option>
+                                    <option value="NONE" th:if="${konfig.smtpGatewayConnectionSec == null}">Keine
+                                    </option>
+                                    <option value="STARTTLS" th:if="${konfig.smtpGatewayConnectionSec == null}">
+                                        StartTLS
+                                    </option>
+                                    <option value="SSLTLS" th:if="${konfig.smtpGatewayConnectionSec == null}">SSL/TLS
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="smtpGatewayIdleTimeoutInSeconds">OpenKIM-SMTP-Timeout in Sekunden</label>
+                                <input type="number" th:value="${konfig.smtpGatewayIdleTimeoutInSeconds}"
+                                       class="form-control" id="smtpGatewayIdleTimeoutInSeconds"
+                                       name="smtpGatewayIdleTimeoutInSeconds" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="smtpClientIdleTimeoutInSeconds">client-SMTP-Timeout in Sekunden</label>
+                                <input type="number" th:value="${konfig.smtpClientIdleTimeoutInSeconds}"
+                                       class="form-control" id="smtpClientIdleTimeoutInSeconds"
+                                       name="smtpClientIdleTimeoutInSeconds" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input"
+                                       th:attr="checked=${konfig.writeSmtpCmdLogFile?'true':'false'}"
+                                       id="writeSmtpCmdLogFile">
+                                <label class="form-check-label" for="writeSmtpCmdLogFile">Schreiben der SMTP Session
+                                    Logdatei je versendender Mail aktiviert</label>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">OpenKIM-POP3-Einstellungen</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="smtpGatewayPort">OpenKIM-POP3-Port</label>
+                                <input type="number" th:value="${konfig.pop3GatewayPort}" class="form-control"
+                                       id="pop3GatewayPort" name="pop3GatewayPort" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="smtpGatewayConnectionSec">OpenKIM-POP3-Security</label>
+                                <select class="form-control" id="pop3GatewayConnectionSec"
+                                        name="pop3GatewayConnectionSec" required>
+                                    <option value="NONE" th:if="${konfig.pop3GatewayConnectionSec != null}"
+                                            th:attrappend="selected=${konfig.pop3GatewayConnectionSec.name() == 'NONE'?'selected':''}">
+                                        Keine
+                                    </option>
+                                    <option value="STARTTLS" th:if="${konfig.pop3GatewayConnectionSec != null}"
+                                            th:attrappend="selected=${konfig.pop3GatewayConnectionSec.name() == 'STARTTLS'?'selected':''}">
+                                        StartTLS
+                                    </option>
+                                    <option value="SSLTLS" th:if="${konfig.pop3GatewayConnectionSec != null}"
+                                            th:attrappend="selected=${konfig.pop3GatewayConnectionSec.name() == 'SSLTLS'?'selected':''}">
+                                        SSL/TLS
+                                    </option>
+                                    <option value="NONE" th:if="${konfig.pop3GatewayConnectionSec == null}">Keine
+                                    </option>
+                                    <option value="STARTTLS" th:if="${konfig.pop3GatewayConnectionSec == null}">
+                                        StartTLS
+                                    </option>
+                                    <option value="SSLTLS" th:if="${konfig.pop3GatewayConnectionSec == null}">SSL/TLS
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="pop3GatewayIdleTimeoutInSeconds">OpenKIM-POP3-Timeout in Sekunden</label>
+                                <input type="number" th:value="${konfig.pop3GatewayIdleTimeoutInSeconds}"
+                                       class="form-control" id="pop3GatewayIdleTimeoutInSeconds"
+                                       name="pop3GatewayIdleTimeoutInSeconds" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="pop3ClientIdleTimeoutInSeconds">OpenKIM-POP3-Timeout in Sekunden</label>
+                                <input type="number" th:value="${konfig.pop3ClientIdleTimeoutInSeconds}"
+                                       class="form-control" id="pop3ClientIdleTimeoutInSeconds"
+                                       name="pop3ClientIdleTimeoutInSeconds" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input"
+                                       th:attr="checked=${konfig.writePop3CmdLogFile?'true':'false'}"
+                                       id="writePop3CmdLogFile">
+                                <label class="form-check-label" for="writePop3CmdLogFile">Schreiben der POP3 Session
+                                    Logdatei je empfangener Mail aktiviert</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-2 pb-1">
+                        <button class="btn btn-secondary btn-block" onclick="konfigUebersicht();">Schließen</button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block" onclick="konfigSpeichern()">Speichern</button>
+                        <div class="spinner-border" id="openkim-spinner" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none" id="konfigFormError">
+            </div>
+        </form>
+    </div>
+</div>

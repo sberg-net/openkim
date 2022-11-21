@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="sberg">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:if="${typ.name().equals('POP3')}">OpenKIM - POP3 Gateway Loginhalt</title>
+    <title th:if="${typ.name().equals('SMTP')}">OpenKIM - SMTP Gateway Loginhalt</title>
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/script.js}"></script>
+    <script th:src="@{/webjars/feather-icons/dist/feather.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}"/>
+</head>
+<body>
+<main role="main">
+    <div>
+        <h1 th:if="${typ.name().equals('POP3')}" class="h5">POP3 Gateway Loginhalt</h1>
+        <h1 th:if="${typ.name().equals('SMTP')}" class="h5">SMTP Gateway Loginhalt</h1>
+    </div>
+    <div class="container-fluid" id="logInhalt">
+        <span th:utext="${logs}"></span>
+    </div>
+</main>
+</body>
+</html>

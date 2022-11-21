@@ -1,0 +1,893 @@
+/*=============================
+	Global CSS
+===============================*/
+body {
+    --green: #6DB52E;
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/*=============================
+	End Global CSS
+===============================*/
+/*===================
+	Why choose CSS
+=====================*/
+.why-choose .choose-left h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2C2D3F;
+    position: relative;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+}
+
+.why-choose .choose-left h3:before {
+    position: absolute;
+    content: "";
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 50px;
+    background: var(--green);
+}
+
+.why-choose .choose-left p {
+    margin-bottom: 20px;
+}
+
+.why-choose .choose-left .list {
+}
+
+.why-choose .choose-left .list li {
+    color: #868686;
+    margin-bottom: 12px;
+}
+
+.why-choose .choose-left .list li:last-child {
+    margin-bottom: 0px;
+}
+
+.why-choose .choose-left .list li i {
+    height: 15px;
+    width: 15px;
+    line-height: 15px;
+    text-align: center;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    border-radius: 100%;
+    padding-left: 2px;
+    margin-right: 16px;
+}
+
+/* Start Faq CSS */
+.why-choose {
+    background: #fff;
+}
+
+.why-choose .choose-right {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/*=======================
+	End Why choose CSS
+=========================*/
+/*=============================
+	Start Pricing Table CSS
+===============================*/
+.pricing-table {
+    background: #f9f9f9;
+    position: relative;
+}
+
+.pricing-table .single-table {
+    background: #fff;
+    border: 1px solid #ddd;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 15px 0;
+    padding: 45px 10px 30px 10px;
+}
+
+@media (min-width: 768px) {
+    .pricing-table .single-table {
+        padding: 45px 35px 30px 35px;
+    }
+}
+
+/* Table Head */
+.pricing-table .single-table .table-head {
+    text-align: center;
+}
+
+.pricing-table .single-table .icon i {
+    font-size: 65px;
+    color: var(--green);
+}
+
+.pricing-table .single-table .title {
+    font-size: 21px;
+    color: #2C2D3F;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.pricing-table .single-table .amount {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--green);
+}
+
+.pricing-table .single-table .amount span {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+    color: #868686;
+    margin-left: 8px;
+}
+
+/* Table List */
+.pricing-table .single-table .table-list {
+    padding: 10px 0;
+    text-align: left;
+    margin-top: 30px;
+}
+
+.pricing-table .table-list li {
+    position: relative;
+    color: #666;
+    margin-bottom: 18px;
+    padding-right: 32px;
+}
+
+.pricing-table .table-list li:last-child {
+    margin-bottom: 0px;
+}
+
+.pricing-table .table-list li.cross i {
+    background: #aaaaaa;
+}
+
+.pricing-table .table-list i {
+    font-size: 7px;
+    text-align: center;
+    margin-right: 10px;
+    position: absolute;
+    right: 0;
+    height: 16px;
+    width: 16px;
+    line-height: 16px;
+    text-align: center;
+    color: #fff;
+    background: var(--green);
+    border-radius: 100%;
+    padding-left: 1px;
+}
+
+/* Table Bottom */
+.pricing-table .table-bottom {
+    margin-top: 25px;
+}
+
+.pricing-table .btn {
+    padding: 12px 25px;
+    width: 100%;
+    color: #fff;
+}
+
+.pricing-table .btn:before {
+    background: #2C2D3F;
+}
+
+.pricing-table .btn:hover {
+    color: #fff;
+}
+
+.pricing-table .btn i {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+/*=============================
+	End Pricing Table CSS
+===============================*/
+/*====================
+   Start Login CSS
+======================*/
+.login .inner {
+    box-shadow: 0px 0px 10px #00000024;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.login .login-left {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+}
+
+.login .login-form {
+    padding: 50px 40px;
+}
+
+.login .login-form h2 {
+    position: relative;
+    font-size: 32px;
+    color: #333;
+    font-weight: 600;
+    line-height: 27px;
+    margin-bottom: 12px;
+    padding-bottom: 20px;
+    text-align: left;
+}
+
+.login .login-form h2:before {
+    position: absolute;
+    content: "";
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 50px;
+    background: var(--green);
+}
+
+.login .login-form p {
+    font-size: 14px;
+    color: #333;
+    font-weight: 400;
+    text-align: left;
+    margin-bottom: 50px;
+}
+
+.login .login-form p a {
+    display: inline-block;
+    margin-left: 5px;
+    color: var(--green);
+}
+
+.login .login-form p a:hover {
+    color: #2C2D3F;
+}
+
+.login .form {
+    margin-top: 30px;
+}
+
+.login .form .form-group {
+    margin-bottom: 22px;
+}
+
+.login .form .form-group input {
+    width: 100%;
+    height: 50px;
+    border: 1px solid #eee;
+    padding: 0px 18px;
+    color: #555;
+    font-size: 14px;
+    font-weight: 400;
+    border-radius: 4px;
+}
+
+.login .form .form-group.login-btn {
+    margin: 0;
+}
+
+.login .form button {
+    border: none;
+}
+
+.login .form .btn {
+    display: inline-block;
+    margin-right: 10px;
+    color: #fff;
+    line-height: 20px;
+    width: 100%;
+}
+
+.login .form .btn:hover {
+    background: var(--green);
+    color: #fff;
+}
+
+.login .login-form .checkbox {
+    text-align: left;
+    margin: 0;
+    margin-top: 20px;
+    display: inline-block;
+
+}
+
+.login .login-form .checkbox label {
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    position: relative;
+    padding-left: 20px;
+}
+
+.login .login-form .checkbox label:hover {
+    cursor: pointer;
+}
+
+.login .login-form .checkbox label input {
+    display: none;
+}
+
+.login .login-form .checkbox label::before {
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    border: 1px solid var(--green);
+    border-radius: 100%;
+}
+
+.login .login-form .checkbox label::after {
+    position: relative;
+    content: "";
+    width: 7px;
+    height: 7px;
+    left: -16px;
+    top: -15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0);
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+    display: block;
+    font-size: 9px;
+    background: var(--green);
+    border-radius: 100%;
+}
+
+.login .login-form .checkbox label.checked::after {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.login .login-form .lost-pass {
+    display: inline-block;
+    margin-left: 25px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.login .login-form .lost-pass:hover {
+    color: var(--green);
+}
+
+/*====================
+   End Login CSS
+======================*/
+/*=========================
+	Start Footer CSS
+===========================*/
+.footer {
+    position: relative;
+}
+
+.footer .footer-top {
+    padding: 100px 0px;
+    position: relative;
+    background: var(--green);
+}
+
+.footer .footer-top:before {
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: #000;
+    opacity: 0.1;
+}
+
+.footer .single-footer {
+
+}
+
+.footer .single-footer .social {
+    margin-top: 25px;
+}
+
+.footer .single-footer .social li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.footer .single-footer .social li:last-child {
+    margin-right: 0px;
+}
+
+.footer .single-footer .social li a {
+    height: 34px;
+    width: 34px;
+    line-height: 34px;
+    text-align: center;
+    border: 1px solid #fff;
+    text-align: center;
+    padding: 0;
+    border-radius: 100%;
+    display: block;
+    color: #fff;
+    font-size: 16px;
+}
+
+.footer .single-footer .social li a:hover {
+    color: var(--green);
+    background: #fff;
+    border-color: transparent;
+}
+
+.footer .single-footer .social li a i {
+
+}
+
+.footer .single-footer.f-link li a i {
+    margin-right: 10px;
+}
+
+.footer .single-footer.f-link li {
+    display: block;
+    margin-bottom: 12px;
+}
+
+.footer .single-footer.f-link li:last-child {
+    margin: 0;
+}
+
+.footer .single-footer.f-link li a {
+    display: block;
+    color: #fff;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+    font-weight: 400;
+}
+
+.footer .single-footer.f-link li a:hover {
+    padding-left: 8px;
+}
+
+.footer .single-footer h2 {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    position: relative;
+}
+
+.footer .single-footer h2::before {
+    position: absolute;
+    content: "";
+    left: 0;
+    bottom: 0px;
+    height: 3px;
+    width: 50px;
+    background: #fff;
+}
+
+.footer .single-footer .time-sidual {
+    margin-top: 15px;
+}
+
+.footer .single-footer .time-sidual {
+    overflow: hidden;
+}
+
+.footer .single-footer .time-sidual li {
+    display: block;
+    color: #fff;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.footer .single-footer .time-sidual li span {
+    display: inline-block;
+    float: right;
+}
+
+.footer .single-footer .day-head .time {
+    font-weight: 400;
+    float: right;
+}
+
+.footer .single-footer p {
+    color: #fff;
+}
+
+.footer .single-footer .newsletter-inner {
+    margin-top: 20px;
+    position: relative;
+}
+
+.footer .single-footer .newsletter-inner input {
+    background: transparent;
+    border: 1px solid #fff;
+    height: 50px;
+    line-height: 42px;
+    width: 100%;
+    margin-right: 15px;
+    color: #fff;
+    padding-left: 18px;
+    padding-right: 70px;
+    display: inline-block;
+    float: left;
+    border-radius: 0px;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+    font-weight: 400;
+    border-radius: 5px;
+}
+
+.footer .single-footer .newsletter-inner input:hover {
+    padding-left: 22px;
+}
+
+.footer input::-webkit-input-placeholder {
+    opacity: 1;
+    color: #fff !important;
+}
+
+.footer input::-moz-placeholder {
+    opacity: 1;
+    color: #fff !important;
+}
+
+.footer input::-ms-input-placeholder {
+    opacity: 1;
+    color: #fff !important;
+}
+
+.footer input::input-placeholder {
+    opacity: 1;
+    color: #fff !important;
+}
+
+.footer .single-footer .newsletter-inner .button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 50px;
+    line-height: 50px;
+    width: 50px;
+    background: #fff;
+    border-left: 1px solid #fff;
+    text-shadow: none;
+    box-shadow: none;
+    display: inline-block;
+    border-radius: 0px;
+    border: none;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+    border-radius: 0 5px 5px 0;
+    color: var(--green);
+    font-size: 25px;
+}
+
+.footer .single-footer .newsletter-inner .button i {
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+}
+
+.footer .single-footer .newsletter-inner .button:hover i {
+    color: #2C2D3F;
+}
+
+.footer .copyright {
+    background: var(--green);
+    padding: 25px 0px 25px 0px;
+    text-align: center;
+}
+
+.footer .copyright .copyright-content p {
+    color: #fff;
+}
+
+.footer .copyright .copyright-content p a {
+    color: #fff;
+    font-weight: 400;
+    text-decoration: underline;
+    display: inline-block;
+    margin-left: 4px;
+}
+
+/*=========================
+	End Footer CSS
+===========================*/
+.overlay {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.overlay:before {
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: var(--green);
+}
+
+.overlay.section {
+    padding: 60px 0;
+}
+
+/* RESET RULES & HELPER CLASSES
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+:root {
+    --lightblue: #f6f9fc;
+    /*--blue: #347ECB;*/
+}
+
+a,
+a:hover {
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.bg-lightblue {
+    background: var(--lightblue);
+}
+
+.bg-red {
+    background: var(--green);
+}
+
+.text-red {
+    color: var(--green);
+}
+
+.container-fluid-max {
+    max-width: 1440px;
+}
+
+.cover {
+    background: no-repeat center/cover;
+}
+
+.p-15 {
+    padding: 15px;
+}
+
+/* SCROLL ANIMATIONS
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.scroll .page-header {
+    background: var(--white);
+}
+
+.scroll .hero {
+    transform: scale(0.98);
+}
+
+/* HEADER
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.page-header {
+    transition: background 0.5s ease-in-out;
+}
+
+.page-header .navbar {
+    padding: 1rem 0;
+}
+
+/* BANNER SECTION
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.hero {
+    background-attachment: fixed;
+    transition: transform 0.5s ease-in-out;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+            rgba(0, 0, 0, 0.5) 0,
+            rgba(0, 0, 0, 0.3) 50%,
+            rgba(0, 0, 0, 0.1) 100%
+    );
+}
+
+.hero .container-fluid {
+    z-index: 10;
+}
+
+/* MEDIA QUERIES
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/* MEDIUM SCREENS */
+@media screen and (max-width: 991px) {
+    .page-header {
+        background: var(--white);
+    }
+}
+
+/* SMALL SCREENS */
+@media screen and (max-width: 767px) {
+    .page-footer .footer-child {
+        text-align: center;
+    }
+}
+
+/* BTN */
+.btn {
+    color: #fff;
+    padding: 13px 25px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--green);
+    position: relative;
+    box-shadow: none;
+    display: inline-block;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    border: none;
+    border-radius: 0;
+    border-radius: 4px;
+}
+
+.button .btn:hover {
+    color: #fff;
+}
+
+.btn:focus, .btn:hover {
+    text-decoration: none;
+}
+
+.btn:hover:before {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+}
+
+.btn:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #2C2D3F;
+    -webkit-transform: scaleX(0);
+    transform: scaleX(0);
+    -webkit-transform-origin: 50%;
+    transform-origin: 50%;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+    border-radius: 4px;
+}
+
+.vh-50 {
+    height: 50vh !important;
+}
+
+.vh-40 {
+    height: 40vh !important;
+}
+
+.vh-30 {
+    height: 30vh !important;
+}
+
+.login-btn {
+    margin-left: 10px;
+    padding: 5px 15px 5px 15px;
+}
+
+.navbar a {
+    font-weight: 500;
+}
+
+.nav-item {
+    margin-right: 15px;
+    float: left;
+    position: relative;
+}
+
+.nav-item:last-child {
+    margin: 0;
+}
+
+.nav-item .nav-link:before {
+    position: absolute;
+    content: "";
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--green);
+    border-radius: 5px 5px 0 0;
+    opacity: 0;
+    visibility: hidden;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+}
+
+.nav-item:hover .nav-link:before {
+    opacity: 1;
+    width: 100%;
+    visibility: visible;
+}
+
+h4 {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+p {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.ebook-light {
+    filter: invert(100%) sepia(97%) saturate(12%) hue-rotate(240deg) brightness(105%) contrast(103%);
+}
+
+/* SHOWCASE */
+.showcase .showcase-text {
+    padding: 3rem;
+}
+
+.showcase .showcase-img {
+    min-height: 30rem;
+    background-size: cover;
+}
+
+@media (min-width: 768px) {
+    .showcase .showcase-text {
+        padding: 7rem;
+    }
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.underline h3:before, .underline h2:before {
+    position: absolute;
+    content: "";
+    bottom: 0;
+    height: 2px;
+    width: 50px;
+    background: var(--green);
+}
+
+.zoom:hover {
+    transform: scale(2);
+}

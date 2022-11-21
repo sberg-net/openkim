@@ -1,0 +1,67 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span style="font-weight: bold">Abfrage der DNS-Einträge (A, PTR, SRV - Records) über den Konnektor </span><span
+            th:text="${konnektor.ip}">ID</span><br/>
+    </div>
+    <div th:if="${fehler}" class="col-sm-8 col-lg-7 mb-3 p-0 pr-1" style="color:red">
+        <span>Beim Durchsuchen ist ein Fehler aufgetreten</span>
+    </div>
+    <div th:if="${!logs.trim().isEmpty()}" class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span class="font-weight-bold">Logs/Performancelogs</span>
+        <span th:utext="${logs}"></span>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-6 col-lg-4 mb-3 p-0 pr-1">
+        <input type="text" class="form-control pr-0" id="domain" placeholder="Adresse">
+    </div>
+    <div class="col-sm-1 col-lg-2 mb-3 p-0 pr-1">
+        <select class="form-control" id="recordType" name="recordType" required>
+            <option value="A">A</option>
+            <option value="PTR">PTR</option>
+            <option value="SRV">SRV</option>
+        </select>
+    </div>
+    <div class="col-sm-1 col-lg-2 mb-3 p-0 pr-1">
+        <button type="button" id="searchBtn" class="btn btn-primary btn-block"
+                th:attrappend="data-konnid=${konnektor.uuid}" onclick="dnsUebersicht($(this).attr('data-konnid'));">
+            <span data-feather="search"></span>
+            Suchen
+        </button>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-12 col-lg-4 mb-3 p-0 pr-1">
+        <button type="button" id="backBtn" class="btn btn-primary btn-block" onclick="dnsUebersichtClose();">
+            Zurück zu den Konnektoreinstellungen
+        </button>
+    </div>
+    <div class="col-12 mb-3 p-0">
+    <span class="font-weight-bolder">
+      <span th:text="${#lists.size(eintraege)}"></span>&nbsp;DNS-Einträge vorhanden
+    </span>
+    </div>
+</div>
+<table class="table" xmlns:th="http://www.thymeleaf.org">
+    <thead>
+    <tr>
+        <th>Adresse</th>
+        <th>Name</th>
+        <th>Typ</th>
+        <th>DClass</th>
+        <th>TTL</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${eintraege.isEmpty()}">
+        <td colspan="2">Keine DNS-Einträge verfügbar</td>
+    </tr>
+    <tr th:each="n : ${eintraege}">
+        <td><span th:text="${n.address}">Adresse</span></td>
+        <td><span th:text="${n.name}">Name</span></td>
+        <td><span th:text="${n.type}">typ</span></td>
+        <td><span th:text="${n.dclass}">dclass</span></td>
+        <td><span th:text="${n.ttl}">ttl</span></td>
+    </tr>
+    </tbody>
+</table>

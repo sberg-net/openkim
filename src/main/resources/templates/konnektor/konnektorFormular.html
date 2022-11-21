@@ -1,0 +1,398 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org" th:if="${!contextInfoAvailable}">
+    <div class="col-12 p-0">
+        <div class="alert alert-danger mt-2 mb-2 text-break" role="alert">
+            Bitte hinterlegen Sie in den Konfigurationseinstellungen "Kontextinformationen für die Konnektoren" die
+            entsprechenden Angaben für den Mandant, Workplace und Clientsystem.
+            Wenn Sie die Daten hinterlegt haben, können entsprechend die Service-Endpunkte getestet werden.
+            Mailversand und Mailempfang wird dann ebenfalls freigeschalten.
+        </div>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org" th:if="${contextInfoAvailable}">
+    <div class="col-12 p-0">
+        <div class="mt-2 mb-2 text-break">
+            Mit folgenden Kontextinformationen wird der Konnektor angefragt. Bitte stellen Sie sicher, dass Mandant,
+            Workplace und Clientsystem entsprechend im Konnektor hinterlegt sind:
+        </div>
+        <div class="mt-2 mb-2 text-break font-weight-bold" th:text="${konnektorContext}"></div>
+    </div>
+</div>
+<div class="row" xmlns:th="http://www.thymeleaf.org" th:if="${!konnektor.konnektorServiceBeans.isEmpty()}">
+    <div class="col-12 p-0">
+        <div class="mt-2 mb-2 text-break font-weight-bold" th:if="${!konnektor.eccEncryptionAvailable}">ECC Encryption
+            am Konnektor ist NICHT verfügbar
+        </div>
+        <div class="mt-2 mb-2 text-break font-weight-bold" th:if="${konnektor.eccEncryptionAvailable}">ECC Encryption am
+            Konnektor ist verfügbar
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="konnektorForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;"
+              enctype="multipart/form-data">
+
+            <input type="hidden" id="uuid" name="uuid" th:value="${konnektor.uuid}">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Einstellungen des Konnektors</h5>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input"
+                                       th:attr="checked=${konnektor.activated?'true':'false'}" id="activated"
+                                       onclick="toggleAcivateChecked('activated', ['ip', 'name', 'timeout', 'konnektorAuthMethod','certAuthPwd','certAuthPwdCheck','certFilename','basicAuthUser','basicAuthPwd','basicAuthPwdCheck'])">
+                                <label class="form-check-label" for="activated">Aktiviert</label>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="ip">IP-Adresse</label>
+                                <input type="text" th:value="${konnektor.ip}" class="form-control" id="ip" name="ip"
+                                       required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="name">Name</label>
+                                <input type="text" th:value="${konnektor.name}" class="form-control" id="name"
+                                       name="name" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="sdsUrl">SDS-Url</label>
+                                <input type="text" th:value="${konnektor.sdsUrl}" class="form-control" id="sdsUrl"
+                                       name="sdsUrl" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="tiEnvironment">Telematikinfrastruktur - Umgebung</label>
+                                <select class="form-control" id="tiEnvironment" name="tiEnvironment" required>
+                                    <option value="TU" th:if="${konnektor.tiEnvironment != null}"
+                                            th:attrappend="selected=${konnektor.tiEnvironment.name() == 'TU'?'selected':''}">
+                                        Testumgebung
+                                    </option>
+                                    <option value="RU" th:if="${konnektor.tiEnvironment != null}"
+                                            th:attrappend="selected=${konnektor.tiEnvironment.name() == 'RU'?'selected':''}">
+                                        Referenzumgebung
+                                    </option>
+                                    <option value="PU" th:if="${konnektor.tiEnvironment != null}"
+                                            th:attrappend="selected=${konnektor.tiEnvironment.name() == 'PU'?'selected':''}">
+                                        Produktionsumgebung
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="timeout">Timeout in Sekunden</label>
+                                <input type="number" th:value="${konnektor.timeoutInSeconds}" class="form-control"
+                                       id="timeout" name="timeout" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorAuthMethod">Konnektor Authentifizierungsmethode</label>
+                                <select class="form-control" id="konnektorAuthMethod" name="konnektorAuthMethod"
+                                        required
+                                        onchange="toggleAcivateSelected('konnektorAuthMethod', 'CERT', ['certAuthPwd','certAuthPwdCheck','certFilename']),toggleAcivateSelected('konnektorAuthMethod', 'BASICAUTH', ['basicAuthUser','basicAuthPwd','basicAuthPwdCheck'])">
+                                    <option value="NONE" th:if="${konnektor.konnektorAuthMethod != null}"
+                                            th:attrappend="selected=${konnektor.konnektorAuthMethod.name() == 'NONE'?'selected':''}">
+                                        Keine
+                                    </option>
+                                    <option value="CERT" th:if="${konnektor.konnektorAuthMethod != null}"
+                                            th:attrappend="selected=${konnektor.konnektorAuthMethod.name() == 'CERT'?'selected':''}">
+                                        Zertifikatsbasiert
+                                    </option>
+                                    <option value="BASICAUTH" th:if="${konnektor.konnektorAuthMethod != null}"
+                                            th:attrappend="selected=${konnektor.konnektorAuthMethod.name() == 'BASICAUTH'?'selected':''}">
+                                        Basic-Authentifizierung
+                                    </option>
+                                    <option value="NONE" th:if="${konnektor.konnektorAuthMethod == null}">Keine</option>
+                                    <option value="CERT" th:if="${konnektor.konnektorAuthMethod == null}">
+                                        Zertifikatsbasiert
+                                    </option>
+                                    <option value="BASICAUTH" th:if="${konnektor.konnektorAuthMethod == null}">
+                                        Basic-Authentifizierung
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="clientCertAuthPwd">Clienttzertifikats-Keystore-Passwort</label>
+                                <input type="password" th:value="${konnektor.clientCertAuthPwd}" class="form-control"
+                                       th:attrappend="disabled=${konnektor.konnektorAuthMethod.name() != 'CERT'?'disabled':''}"
+                                       id="clientCertAuthPwd" name="clientCertAuthPwd" required>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="clientCertAuthPwdCheck"
+                                       th:attrappend="disabled=${konnektor.konnektorAuthMethod.name() != 'CERT'?'disabled':''}"
+                                       onclick="togglePwdVisibility('clientCertAuthPwd')">
+                                <label class="form-check-label" for="clientCertAuthPwdCheck">Passwort in Klartext
+                                    anzeigen</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="clientCertFile">Clientzertifikats-Keystore-Datei</label>
+                                <input type="file" class="form-control-file" id="clientCertFile"
+                                       th:attrappend="disabled=${konnektor.konnektorAuthMethod.name() != 'CERT'?'disabled':''}"
+                                       name="clientCertFile">
+                                <span th:if="${konnektor.clientCertFilename != null}"
+                                      th:text="${konnektor.clientCertFilename}">dateiname</span>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="basicAuthUser">Basic-Authentifizierung-Nutzer</label>
+                                <input type="text" th:value="${konnektor.basicAuthUser}" class="form-control"
+                                       th:attrappend="disabled=${konnektor.konnektorAuthMethod.name() != 'BASICAUTH'?'disabled':''}"
+                                       id="basicAuthUser" name="basicAuthUser" required>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="basicAuthPwd">Basic-Authentifizierung-Passwort</label>
+                                <input type="password" th:value="${konnektor.basicAuthPwd}"
+                                       th:attrappend="disabled=${konnektor.konnektorAuthMethod.name() != 'BASICAUTH'?'disabled':''}"
+                                       class="form-control" id="basicAuthPwd" name="basicAuthPwd" required>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="basicAuthPwdCheck"
+                                       th:attrappend="disabled=${konnektor.konnektorAuthMethod.name() != 'BASICAUTH'?'disabled':''}"
+                                       onclick="togglePwdVisibility('basicAuthPwd')">
+                                <label class="form-check-label" for="basicAuthPwdCheck">Passwort in Klartext
+                                    anzeigen</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="serverCertFile">Serverzertifikats-Datei in den Trustore hinzufügen</label>
+                                <input type="file" class="form-control-file" id="serverCertFile" name="serverCertFile">
+                            </div>
+
+                            <div>
+                                <label for="productName">Produktname</label>
+                                <input type="text" th:value="${konnektor.productName}" class="form-control"
+                                       id="productName" name="productName" disabled>
+                            </div>
+
+                            <div>
+                                <label for="productType">Produkttyp</label>
+                                <input type="text" th:value="${konnektor.productType}" class="form-control"
+                                       id="productType" name="productType" disabled>
+                            </div>
+
+                            <div>
+                                <label for="productTypeVersion">Produktyp-Version</label>
+                                <input type="text" th:value="${konnektor.productTypeVersion}" class="form-control"
+                                       id="productTypeVersion" name="productTypeVersion" disabled>
+                            </div>
+
+                            <div>
+                                <label for="hwVersion">Hardware-Version</label>
+                                <input type="text" th:value="${konnektor.hwVersion}" class="form-control" id="hwVersion"
+                                       name="hwVersion" disabled>
+                            </div>
+
+                            <div>
+                                <label for="fwVersion">Fimware-Version</label>
+                                <input type="text" th:value="${konnektor.fwVersion}" class="form-control" id="fwVersion"
+                                       name="fwVersion" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-2 pb-1">
+                        <button class="btn btn-secondary btn-block" onclick="konfigUebersicht();">Schließen</button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block" onclick="konnektorSpeichern()">Speichern</button>
+                        <div class="spinner-border" id="openkim-spinner" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="konnektorFormError">
+            </div>
+        </form>
+        <!-- Karten des Konnektors -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Gesteckte Karten</h5>
+
+                <div class="row" xmlns:th="http://www.thymeleaf.org">
+          <span class="font-weight-bolder">
+            <span th:text="${#lists.size(konnektor.cards)}"></span>&nbsp;Karten vorhanden
+          </span>
+                </div>
+
+                <div class="row" xmlns:th="http://www.thymeleaf.org">
+                    <div class="col-12 p-0">
+                        <div class="mt-2 mb-2 text-break">
+                            Mit folgenden Kontextinformationen wird der Konnektor angefragt. Die PINS der SMC - und HBA
+                            - Karten müssen verifiziert sein!
+                        </div>
+                        <div class="mt-2 mb-2 text-break font-weight-bold" th:text="${konnektorContext}"></div>
+                    </div>
+                </div>
+
+            </div>
+            <table class="table" xmlns:th="http://www.thymeleaf.org">
+                <thead>
+                <tr>
+                    <th>Typ</th>
+                    <th>ICSSN</th>
+                    <th>TelematikID</th>
+                    <th>PIN-Status</th>
+                    <th>Terminal</th>
+                    <th>Slot</th>
+                    <th>Kartenhandle</th>
+                    <th>Gültig bis</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${konnektor.cards.isEmpty()}">
+                    <td colspan="2">Keine Karten verfügbar</td>
+                </tr>
+                <tr th:each="n : ${konnektor.cards}">
+                    <td><span th:text="${n.cardType}">typ</span></td>
+                    <td><span th:text="${n.iccsn}">typ</span></td>
+                    <td><span th:text="${n.telematikId}">typ</span></td>
+                    <td th:if="${n.pinStatus == null}"></td>
+                    <td th:if="${n.pinStatus != null && !n.pinStatus.equals('VERIFIABLE')}">
+                        <span th:text="${n.pinStatus}">typ</span>
+                    </td>
+                    <td th:if="${n.pinStatus != null && n.pinStatus.equals('VERIFIABLE')}">
+                        <span th:text="${n.pinStatus}">typ</span>
+                        <span style="cursor:pointer;color:blue"
+                              th:attrappend="data-konnid=${konnektor.uuid}, data-wsid=${n.wsId}, data-opid=${n.verifyPinOpId}, data-pintyp=${n.pinTyp}, data-cardhandle=${n.cardHandle}"
+                              onclick="verifyPinUebersicht($(this).attr('data-konnid'),$(this).attr('data-wsid'),$(this).attr('data-opid'),$(this).attr('data-pintyp'),$(this).attr('data-cardhandle'))"
+                        >Verifizieren</span>
+                    </td>
+                    <td><span th:text="${n.cardTerminal}">typ</span></td>
+                    <td><span th:text="${n.cardSlot}">typ</span></td>
+                    <td><span th:text="${n.cardHandle}">typ</span></td>
+                    <td><span th:text="${n.expiredAt}">typ</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Service Endpunkte -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Service-Endpunkte</h5>
+
+                <div class="row" xmlns:th="http://www.thymeleaf.org">
+          <span class="font-weight-bolder">
+            <span th:text="${#lists.size(konnektor.konnektorServiceBeans)}"></span>&nbsp;Service-Endpunkte vorhanden
+          </span>
+                </div>
+            </div>
+            <table class="table" xmlns:th="http://www.thymeleaf.org">
+                <thead>
+                <tr>
+                    <th>Typ</th>
+                    <th>Version</th>
+                    <th>Endpunkt</th>
+                    <th>TLS-Endpunkt</th>
+                    <th th:if="${contextInfoAvailable}">Aktion</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${konnektor.konnektorServiceBeans.isEmpty()}">
+                    <td colspan="2">Keine Service-Endpunkte verfügbar</td>
+                </tr>
+                <tr th:each="n : ${konnektor.konnektorServiceBeans}">
+                    <td><span th:text="${n.enumKonnektorServiceBeanType.name()}">enumKonnektorServiceBeanType</span>
+                    </td>
+                    <td><span th:text="${n.version}">Version</span></td>
+                    <td><span th:text="${n.endpoint}">Endpunkt</span></td>
+                    <td><span th:text="${n.endpointTls}">TLS-Endpunkt</span></td>
+                    <td th:if="${contextInfoAvailable}"><span style="cursor:pointer;color:blue"
+                                                              th:attrappend="data-konnid=${konnektor.uuid}, data-wsid=${n.id}"
+                                                              onclick="konnWebserviceUebersicht($(this).attr('data-konnid'),$(this).attr('data-wsid'))">Testen</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- LDAP VZD -->
+        <div class="card" th:if="${konnektor.vzdLdapServerState != null}">
+            <div class="card-body">
+                <h5 class="card-title">Zugriff auf den Gematik-Verzeichnisdienst per LDAP</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div th:if="${!konnektor.vzdLdapServerState.active}">
+                            <span th:text="${konnektor.vzdLdapServerState.name}" class="font-weight-bold">n.a.</span>
+                            <span>***Nicht aktiviert***</span>
+                        </div>
+                        <div th:if="${konnektor.vzdLdapServerState.active}">
+                            <span th:text="${konnektor.vzdLdapServerState.name}" class="font-weight-bold">n.a.</span>
+                            &nbsp;&nbsp;
+                            <span th:text="${konnektor.vzdLdapServerState.host}">n.a.</span>
+                            &nbsp;&nbsp;
+                            <span th:text="${konnektor.vzdLdapServerState.port}">n.a.</span>
+                            &nbsp;&nbsp;
+                            <span th:if="${konnektor.vzdLdapServerState.alive}" data-feather="smile"></span>
+                            <span th:if="${konnektor.vzdLdapServerState.alive}" data-feather="check"></span>
+                            <span th:if="${!konnektor.vzdLdapServerState.alive}" data-feather="frown"></span>
+                            <span th:if="${!konnektor.vzdLdapServerState.alive}" data-feather="cloud-off"></span>
+                            <span style="cursor:pointer;color:blue" th:attrappend="data-konnid=${konnektor.uuid}"
+                                  onclick="vzdUebersicht($(this).attr('data-konnid'))">Testen/Suchen</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- NTP Service des Konnektors -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Zugriff auf den Zeitdienst per UDP</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div>
+                            <span class="font-weight-bold">NTP-Service des Konnektors</span>&nbsp;&nbsp;
+                            <span th:text="${konnektor.ip}">n.a.</span>&nbsp;
+                            <span>123</span>&nbsp;
+                            <span style="cursor:pointer;color:blue" th:attrappend="data-konnid=${konnektor.uuid}"
+                                  onclick="ntpUebersicht($(this).attr('data-konnid'))">Testen</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- DNS Service des Konnektors -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Zugriff auf den DNS-Service</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div>
+                            <span class="font-weight-bold">DNS-Service des Konnektors</span>&nbsp;&nbsp;
+                            <span th:text="${konnektor.ip}">n.a.</span>&nbsp;
+                            <span>53</span>&nbsp;
+                            <span style="cursor:pointer;color:blue" th:attrappend="data-konnid=${konnektor.uuid}"
+                                  onclick="dnsUebersicht($(this).attr('data-konnid'))">Testen</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    feather.replace();
+</script>

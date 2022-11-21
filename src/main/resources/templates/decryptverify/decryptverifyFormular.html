@@ -1,0 +1,103 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-12 p-0">
+        <div class="mt-2 mb-2 text-break">
+            Hier kann eine Maildatei hochgeladen werden. Die Datei wird entschlüsselt und deren Signatur überprüft.
+        </div>
+    </div>
+    <div th:if="${fehler}" class="col-sm-8 col-lg-12 mb-3 p-0 pr-1" style="color:red">
+        <span>Beim Entschlüsseln/Verifizieren ist ein Fehler aufgetreten</span>
+    </div>
+    <div th:if="${!logs.trim().isEmpty()}" class="col-sm-8 col-lg-12 mb-3 p-0 pr-1">
+        <span class="font-weight-bold">Logs/Performancelogs</span>
+        <span th:utext="${logs}"></span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="decryptverifyForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;"
+              enctype="multipart/form-data">
+
+            <input type="hidden" id="id" name="id" th:value="${result.id}">
+            <input type="hidden" id="mailFilename" name="mailFilename" th:value="${result.mailFilename}">
+            <input type="hidden" id="mailContent" name="mailContent" th:value="${result.mailContent}">
+            <input type="hidden" id="mailDecryptedContent" name="mailDecryptedContent"
+                   th:value="${result.mailDecryptedContent}">
+
+            <div class="row">
+                <div class="col-12 col-lg-12">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Mail</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="userMailAddress">Mail-Adresse des Nutzers</label>
+                                <input type="text" class="form-control" id="userMailAddress" name="userMailAddress"
+                                       th:value="${result.userMailAddress}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mailFilename">Datei</label>
+                                <input type="file" class="form-control-file" id="mailFile" name="mailFile">
+                                <span th:if="${result.mailFilename != null}" th:text="${result.mailFilename}">mailFilename</span>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorId">Auswahl des Konnektors</label>
+                                <select class="form-control" id="konnektorId" name="konnektorId" required>
+                                    <option th:each="konn : ${konnektoren}" th:value="${konn.uuid}" th:text="${konn.ip}"
+                                            th:attrappend="selected=${konn.uuid.equals(result.konnektorId)?'selected':''}"></option>
+                                </select>
+                            </div>
+
+                            <div id="accordion">
+                                <div th:if="${result.mailContent != null}">
+                                    <div class="card-header" id="headingCollapseOriginMail">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" data-toggle="collapse"
+                                                    data-target="#collapseOriginMail" aria-expanded="true"
+                                                    aria-controls="collapseOriginMail">
+                                                Anzeige der Originalmail
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseOriginMail" class="collapse"
+                                         aria-labelledby="headingCollapseOriginMail" data-parent="#accordion">
+                                        <pre th:text="${result.mailContent}"></pre>
+                                    </div>
+                                </div>
+                                <div th:if="${result.mailDecryptedContent != null}">
+                                    <div class="card-header" id="headingCollapseDecryptedMail">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" data-toggle="collapse"
+                                                    data-target="#collapseDecryptedMail" aria-expanded="true"
+                                                    aria-controls="collapseDecryptedMail">
+                                                Anzeige der entschlüsselten Mail
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseDecryptedMail" class="collapse"
+                                         aria-labelledby="headingCollapseDecryptedMail" data-parent="#accordion">
+                                        <pre th:text="${result.mailDecryptedContent}"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <button class="btn btn-primary btn-block" onclick="decryptverifyLaden(true)">Entschlüsseln und
+                            Verifizieren
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="decryptverifyFormError">
+            </div>
+        </form>
+    </div>
+</div>

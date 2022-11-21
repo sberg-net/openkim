@@ -1,0 +1,201 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span style="font-weight: bold">Ausführen des Webservices, um Karten und Kartenterminals zu lesen am Konnektor </span><span
+            style="font-weight: bold" th:text="${konnektor.ip}">ID</span>
+        <span>Es können folgende Kartentypen gelesen werden.
+      <ul>
+        <li>EGK</li>
+        <li>HBA_Q_SIG</li>
+        <li>HBA</li>
+        <li>HB_AX</li>
+        <li>SMC_B</li>
+        <li>HSM_B</li>
+        <li>SMC_KT</li>
+        <li>KVK</li>
+        <li>ZOD_2_0</li>
+        <li>SM_B</li>
+      </ul>
+    </span>
+    </div>
+</div>
+<!-- getCardsForm -->
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="getCardsForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <input type="hidden" id="konnId" name="konnId" th:value="${konnId}">
+            <input type="hidden" id="wsId" name="wsId" th:value="${wsId}">
+            <input type="hidden" id="opId" name="opId" value="GetCards">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Lesen von Karteninformationen</h5>
+
+                            <div class="form-group">
+                                <label for="ctId">Kartenterminal</label>
+                                <input type="text" class="form-control" id="ctId" name="ctId">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="slotId">Slot</label>
+                                <input type="number" class="form-control" id="slotId" name="slotId">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cardType">Kartentyp (Typen sind oben genannt)</label>
+                                <input type="text" class="form-control" id="cardType" name="cardType">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-6 pb-1">
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${konnId}"
+                                onclick="konnektorLaden($(this).attr('data-konnid'));">Zurück zu den
+                            Konnektoreinstellungen
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block" onclick="konnWebserviceAusfuehren('getCardsForm')">
+                            Ausführen
+                        </button>
+                        <div class="spinner-border" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="getCardsFormError">
+            </div>
+
+            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="getCardsFormResult">
+            </div>
+        </form>
+    </div>
+</div>
+<!-- getCardTerminalsForm -->
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="getCardTerminalsForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <input type="hidden" name="konnId" th:value="${konnId}">
+            <input type="hidden" name="wsId" th:value="${wsId}">
+            <input type="hidden" name="opId" value="GetCardTerminals">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Lesen von Kartenterminalinformationen</h5>
+                            <span style="font-weight: bold">Es sind keine weiteren Eingaben erforderlich, um die Terminals anzufragen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-6 pb-1">
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${konnId}"
+                                onclick="konnektorLaden($(this).attr('data-konnid'));">Zurück zu den
+                            Konnektoreinstellungen
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block"
+                                onclick="konnWebserviceAusfuehren('getCardTerminalsForm')">Ausführen
+                        </button>
+                        <div class="spinner-border" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="getCardTerminalsFormError">
+            </div>
+
+            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="getCardTerminalsFormResult">
+            </div>
+        </form>
+    </div>
+</div>
+<!-- getResourceInformationForm -->
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="getResourceInformationForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <input type="hidden" name="konnId" th:value="${konnId}">
+            <input type="hidden" name="wsId" th:value="${wsId}">
+            <input type="hidden" name="opId" value="GetResourceInformation">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Lesen von Resourceinformationen (je nach Eingabe)</h5>
+                            <span style="font-weight: bold">Wenn keine Eingaben vorgenommen werden, werden die Informationen des Konnektors zurückgegeben</span>
+
+                            <div class="form-group">
+                                <label for="ctId">Kartenterminal</label>
+                                <input type="text" class="form-control" name="ctId">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ctId">Slot</label>
+                                <input type="text" class="form-control" name="ctId">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="iccsn">Karten-ICCSN</label>
+                                <input type="text" class="form-control" id="iccsn" name="iccsn">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cardHandle">Kartenhandle</label>
+                                <input type="text" class="form-control" id="cardHandle" name="cardHandle">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-6 pb-1">
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${konnId}"
+                                onclick="konnektorLaden($(this).attr('data-konnid'));">Zurück zu den
+                            Konnektoreinstellungen
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block"
+                                onclick="konnWebserviceAusfuehren('getResourceInformationForm')">Ausführen
+                        </button>
+                        <div class="spinner-border" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="getResourceInformationFormError">
+            </div>
+
+            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none"
+                 id="getResourceInformationFormResult">
+            </div>
+        </form>
+    </div>
+</div>

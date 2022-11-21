@@ -1,0 +1,206 @@
+<div class="row mt-3" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-12 p-0">
+        <div class="alert alert-danger" role="alert" style="display:none" id="konfigError">
+        </div>
+        <div class="card">
+            <div class="card-body" th:if="${konfig.gatewayHost != null}">
+                <h5 class="card-title">Konfiguration vorhanden</h5>
+                <p class="card-text">Sie können die Werte anpassen</p>
+                <button class="btn btn-primary" onclick="konfigLaden()">Bearbeiten</button>
+            </div>
+            <div class="card-body" th:if="${konfig.gatewayHost == null}">
+                <h5 class="card-title">Konfiguration nicht vorhanden</h5>
+                <p class="card-text">Bitte bearbeiten Sie die Werte</p>
+                <button class="btn btn-primary" onclick="konfigLaden()">Bearbeiten</button>
+            </div>
+        </div>
+        <!-- Allgemeine Einstellungen -->
+        <div class="card" th:if="${konfig.gatewayHost != null}">
+            <div class="card-body">
+                <h5 class="card-title">Allgemeine Einstellungen</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><span class="font-weight-bold">Gateway-Host&nbsp;&nbsp;</span><span
+                            th:text="${konfig.gatewayHost}">n.a.</span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Time to Live für gecachte Verschlüsselungszertifikate und Prüfergebnisse in Stunden&nbsp;&nbsp;</span><span
+                            th:text="${konfig.ttlEncCertInHours}"></span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Time to Live für gecachte Zuordnungen von E-Mail-Adressen der Sender bzw. Empfänger zu ICCSNs von deren HBAs/SM-Bs in Tagen&nbsp;&nbsp;</span><span
+                            th:text="${konfig.ttlEmailIccsnInDays}"></span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Time to Live für Protokolldateien in Tagen&nbsp;&nbsp;</span><span
+                            th:text="${konfig.ttlProtsInDays}"></span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Loggen von persönlichen Informationen (Achtung: NUR zu Debuggingzwecken aktivieren)&nbsp;&nbsp;</span><span
+                            th:if="${konfig.logPersonalInformations}">Ja</span><span
+                            th:if="${!konfig.logPersonalInformations}">Nein</span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Loggen von Aktionen bzgl. Konnektor-Aktivitäten (WebSerivces, ....) (Achtung: NUR zu Debuggingzwecken aktivieren)&nbsp;&nbsp;</span><span
+                            th:if="${konfig.logKonnektorExecute}">Ja</span><span th:if="${!konfig.logKonnektorExecute}">Nein</span>
+                    </li>
+                    <li class="list-group-item"><span
+                            class="font-weight-bold">Maximale Mailgröße in MB&nbsp;&nbsp;</span><span
+                            th:text="${konfig.mailSizeLimitInMB}">n.a.</span></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Fachdienstinformationen -->
+        <div class="card" th:if="${konfig.gatewayHost != null}">
+            <div class="card-body">
+                <h5 class="card-title">Fachdienstinformationen</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><span class="font-weight-bold">Timeout in Sekunden für den KAS-Service (KAS = Kim Attachment Service)&nbsp;&nbsp;</span><span
+                            th:text="${konfig.fachdienstKasTimeOutInSeconds}">n.a.</span></li>
+                    <li class="list-group-item"><span
+                            class="font-weight-bold">Zertifikats-Keystore-Datei&nbsp;&nbsp;</span><span
+                            th:text="${konfig.fachdienstCertFilename}">n.a.</span></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Kontextinformationen für die Konnektoren -->
+        <div class="card" th:if="${konfig.gatewayHost != null}">
+            <div class="card-body">
+                <h5 class="card-title">Kontextinformationen für die Konnektoren - In den einzelnen Konnektoren muss der
+                    Kontext hinterlegt sein</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><span class="font-weight-bold">Mandant-ID für das Registrieren von OpenKIM in den Konnektoren&nbsp;&nbsp;</span><span
+                            th:text="${konfig.mandantId}">n.a.</span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Workplace-ID&nbsp; für das Registrieren von OpenKIM in den Konnektoren&nbsp;</span><span
+                            th:text="${konfig.clientSystemId}">n.a.</span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Clientsystem-ID für das Registrieren von OpenKIM in den Konnektoren&nbsp;&nbsp;</span><span
+                            th:text="${konfig.workplaceId}">n.a.</span></li>
+                </ul>
+            </div>
+        </div>
+        <!-- OpenKIM-SMTP-Einstellungen -->
+        <div class="card" th:if="${konfig.gatewayHost != null}">
+            <div class="card-body">
+                <h5 class="card-title">OpenKIM-SMTP-Einstellungen</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><span class="font-weight-bold">Schreiben der SMTP Session Logdatei je versendender Mail&nbsp;&nbsp;</span><span
+                            th:if="${konfig.writeSmtpCmdLogFile}">Ja</span><span th:if="${!konfig.writeSmtpCmdLogFile}">Nein</span>
+                    </li>
+                    <li class="list-group-item"><span class="font-weight-bold">SMTP-Gateway-Port&nbsp;&nbsp;</span><span
+                            th:text="${konfig.smtpGatewayPort}"></span></li>
+                    <li class="list-group-item"><span
+                            class="font-weight-bold">SMTP-Gateway-Security&nbsp;&nbsp;</span><span
+                            th:text="${konfig.smtpGatewayConnectionSec != null?konfig.smtpGatewayConnectionSec.getHrText():''}"></span>
+                    </li>
+                    <li class="list-group-item"><span class="font-weight-bold">SMTP-Gateway-Idle-Timeout in Sekunden&nbsp;&nbsp;</span><span
+                            th:text="${konfig.smtpGatewayIdleTimeoutInSeconds}"></span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">SMTP-Client-Idle-Timeout in Sekunden&nbsp;&nbsp;</span><span
+                            th:text="${konfig.smtpClientIdleTimeoutInSeconds}"></span></li>
+                </ul>
+            </div>
+        </div>
+        <!-- OpenKIM-POP3-Einstellungen -->
+        <div class="card" th:if="${konfig.gatewayHost != null}">
+            <div class="card-body">
+                <h5 class="card-title">OpenKIM-POP3-Einstellungen</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><span class="font-weight-bold">Schreiben der POP3 Session Logdatei je empfangener Mail&nbsp;&nbsp;</span><span
+                            th:if="${konfig.writePop3CmdLogFile}">Ja</span><span th:if="${!konfig.writePop3CmdLogFile}">Nein</span>
+                    </li>
+                    <li class="list-group-item"><span class="font-weight-bold">POP3-Gateway-Port&nbsp;&nbsp;</span><span
+                            th:text="${konfig.pop3GatewayPort}"></span></li>
+                    <li class="list-group-item"><span
+                            class="font-weight-bold">POP3-Gateway-Security&nbsp;&nbsp;</span><span
+                            th:text="${konfig.pop3GatewayConnectionSec != null?konfig.pop3GatewayConnectionSec.getHrText():''}"></span>
+                    </li>
+                    <li class="list-group-item"><span class="font-weight-bold">POP3-Gateway-Idle-Timeout in Sekunden&nbsp;&nbsp;</span><span
+                            th:text="${konfig.pop3GatewayIdleTimeoutInSeconds}"></span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">POP3-Client-Idle-Timeout in Sekunden&nbsp;&nbsp;</span><span
+                            th:text="${konfig.pop3ClientIdleTimeoutInSeconds}"></span></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Konnektoren -->
+        <div class="card" th:if="${konfig.gatewayHost != null}">
+            <div class="card-body">
+                <h5 class="card-title">Konnektoren</h5>
+
+                <div class="alert alert-danger" role="alert" style="display:none" id="konnektorTableError">
+                </div>
+
+                <div class="row" xmlns:th="http://www.thymeleaf.org">
+                    <div class="col-sm-4 col-lg-3 mb-3 p-0 pr-1">
+                        <button type="button" id="konnektorLaden" class="btn btn-primary btn-block"
+                                onclick="konnektorLaden('-1')">
+                            <span data-feather="user-plus"></span>
+                            Konnektor Anlegen
+                        </button>
+                    </div>
+                    <div class="col-12 mb-3 p-0">
+            <span class="font-weight-bolder">
+              <span th:text="${#lists.size(konfig.konnektoren)}"></span>&nbsp;Konnektoren vorhanden
+            </span>
+                    </div>
+                </div>
+
+                <table class="table" id="konnektorTable" xmlns:th="http://www.thymeleaf.org">
+                    <thead>
+                    <tr>
+                        <th>Uuid</th>
+                        <th>IP-Adresse</th>
+                        <th>Name</th>
+                        <th>Service-Endpunkte geladen</th>
+                        <th>TLS Port 443 aktiv</th>
+                        <th>Mit TI verbunden</th>
+                        <th>Mit SIS verbunden</th>
+                        <th>Aktiviert</th>
+                        <th class="d-none d-md-block">Aktionen</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${konfig.konnektoren.isEmpty()}">
+                        <td colspan="2">Keine Konnektoren verfügbar</td>
+                    </tr>
+                    <tr th:each="n : ${konfig.konnektoren}">
+                        <td><span th:text="${n.uuid}">ID</span></td>
+                        <td><span th:text="${n.ip}">ID</span></td>
+                        <td><span th:text="${n.name}">Name</span></td>
+
+                        <td>
+                            <span th:if="${n.konnektorServiceBeansLoaded}" data-feather="smile"></span>
+                            <span th:if="${n.konnektorServiceBeansLoaded}" data-feather="check"></span>
+                            <span th:if="${!n.konnektorServiceBeansLoaded}" data-feather="frown"></span>
+                            <span th:if="${!n.konnektorServiceBeansLoaded}" data-feather="cloud-off"></span>
+                        </td>
+
+                        <td>
+                            <span th:if="${n.tlsPortServerState.alive}" data-feather="smile"></span>
+                            <span th:if="${n.tlsPortServerState.alive}" data-feather="check"></span>
+                            <span th:if="${!n.tlsPortServerState.alive}" data-feather="frown"></span>
+                            <span th:if="${!n.tlsPortServerState.alive}" data-feather="cloud-off"></span>
+                        </td>
+
+                        <td>
+                            <span th:if="${n.connectedWithTI}" data-feather="smile"></span>
+                            <span th:if="${n.connectedWithTI}" data-feather="check"></span>
+                            <span th:if="${!n.connectedWithTI}" data-feather="frown"></span>
+                            <span th:if="${!n.connectedWithTI}" data-feather="cloud-off"></span>
+                        </td>
+
+                        <td>
+                            <span th:if="${n.connectedWithSIS}" data-feather="smile"></span>
+                            <span th:if="${n.connectedWithSIS}" data-feather="check"></span>
+                            <span th:if="${!n.connectedWithSIS}" data-feather="frown"></span>
+                            <span th:if="${!n.connectedWithSIS}" data-feather="cloud-off"></span>
+                        </td>
+
+                        <td th:if="${n.activated}"><span>Ja</span></td>
+                        <td th:if="${!n.activated}"><span>Nein</span></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary mb-1 mb-sm-0" style="cursor: pointer"
+                                    title="Bearbeiten" th:attr="data-id=${n.uuid}"
+                                    onclick="konnektorLaden($(this).attr('data-id'))">
+                                <span data-feather="edit"></span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary mb-1 mb-sm-0" style="cursor: pointer"
+                                    title="Löschen" th:attr="data-id=${n.uuid}"
+                                    onclick="openkimContext.toDeleteKonnektor=$(this).attr('data-id');$('#confirmDialog4DeleteKonnektor').modal('show')">
+                                <span data-feather="delete"></span>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

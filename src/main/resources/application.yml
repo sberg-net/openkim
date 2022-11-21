@@ -1,0 +1,39 @@
+server:
+  servlet:
+    context-path: /
+  port: 8080
+  error:
+    include-stacktrace: always
+
+konfiguration:
+  gatewayHostDefaultWert: 127.0.0.1
+  smtpGatewayPortDefaultWert: 8888
+  pop3GatewayPortDefaultWert: 8889
+
+spring:
+  ldap:
+    base: dc=data,dc=vzd
+
+security:
+  authFile: "data/auth.cfg"
+  users:
+    - username: admin
+      password: "admin"
+      authorities: ROLE_ADMIN
+    - username: monitoring
+      password: "monitoring"
+      authorities: ROLE_MONITORING
+
+---
+
+spring:
+  config.activate.on-profile: dev
+
+server:
+  servlet:
+    context-path: /openkim
+
+konfiguration:
+  gatewayHostDefaultWert: 127.0.0.1
+  smtpGatewayPortDefaultWert: 8888
+  pop3GatewayPortDefaultWert: 8889

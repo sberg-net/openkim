@@ -1,0 +1,263 @@
+{
+  "ARVATO": {
+    "id": "ARVATO",
+    "services": [
+      {
+        "env": "RU",
+        "id": "SMTP",
+        "domain": "mail.arv.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "RU",
+        "id": "POP3",
+        "domain": "mail.arv.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "TU",
+        "id": "SMTP",
+        "domain": "mail.arv.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "TU",
+        "id": "POP3",
+        "domain": "mail.arv.kim.telematik-test",
+        "port": "995"
+      }
+    ]
+  },
+  "TSYSTEMS": {
+    "id": "TSYSTEMS",
+    "services": [
+      {
+        "env": "RU",
+        "id": "SMTP",
+        "domain": "mail-ref.eqxffm.tsi.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "RU",
+        "id": "POP3",
+        "domain": "mail-ref.eqxffm.tsi.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "RU",
+        "id": "AM",
+        "domain": "webportal-ref.eqxffm.tsi.kim.telematik-test",
+        "port": "443",
+        "contextpath": "/ws/rest"
+      },
+      {
+        "env": "RU",
+        "id": "KAS",
+        "domain": "mail-ref.eqxffm.tsi.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      }
+    ]
+  },
+  "CGM": {
+    "id": "CGM",
+    "services": [
+      {
+        "env": "RU",
+        "id": "SMTP",
+        "domain": "smtp-kim-ref.tm.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "RU",
+        "id": "SMTP",
+        "domain": "smtp-kim-ref.cgm.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "RU",
+        "id": "POP3",
+        "domain": "pop3-kim-ref.tm.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "RU",
+        "id": "POP3",
+        "domain": "pop3-kim-ref.cgm.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "TU",
+        "id": "SMTP",
+        "domain": "smtp-kim-test.tm.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "TU",
+        "id": "POP3",
+        "domain": "pop3-kim-test.tm.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "RU",
+        "id": "AM",
+        "domain": "acm-kim-ref.cgm.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "RU",
+        "id": "AM",
+        "domain": "acm-kim-ref.tm.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "RU",
+        "id": "KAS",
+        "domain": "as-kim-ref.cgm.kim.telematik-test",
+        "port": "8444",
+        "contextpath": ""
+      },
+      {
+        "env": "RU",
+        "id": "KAS",
+        "domain": "as-kim-ref.tm.kim.telematik-test",
+        "port": "8444",
+        "contextpath": ""
+      },
+      {
+        "env": "TU",
+        "id": "AM",
+        "domain": "acm-kim-test.tm.kim.telematik-test",
+        "port": "8443",
+        "contextpath": ""
+      },
+      {
+        "env": "TU",
+        "id": "KAS",
+        "domain": "as-kim-test.tm.kim.telematik-test",
+        "port": "8444",
+        "contextpath": ""
+      }
+    ]
+  },
+  "IBM": {
+    "id": "IBM",
+    "services": [
+      {
+        "env": "RU",
+        "id": "SMTP",
+        "domain": "mail.ibm.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "RU",
+        "id": "POP3",
+        "domain": "mail.ibm.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "TU",
+        "id": "SMTP",
+        "domain": "mail.ibm.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "TU",
+        "id": "POP3",
+        "domain": "mail.ibm.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "RU",
+        "id": "AM",
+        "domain": "acctmgr.ibm.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "RU",
+        "id": "KAS",
+        "domain": "kas.ibm.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "TU",
+        "id": "AM",
+        "domain": "acctmgr.ibm.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "TU",
+        "id": "KAS",
+        "domain": "kas.ibm.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      }
+    ]
+  },
+  "RISE": {
+    "id": "RISE",
+    "services": []
+  },
+  "AKQUINET": {
+    "id": "AKQUINET",
+    "services": [
+      {
+        "env": "RU",
+        "id": "SMTP",
+        "domain": "mail.akquinet15.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "RU",
+        "id": "POP3",
+        "domain": "mail.akquinet15.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "TU",
+        "id": "SMTP",
+        "domain": "mail.akquinet15-tu.kim.telematik-test",
+        "port": "465"
+      },
+      {
+        "env": "TU",
+        "id": "POP3",
+        "domain": "mail.akquinet15-tu.kim.telematik-test",
+        "port": "995"
+      },
+      {
+        "env": "RU",
+        "id": "AM",
+        "domain": "am.akquinet15.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "RU",
+        "id": "KAS",
+        "domain": "kas.akquinet15.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "TU",
+        "id": "AM",
+        "domain": "am.akquinet15-tu.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      },
+      {
+        "env": "TU",
+        "id": "KAS",
+        "domain": "kas.akquinet15-tu.kim.telematik-test",
+        "port": "443",
+        "contextpath": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,353 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description"
+          content="OpenKIM ist ihr Hilfsmittel zum einfachen Versand und Empfang von E-Mails in der Gematik Telematikinfrastruktur. Bereitgestellt und entwickelt durch sberg it-systeme GmbH.">
+    <meta name="author" content="sberg">
+    <meta name="google-site-verification" content="V3568f-FQR1tufIDngmUc9pykZ1wFNkx6BpmrOsHMao"/>
+    <title>OpenKIM - Anmelden</title>
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/script.js}"></script>
+    <script type="text/javascript" th:src="@{/js/login.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/feather-icons/dist/feather.min.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/login.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/animate.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/fontawesome.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/font.css}"/>
+</head>
+<body id="home" data-spy="scroll" data-target="#navbar" data-offset="72" class="position-relative">
+
+<!-- Header Area -->
+<header class="fixed-top page-header">
+    <!-- Header Inner -->
+    <div class="container-fluid container-fluid-max">
+        <nav id="navbar" class="navbar navbar-expand-lg navbar-dark">
+            <div class="logo">
+                <a href="#home"><img id="logo" class="ebook-light mb-1" src="img/mail.svg" width="32" height="32"
+                                     alt="#"></a>
+                <a class="navbar-brand ml-2 font-weight-bold" href="#home">OpenKIM</a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-lg-between" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#warum">Warum OpenKIM?</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#ueber">Über Uns</a>
+                    </li>
+                </ul>
+                <div class="nav-btns text-white p-2 p-lg-0">
+                    <a href="mailto:software@sberg.net?subject=openkim" class="mr-2">
+                        <i class="fa fa-envelope"></i>
+                        <div class="d-none d-lg-inline">Mailen Sie uns</div>
+                    </a>
+                    <button
+                            type="button"
+                            class="btn login-btn text-white"
+                            data-toggle="modal"
+                            data-target="#loginModal"
+                    >
+                        <i class="fa fa-sign-in-alt"></i>
+                        Anmelden
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!--/ End Header Inner -->
+</header>
+<!-- End Header Area -->
+
+<!-- Hero Area -->
+<section class="d-flex align-items-center position-relative vh-40 cover hero"
+         style="background-image:url('img/bg.jpg');">
+    <div class="container-fluid container-fluid-max">
+        <div class="row">
+            <div class="col-12 col-md-8 col-lg-6 mx-auto">
+                <h1 class="text-white font-weight-bold">OpenKIM</h1>
+                <h4 class="text-white">
+                    Ihr einfacher Zugriff auf KIM (Kommunikation im Medizinwesen) über die TI (Telematikinfrastruktur)
+                </h4>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Hero Area -->
+
+<!-- Was ist OpenKIM -->
+<section id="warum" class="pricing-table section pt-5 pb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <div class="underline">
+                        <h2>Warum OpenKIM?</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <p class="lead mb-0">
+
+                        <br>
+                    </p>
+                    <p class="font-weight-bold">
+                        Wenn Sie Interesse haben, nehmen Sie bitte Kontakt auf.<br>
+                        Wir beraten Sie gerne.<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Was ist OpenKIM -->
+
+<!-- Start Divider -->
+<div class="section overlay">
+</div>
+<!-- End Divider -->
+
+<!-- Features -->
+<section id="features" class="pricing-table section pt-5 pb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <div class="underline">
+                        <h2>Features</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="single-table">
+                    <div class="my-auto showcase-text">
+                        <div class="icon">
+                            <i class="fa fa-user-lock"></i>
+                        </div>
+                        <h4 class="title">Standardisiert und Sicher</h4>
+                        <p class="lead mb-0">
+                            KIM (Kommunikation im Medizinwesen, ehemals KOM-LE) ist ein Standard der Gematik
+                            (<a href="https://www.kbv.de/html/kim.php" target="_blank"><u>KBV über KIM</u></a>
+                            oder
+                            <a href="https://www.gematik.de/fileadmin/user_upload/gematik/images/Anwendungen/KIM/2020_gematik_KIM-Broschuere_web.pdf"
+                               target="_blank"><u>Gematik über KIM</u></a>)
+                            und ermöglicht den vertraulichen, sicheren und verschlüsselten digitalen Austausch von
+                            Nachrichten und medizinischen Dokumenten zwischen TI-Teilnehmern.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="single-table">
+                    <div class="my-auto showcase-text">
+                        <div class="icon">
+                            <i class="fa fa-network-wired"></i>
+                        </div>
+                        <h2 class="title">Integration mit einer Linux - Docker - Umgebung</h2>
+                        <p class="lead mb-0">
+                            OpenKIM integriert sich smart, flexibel und robust in Ihre existierende
+                            Unternehmens-IT-Landschaft und wird dadurch zu einem zentralen Werkzeug in der
+                            Kommunikationskette.<br>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="single-table">
+                    <div class="my-auto showcase-text">
+                        <div class="icon">
+                            <i class="fa fa-user-md"></i>
+                        </div>
+                        <h2 class="title">Benutzerfreundlichkeit</h2>
+                        <p class="lead mb-0">
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Features -->
+
+<!-- Start Divider -->
+<div class="section overlay">
+</div>
+<!-- End Divider -->
+
+<!-- Start Ueber Uns choose -->
+<section id="ueber" class="why-choose section mt-5 mb-5">
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <div class="underline">
+                        <h2>Über uns</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="choose-left">
+                    <a href="http://sberg.net/"><img src="img/logo.png" alt="#"></a>
+                    <p>
+                        Die sberg it-systeme GmbH basiert auf einem engagierten Team und verfügt über ein gutes Netzwerk
+                        sowie ausgezeichnete Partner.<br>
+                        Damit setzen wir Aufgaben in Ihrem Rechenzentrum effektiv um.<br>
+                        Durch unser professionelles IT Monitoring können Störungen schnell erkannt und gemeldet
+                        werden.<br>
+                        In Verbindung mit unserem IT Services werden diese schnellstmöglich behoben. Mit unserer
+                        Erfahrung im Bereich der IT Sicherheit kümmern wir uns um den Schutz Ihrer Systeme und
+                        verschlüsseln Kommunikation.<br>
+                    </p>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <ul class="list" style="list-style: none">
+                                <li><i class="fa fa-caret-right"></i>IT MONITORING</li>
+                                <li><i class="fa fa-caret-right"></i>IT SICHERHEIT</li>
+                                <li><i class="fa fa-caret-right"></i>IT SERVICES</li>
+                                <li><i class="fa fa-caret-right"></i>ENTWICKLUNG VON BUSINESS APPLIKATIONEN</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <a href="mailto:software@sberg.net?subject=OpenKIM" class="mr-2">
+                                <i class="fa fa-envelope"></i>
+                                <div class="d-inline">software@sberg.net</div>
+                            </a>
+                        </div>
+                        <div class="col-12">
+                            <a href="http://sberg.net/" target="_blank" class="mr-2">
+                                <i class="fa fa-external-link-alt"></i>
+                                <div class="d-inline">Homepage öffnen</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Ueber Uns choose -->
+
+<!-- Footer Area -->
+<footer id="footer" class="footer">
+    <!-- Copyright -->
+    <div class="copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-12">
+                    <div class="copyright-content">
+                        <p>
+                            © Copyright <span th:text="${#dates.year(#dates.createNow())}"></span>
+                            <a href="http://sberg.net/" target="_blank">
+                                SBERG IT-SYSTEME GMBH
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/ End Copyright -->
+</footer>
+
+<!-- Modal Login -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header p-2">
+                <h5 class="modal-title" id="loginModalTitle">Login</h5>
+                <button id="login-close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="login">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <form id="login-form" class="form" th:action="@{/login}" method="post" novalidate>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <input class="form-control" name="username" type="text"
+                                                       placeholder="Benutzername" required>
+                                                <div class="invalid-feedback">
+                                                    Bitte Benutzername angeben
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <input class="form-control" name="password" type="password"
+                                                       placeholder="Passwort" required>
+                                                <div class="invalid-feedback">
+                                                    Bitte Passwort angeben
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="button">
+                                                    <button id="login-submit" type="submit" class="btn btn-block">
+                                                        Anmelden
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Fehler -->
+<div class="modal fade" id="fehlerModal" tabindex="-1" role="dialog" aria-labelledby="fehlerModalTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title" id="fehlerModalTitle">Fehler</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Es ein Fehler bei der Anmeldung aufgetreten.<br>
+                Bitte versuchen Sie es erneut.
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger" data-dismiss="modal"
+                   onclick="window.location.href=window.location.href.split('?')[0]" role="button">OK</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<div class="row">
+    <div class="col-12 p-0">
+        <form xmlns:th="http://www.thymeleaf.org" onsubmit="return false;" th:if="${konfig.isComplete()}">
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Minimalkonfiguration erfolgreich abgeschlossen</h5>
+                            <p>Sie haben die Minimalangaben in der Konfiguration vorgenommen! Viel Spaß bei der Nutzung
+                                des Programmes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form id="minimalkonfigForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;"
+              th:if="${!konfig.isComplete()}">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Erläuterungen</h5>
+                            <p>Unten anstehend sind Minimaleingaben vorzunehmen, ohne diese das System nicht einwandrei
+                                funktioniert.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">(!!!WICHTIG!!!) Kontextinformationen für die Konnektoren - In den
+                                einzelnen Konnektoren muss der Kontext hinterlegt sein</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="mandantId">Mandant-ID für das Registrieren von OpenKIM in den
+                                    Konnektoren</label>
+                                <input type="text" th:value="${konfig.mandantId}" class="form-control" id="mandantId"
+                                       name="mandantId" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="workplaceId">Workplace-ID für das Registrieren von OpenKIM in den
+                                    Konnektoren</label>
+                                <input type="text" th:value="${konfig.workplaceId}" class="form-control"
+                                       id="workplaceId" name="workplaceId" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="clientSystemId">Clientsystem-ID für das Registrieren von OpenKIM in den
+                                    Konnektoren</label>
+                                <input type="text" th:value="${konfig.clientSystemId}" class="form-control"
+                                       id="clientSystemId" name="clientSystemId" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" th:if="${konfig.konnektorCount <= 1}">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">(!!!WICHTIG!!!) Hier müssen Sie die Einstellungen des ersten
+                                Konnektors vornehmen</h5>
+
+                            <input type="hidden" id="konnektorUuid" name="konnektorUuid"
+                                   th:value="${konfig.konnektorUuid}">
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorIp">IP-Adresse</label>
+                                <input type="text" th:value="${konfig.konnektorIp}" class="form-control"
+                                       id="konnektorIp" name="konnektorIp" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorName">Name</label>
+                                <input type="text" th:value="${konfig.konnektorName}" class="form-control"
+                                       id="konnektorName" name="konnektorName" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorSdsUrl">SDS-Url</label>
+                                <input type="text" th:value="${konfig.konnektorSdsUrl}" class="form-control"
+                                       id="konnektorSdsUrl" name="konnektorSdsUrl" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorAuthMethod">Konnektor Authentifizierungsmethode</label>
+                                <select class="form-control" id="konnektorAuthMethod" name="konnektorAuthMethod"
+                                        required
+                                        onchange="toggleAcivateSelected('konnektorAuthMethod', 'CERT', ['konnektorClientCertAuthPwd','konnektorClientCertAuthPwdCheck','konnektorClientCertFile']),toggleAcivateSelected('konnektorAuthMethod', 'BASICAUTH', ['konnektorBasicAuthUser','konnektorBasicAuthPwd','konnektorBasicAuthPwdCheck'])">
+                                    <option value="NONE" th:if="${konfig.konnektorAuthMethod != null}"
+                                            th:attrappend="selected=${konfig.konnektorAuthMethod.name() == 'NONE'?'selected':''}">
+                                        Keine
+                                    </option>
+                                    <option value="CERT" th:if="${konfig.konnektorAuthMethod != null}"
+                                            th:attrappend="selected=${konfig.konnektorAuthMethod.name() == 'CERT'?'selected':''}">
+                                        Zertifikatsbasiert
+                                    </option>
+                                    <option value="BASICAUTH" th:if="${konfig.konnektorAuthMethod != null}"
+                                            th:attrappend="selected=${konfig.konnektorAuthMethod.name() == 'BASICAUTH'?'selected':''}">
+                                        Basic-Authentifizierung
+                                    </option>
+                                    <option value="NONE" th:if="${konfig.konnektorAuthMethod == null}">Keine</option>
+                                    <option value="CERT" th:if="${konfig.konnektorAuthMethod == null}">
+                                        Zertifikatsbasiert
+                                    </option>
+                                    <option value="BASICAUTH" th:if="${konfig.konnektorAuthMethod == null}">
+                                        Basic-Authentifizierung
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorClientCertAuthPwd">Clienttzertifikats-Keystore-Passwort</label>
+                                <input type="password" th:value="${konfig.konnektorClientCertAuthPwd}"
+                                       th:attrappend="disabled=${konfig.konnektorAuthMethod.name() != 'CERT'?'disabled':''}"
+                                       class="form-control" id="konnektorClientCertAuthPwd"
+                                       name="konnektorClientCertAuthPwd" required>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="konnektorClientCertAuthPwdCheck"
+                                       th:attrappend="disabled=${konfig.konnektorAuthMethod.name() != 'CERT'?'disabled':''}"
+                                       onclick="togglePwdVisibility('konnektorClientCertAuthPwd')">
+                                <label class="form-check-label" for="konnektorClientCertAuthPwdCheck">Passwort in
+                                    Klartext anzeigen</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="konnektorClientCertFile">Clientzertifikats-Keystore-Datei</label>
+                                <input type="file" class="form-control-file" id="konnektorClientCertFile"
+                                       th:attrappend="disabled=${konfig.konnektorAuthMethod.name() != 'CERT'?'disabled':''}"
+                                       name="konnektorClientCertFile">
+                                <span th:if="${konfig.konnektorClientCertFilename != null}"
+                                      th:text="${konfig.konnektorClientCertFilename}">dateiname</span>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorBasicAuthUser">Basic-Authentifizierung-Nutzer</label>
+                                <input type="text" th:value="${konfig.konnektorBasicAuthUser}" class="form-control"
+                                       th:attrappend="disabled=${konfig.konnektorAuthMethod.name() != 'BASICAUTH'?'disabled':''}"
+                                       id="konnektorBasicAuthUser" name="konnektorBasicAuthUser" required>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="konnektorBasicAuthPwd">Basic-Authentifizierung-Passwort</label>
+                                <input type="password" th:value="${konfig.konnektorBasicAuthPwd}" class="form-control"
+                                       th:attrappend="disabled=${konfig.konnektorAuthMethod.name() != 'BASICAUTH'?'disabled':''}"
+                                       id="konnektorBasicAuthPwd" name="konnektorBasicAuthPwd" required>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="konnektorBasicAuthPwdCheck"
+                                       th:attrappend="disabled=${konfig.konnektorAuthMethod.name() != 'BASICAUTH'?'disabled':''}"
+                                       onclick="togglePwdVisibility('konnektorBasicAuthPwd')">
+                                <label class="form-check-label" for="konnektorBasicAuthPwdCheck">Passwort in Klartext
+                                    anzeigen</label>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block" onclick="minimalkonfigSpeichern()">Speichern</button>
+                        <div class="spinner-border" id="openkim-spinner" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="minimalkonfigFormError">
+            </div>
+        </form>
+    </div>
+</div>

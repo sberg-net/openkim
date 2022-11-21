@@ -1,0 +1,83 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span style="font-weight: bold">Ausführen des Webservices, um die PIN einer Karte am Konnektor </span><span
+            style="font-weight: bold" th:text="${konnektor.ip}">ID</span>
+        <span style="font-weight: bold"> zu verifizieren</span>
+        <span>Der PIN-Typ Gibt an, welche PIN der Karte selektiert werden soll. Erlaubte Belegung von PinTyp in Abhängigkeit der
+    durch CardHandle referenzierten Karte: gemSpec_Kon_V5.16.0_Aend.docx Version: 5.16.0
+      <ul>
+        <li>eGK G1+: PIN.CH</li>
+        <li>eGK G2: PIN.CH, MRPIN.NFD, MRPIN.NFD_READ, MRPIN.DPE, MRPIN.GDD, MRPIN.OSE, MRPIN.AMTS, PIN.AMTS_REP</li>
+        <li>zusätzlich eGK G2.0: MRPIN.DPE_READ</li>
+        <li>HBAx: PIN.CH, PIN.QES</li>
+        <li>SM-B: PIN.SMC</li>
+      </ul>
+    </span>
+    </div>
+</div>
+<!-- verifyPin -->
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="verifyPinForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <input type="hidden" name="konnId" th:value="${cardWebserviceBean.konnId}">
+            <input type="hidden" name="wsId" th:value="${cardWebserviceBean.wsId}">
+            <input type="hidden" name="opId" value="VerifyPin">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Verifizieren einer PIN</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="cardHandle">Karten-Handle</label>
+                                <input type="text" th:value="${cardWebserviceBean.cardHandle}" class="form-control"
+                                       id="cardHandle" name="cardHandle" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="pinTyp">PIN-Typ</label>
+                                <input type="text" th:value="${cardWebserviceBean.pinTyp}" class="form-control"
+                                       id="pinTyp" name="pinTyp" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-6 pb-1">
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${cardWebserviceBean.konnId}"
+                                onclick="konnektorLaden($(this).attr('data-konnid'), true);">Zurück zu den
+                            Konnektoreinstellungen
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block" onclick="konnWebserviceAusfuehren('verifyPinForm')">
+                            Ausführen
+                        </button>
+                        <div class="spinner-border" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="verifyPinFormError">
+            </div>
+
+            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="verifyPinFormResult">
+            </div>
+        </form>
+    </div>
+</div>

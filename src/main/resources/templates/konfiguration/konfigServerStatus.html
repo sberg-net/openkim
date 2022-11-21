@@ -1,0 +1,51 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-12 p-0">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Serverstatus</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="n : ${serverStatus}">
+                        <div th:if="${!n.active}">
+                            <span th:text="${n.name}" class="font-weight-bold">n.a.</span>
+                            <span>***Nicht aktiviert***</span>
+                        </div>
+                        <div th:if="${n.active}">
+                            <span th:text="${n.name}" class="font-weight-bold">n.a.</span>
+                            &nbsp;&nbsp;
+                            <span th:text="${n.host}">n.a.</span>
+                            &nbsp;&nbsp;
+                            <span th:text="${n.port}">n.a.</span>
+                            &nbsp;&nbsp;
+                            <span th:if="${n.alive}" data-feather="smile"></span>
+                            <span th:if="${n.alive}" data-feather="check"></span>
+                            <span th:if="${!n.alive}" data-feather="frown"></span>
+                            <span th:if="${!n.alive}" data-feather="cloud-off"></span>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div th:if="${openkimKeystoreExistiert}" class="col-md-12 mb-3 mt-3">
+                                <button onclick="$('#confirmDialog4DeleteOpenkimKeystore').modal('show')"
+                                        class="btn btn-primary">Keystore löschen
+                                </button>
+                            </div>
+                            <div th:if="${!openkimKeystoreExistiert}" class="col-md-4 mb-3 mt-3">
+                                <button onclick="selfsignedOpenkimKeystoreErstellen()" class="btn btn-primary">Keystore
+                                    anlegen (Selbstsigniert)
+                                </button>
+                            </div>
+                            <div th:if="${!openkimKeystoreExistiert}" class="col-md-4 mb-3 mt-3">
+                                <button onclick="notSelfsignedOpenkimKeystoreErstellen()" class="btn btn-primary">
+                                    Keystore anlegen (Nicht Selbstsigniert)
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    feather.replace();
+</script>

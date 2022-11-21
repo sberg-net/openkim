@@ -1,0 +1,198 @@
+<div class="row mt-3" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-12 p-0 font-weight-bold">Die Monitoringergebnisse werden je Konnektor angezeigt. Klicken Sie auf die
+        IP-Adresse des Konnektors, um die Ergebisse anzuzeigen oder auszublenden.
+    </div>
+    <div class="col-12 p-0 font-weight-bold" th:if="${result.isEmpty()}">Sie haben noch keine Konnektoren angelegt.
+        Klicken Sie auf die Minimale Konfiguration, um dies nachzuholen.
+    </div>
+    <div class="col-3 p-0">
+      <button class="btn btn-secondary btn-block" onclick="dashboardUebersichtAktualisieren()">Aktualisieren</button>
+    </div>
+</div>
+<div class="row mt-3" th:each="konn : ${result}">
+    <div class="col-12 p-0">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" th:text="${konn.getKonnektorHeadline()}" onclick="showHide(this)"
+                    style="cursor: pointer"></h5>
+                <div data-show="true">
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td>Verbunden mit der TI</td>
+                            <td>
+                                <span th:if="${konn.connectedWithTI}" data-feather="smile"></span>
+                                <span th:if="${konn.connectedWithTI}" data-feather="check"></span>
+                                <span th:if="${!konn.connectedWithTI}" data-feather="frown"></span>
+                                <span th:if="${!konn.connectedWithTI}" data-feather="cloud-off"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Verbunden mit SIS</td>
+                            <td>
+                                <span th:if="${konn.connectedWithSIS}" data-feather="smile"></span>
+                                <span th:if="${konn.connectedWithSIS}" data-feather="check"></span>
+                                <span th:if="${!konn.connectedWithSIS}" data-feather="frown"></span>
+                                <span th:if="${!konn.connectedWithSIS}" data-feather="cloud-off"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>ECC Verschlüsselung verfügbar</td>
+                            <td>
+                                <span th:if="${konn.eccEncryptionAvailable}" data-feather="smile"></span>
+                                <span th:if="${konn.eccEncryptionAvailable}" data-feather="check"></span>
+                                <span th:if="${!konn.eccEncryptionAvailable}" data-feather="frown"></span>
+                                <span th:if="${!konn.eccEncryptionAvailable}" data-feather="cloud-off"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gematik-Verzeichnisdienst erreichbar</td>
+                            <td>
+                                <span th:if="${konn.vzdAlive}" data-feather="smile"></span>
+                                <span th:if="${konn.vzdAlive}" data-feather="check"></span>
+                                <span th:if="${!konn.vzdAlive}" data-feather="frown"></span>
+                                <span th:if="${!konn.vzdAlive}" data-feather="cloud-off"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TLS-Port des Konnektors erreichbar</td>
+                            <td>
+                                <span th:if="${konn.tlsPortAlive}" data-feather="smile"></span>
+                                <span th:if="${konn.tlsPortAlive}" data-feather="check"></span>
+                                <span th:if="${!konn.tlsPortAlive}" data-feather="frown"></span>
+                                <span th:if="${!konn.tlsPortAlive}" data-feather="cloud-off"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Zeit des Konnektors</td>
+                            <td th:text="${konn.konnektorTime}"></td>
+                        </tr>
+                        <tr>
+                            <td>Systemzeit</td>
+                            <td th:text="${konn.systemTime}"></td>
+                        </tr>
+                        <tr>
+                            <td>Differenz der Zeiten in ms</td>
+                            <td th:text="${konn.diffSystemKonnektorTime}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!-- Fachdienste -->
+                    <div class="row mt-3">
+                        <div class="col-12 p-0">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Fachdienste</h5>
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Kein Erstellung-Fehler</th>
+                                            <th>Kein Timeout-Fehler</th>
+                                            <th>SMTP-IP-Adresse</th>
+                                            <th>POP3-IP-Adresse</th>
+                                            <th>KAS-API-Url</th>
+                                            <th>AM-API-Url</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="fachd : ${konn.fachdienstResults}">
+                                            <td th:text="${fachd.typ.getName()}"></td>
+                                            <td>
+                                                <span th:if="${!fachd.errorOnCreating}" data-feather="smile"></span>
+                                                <span th:if="${!fachd.errorOnCreating}" data-feather="check"></span>
+                                                <span th:if="${fachd.errorOnCreating}" data-feather="frown"></span>
+                                                <span th:if="${fachd.errorOnCreating}" data-feather="cloud-off"></span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${!fachd.timedOut}" data-feather="smile"></span>
+                                                <span th:if="${!fachd.timedOut}" data-feather="check"></span>
+                                                <span th:if="${fachd.timedOut}" data-feather="frown"></span>
+                                                <span th:if="${fachd.timedOut}" data-feather="cloud-off"></span>
+                                            </td>
+                                            <td th:text="${fachd.smtpIpAddress}"></td>
+                                            <td th:text="${fachd.pop3IpAddress}"></td>
+                                            <td th:text="${fachd.getKasApiUrl()}"></td>
+                                            <td th:text="${fachd.getAmApiUrl}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Webservices -->
+                    <div class="row mt-3">
+                        <div class="col-12 p-0">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Konnektor-Webservices</h5>
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Host:Port</th>
+                                            <th>Tls Endpunkt erreichbar</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="ws : ${konn.webserviceResults}">
+                                            <td th:text="${ws.type.name()}"></td>
+                                            <td th:text="${ws.endpoint}"></td>
+                                            <td>
+                                                <span th:if="${ws.alive}" data-feather="smile"></span>
+                                                <span th:if="${ws.alive}" data-feather="check"></span>
+                                                <span th:if="${!ws.alive}" data-feather="frown"></span>
+                                                <span th:if="${!ws.alive}" data-feather="cloud-off"></span>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Karten des Konnektors -->
+                    <div class="row mt-3">
+                        <div class="col-12 p-0">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Konnektor-Karten</h5>
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Pin-Status</th>
+                                            <th>Karten-Terminal</th>
+                                            <th>Karten-Slot</th>
+                                            <th>Karten-Handle</th>
+                                            <th>Karten-Typ</th>
+                                            <th>Pin-Typ</th>
+                                            <th>ICCSN</th>
+                                            <th>TelematikId</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="card : ${konn.cardResults}">
+                                            <td th:text="${card.pinStatus}"></td>
+                                            <td th:text="${card.cardTerminal}"></td>
+                                            <td th:text="${card.cardSlot}"></td>
+                                            <td th:text="${card.cardHandle}"></td>
+                                            <td th:text="${card.cardType}"></td>
+                                            <td th:text="${card.pinTyp}"></td>
+                                            <td th:text="${card.iccsn}"></td>
+                                            <td th:text="${card.telematikId}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    feather.replace();
+</script>

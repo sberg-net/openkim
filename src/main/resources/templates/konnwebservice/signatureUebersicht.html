@@ -1,0 +1,224 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
+        <span style="font-weight: bold">Signieren und Verifizieren einer Signatur von Dokumenten am Konnektor </span><span
+            style="font-weight: bold" th:text="${konnektor.ip}">ID</span>
+    </div>
+</div>
+<!-- signMailForm -->
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="signMailForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <input type="hidden" id="konnId" name="konnId" th:value="${konnId}">
+            <input type="hidden" id="wsId" name="wsId" th:value="${wsId}">
+            <input type="hidden" id="opId" name="opId" value="SignMail">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Signieren eines Dokumentes</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="cardHandle">Kartenhandle</label>
+                                <input type="text" class="form-control" id="cardHandle" name="cardHandle" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="from">Absender-Mail-Adresse</label>
+                                <input type="text" class="form-control" id="from" name="from" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="to">Empfänger-Mail-Adresse</label>
+                                <input type="text" class="form-control" id="to" name="to" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="subject">Betreff</label>
+                                <input type="text" class="form-control" id="subject" name="subject" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="body">Inhalt</label>
+                                <textarea type="text" class="form-control" id="body" name="body" rows="4"></textarea>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-6 pb-1">
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${konnId}"
+                                onclick="konnektorLaden($(this).attr('data-konnid'));">Zurück zu den
+                            Konnektoreinstellungen
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block" onclick="konnWebserviceAusfuehren('signMailForm')">
+                            Ausführen
+                        </button>
+                        <div class="spinner-border" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="signMailFormError">
+            </div>
+
+            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="signMailFormResult">
+            </div>
+        </form>
+    </div>
+</div>
+<!-- signMailTextForm -->
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="signMailTextForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <input type="hidden" name="konnId" th:value="${konnId}">
+            <input type="hidden" name="wsId" th:value="${wsId}">
+            <input type="hidden" name="opId" value="SignMailText">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Signieren eines Dokumentes - Angabe des Mailtextes</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="cardHandle">Kartenhandle</label>
+                                <input type="text" class="form-control" name="cardHandle" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="mailAddress">Mail-Adresse</label>
+                                <input type="text" class="form-control" id="mailAddress" name="mailAddress" required>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                            <div class="form-group needs-validation">
+                                <label for="completeMail">Inhalt der Mail - komplett mit allen Headern</label>
+                                <textarea type="text" class="form-control" id="completeMail" name="completeMail"
+                                          rows="9"></textarea>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-6 pb-1">
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${konnId}"
+                                onclick="konnektorLaden($(this).attr('data-konnid'));">Zurück zu den
+                            Konnektoreinstellungen
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block"
+                                onclick="konnWebserviceAusfuehren('signMailTextForm')">Ausführen
+                        </button>
+                        <div class="spinner-border" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="signMailTextFormError">
+            </div>
+
+            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="signMailTextFormResult">
+            </div>
+        </form>
+    </div>
+</div>
+<!-- signVerifyForm -->
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="signVerifyForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+
+            <input type="hidden" name="konnId" th:value="${konnId}">
+            <input type="hidden" name="wsId" th:value="${wsId}">
+            <input type="hidden" name="opId" value="SignVerify">
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Signatur eines Dokumentes prüfen</h5>
+
+                            <div class="form-group needs-validation">
+                                <label for="completeMail">Signiertes Dokument</label>
+                                <textarea type="text" class="form-control" id="signedDocument" name="signedDocument"
+                                          rows="9"></textarea>
+                                <div class="invalid-feedback">
+                                    Bitte angeben!
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid p-0 mb-2">
+                <div class="row justify-content-start">
+                    <div class="col-12 col-md-6 col-lg-6 pb-1">
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${konnId}"
+                                onclick="konnektorLaden($(this).attr('data-konnid'));">Zurück zu den
+                            Konnektoreinstellungen
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <button class="btn btn-primary btn-block" onclick="konnWebserviceAusfuehren('signVerifyForm')">
+                            Ausführen
+                        </button>
+                        <div class="spinner-border" role="status" style="display: none">
+                            <span class="sr-only">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="signVerifyFormError">
+            </div>
+
+            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="signVerifyFormResult">
+            </div>
+        </form>
+    </div>
+</div>

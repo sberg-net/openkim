@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="Signaturbericht" pageWidth="595" pageHeight="842" columnWidth="478" leftMargin="71" rightMargin="46"
+              topMargin="50" bottomMargin="25" uuid="d42ed019-6149-406f-9cf7-533d6c6425f8">
+    <property name="ireport.zoom" value="1.5026296018031553"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="0"/>
+    <parameter name="result" class="net.sberg.openkim.common.mail.signreport.VerifyResult"/>
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <detail>
+        <band height="720" splitType="Stretch">
+            <property name="com.jaspersoft.studio.unit.height" value="px"/>
+            <textField>
+                <reportElement x="0" y="55" width="500" height="40" uuid="d36b603e-c621-4060-b09a-3e95a5386757">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="14" isBold="true"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Signaturprüfbericht"]]></textFieldExpression>
+            </textField>
+            <!-- getVerificationTime -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="95" width="100" height="20"
+                               uuid="18467cf2-9f09-403e-a9f1-2801c723636a">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Verifikations-Zeit:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="95" width="378" height="20"
+                               uuid="2f664955-3603-422f-a3fb-e8aca25180ac">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getVerificationTime()]]></textFieldExpression>
+            </textField>
+            <!-- getSigningTime -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="120" width="100" height="20"
+                               uuid="9212fec0-7453-4ff2-a27b-7c16b96e7800">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Sign-Zeit:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="120" width="378" height="20"
+                               uuid="569069c3-4a8d-4a4f-8aa2-b8698ee34977">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getSigningTime()]]></textFieldExpression>
+            </textField>
+            <!-- getFormatResult -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="145" width="100" height="20"
+                               uuid="e0a21059-aab0-4fc0-8904-4c4e3d8f7a1c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Format-Ergebnis:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="145" width="378" height="20"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getFormatResultHr()]]></textFieldExpression>
+            </textField>
+            <!-- getSignResult -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="170" width="478" height="20"
+                               uuid="a45ab69e-cc92-44b2-84b7-9431cd60a4b5">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Sign-Ergebnis:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="170" width="378" height="20"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getSignResultHr()]]></textFieldExpression>
+            </textField>
+            <!-- extractSigAlg -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="195" width="478" height="20"
+                               uuid="a45ab69e-cc92-44b2-84b7-9431cd60a4b5">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Sign-Algorithmus:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="195" width="378" height="20"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.extractSigAlg()]]></textFieldExpression>
+            </textField>
+            <!-- extractHashAlg -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="220" width="478" height="20"
+                               uuid="a45ab69e-cc92-44b2-84b7-9431cd60a4b5">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Hash-Algorithmus:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="220" width="378" height="20"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.extractHashAlg()]]></textFieldExpression>
+            </textField>
+            <!-- getPathValiditySummary -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="245" width="478" height="20"
+                               uuid="a45ab69e-cc92-44b2-84b7-9431cd60a4b5">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Zert-Pfad-Gültigkeit:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="245" width="378" height="20"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getPathValiditySummaryHr()]]></textFieldExpression>
+            </textField>
+            <!-- issuer -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="270" width="478" height="20"
+                               uuid="a45ab69e-cc92-44b2-84b7-9431cd60a4b5">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Zert-Herausgeber:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="270" width="378" height="20"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getIssuer()]]></textFieldExpression>
+            </textField>
+            <!-- serialNumber -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="295" width="478" height="20"
+                               uuid="a45ab69e-cc92-44b2-84b7-9431cd60a4b5">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Zert-Herausgeber:]]></text>
+            </staticText>
+            <textField>
+                <reportElement positionType="Float" x="150" y="295" width="378" height="20"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getSerialNumber()]]></textFieldExpression>
+            </textField>
+            <!-- getCertSummary -->
+            <staticText>
+                <reportElement positionType="Float" x="0" y="315" width="478" height="20"
+                               uuid="a45ab69e-cc92-44b2-84b7-9431cd60a4b5">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="12" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Zertifikate:]]></text>
+            </staticText>
+            <textField textAdjust="StretchHeight">
+                <reportElement positionType="Float" x="150" y="315" width="378" height="400"
+                               uuid="80c27c8a-682f-4220-9b26-94527bbe5b9c">
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="com.jaspersoft.studio.unit.width" value="px"/>
+                </reportElement>
+                <textElement verticalAlignment="Middle" markup="html">
+                    <font fontName="Arial" size="7" isBold="false"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{result}.getCertSummary()]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+</jasperReport>
