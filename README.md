@@ -24,7 +24,7 @@ zu implementieren.
 # Wöchentliche Community Runde
 
 Wenn ihr Lust habt mitzumachen oder euch einfach zu informieren:
-Jeden Freitag um 13 Uhr bieten wir ein zoom-Meeting an.
+Jeden Freitag um 13 Uhr bieten wir ein Zoom-Meeting an.
 
 https://us06web.zoom.us/j/82998471898?pwd=WlVwN3Z1NXBaNTFxSGdHMW96aThvUT09
 
