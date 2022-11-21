@@ -21,7 +21,7 @@ jobs:
         with:
           java-version: 11
           java-package: jdk
-          distribution: 'corretto'
+          distribution: 'zulu'
 
       - name: Set up api-telematik
         run: |
