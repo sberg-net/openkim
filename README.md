@@ -14,7 +14,7 @@ Wir möchten OpenKIM in bestehende Testpipelines integrieren. Entsprechende Unit
 der Spezifikation abdecken, sollen entwickelt werden. Ausserdem eine entsprechende API, um z.b. 
 mit Postman (https://www.postman.com/) in bestehende CI/CD-Pipelines zu integrieren.
 
-Eine Plugin-Schnittstelle wird entwickelt, um euch die Möglichkeit zu geben, Closed-Source / Open-Source Plugins
+Eine Plugin-Schnittstelle wird entwickelt, um Ihnen die Möglichkeit zu geben, Closed-Source / Open-Source Plugins
 zu implementieren.
 
 ## OpenKIM starten
@@ -23,16 +23,12 @@ zu implementieren.
 
 # Wöchentliche Community Runde
 
-Wenn ihr Lust habt mitzumachen oder euch einfach zu informieren:
 Jeden Freitag um 13 Uhr bieten wir ein zoom-Meeting an.
 
 https://us06web.zoom.us/j/82998471898?pwd=WlVwN3Z1NXBaNTFxSGdHMW96aThvUT09
 
-
 # Roadmap
 1. KIM-CM-Spezi: Integration der KAS-API-Calls
-1. KIM-CM-Spezi: Integration der ACCMGR-API-Calls
-1. Testpipeline: Unit-Tests
-1. CI/CD-Pipeline: API für die Tests
-
-Viel Spaß euch mit OpenKIM
+2. KIM-CM-Spezi: Integration der ACCMGR-API-Calls
+3. Testpipeline: Unit-Tests
+4. CI/CD-Pipeline: API für die Tests
