@@ -23,9 +23,7 @@ zu implementieren.
 
 # Wöchentliche Community Runde
 
-Jeden Freitag um 13 Uhr bieten wir ein zoom-Meeting an.
-
-https://us06web.zoom.us/j/82998471898?pwd=WlVwN3Z1NXBaNTFxSGdHMW96aThvUT09
+Jeden Freitag um 13 Uhr bieten wir ein Zoom-Meeting an: https://us06web.zoom.us/j/82998471898?pwd=WlVwN3Z1NXBaNTFxSGdHMW96aThvUT09
 
 # Roadmap
 1. KIM-CM-Spezi: Integration der KAS-API-Calls
