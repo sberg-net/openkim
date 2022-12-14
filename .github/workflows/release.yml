@@ -51,8 +51,9 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_name: sberg-net/openkim
-          # `repo, user, admin:repo_hook`.
-          repo_token: ${{ secrets.ACCESS_TOKEN }}
+          # Personal access tokens (classic): `repo, user, admin:repo_hook`
+          #repo_token: ${{ secrets.ACCESS_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/openkim-${{ steps.build_maven.outputs.version }}.jar
           tag: OpenKIM-${{ steps.build_maven.outputs.version }}
           overwrite: false
@@ -110,7 +111,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.ACCESS_TOKEN  }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         if: steps.checkTag.outputs.exists == 'false'
