@@ -1,5 +1,7 @@
 # OpenKIM
 
+[![Release](https://github.com/sberg-net/openkim/actions/workflows/release.yml/badge.svg)](https://github.com/sberg-net/openkim/actions/workflows/release.yml)
+
 Implementieren eines KIM-Client-Moduls laut Spezifikation:
 https://fachportal.gematik.de/fachportal-import/files/gemSpec_CM_KOMLE_V1.14.0.pdf
 
