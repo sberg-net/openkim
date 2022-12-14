@@ -1,4 +1,4 @@
-FROM amazoncorretto:8-alpine3.16-jdk
+FROM amazoncorretto:11-alpine3.16-jdk
 
 ENV APP-PROFILES="default"
 
