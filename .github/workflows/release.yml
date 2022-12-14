@@ -65,9 +65,9 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           # list of Docker images to use as base name for tags
+          # ghcr.io/sbergit/openkim
           images: |
             sbergit/openkim
-            ghcr.io/sbergit/openkim
           # generate Docker tags based on the following events/attributes
           # type=raw,value=latest,enable={{is_default_branch}}
           # type=semver,pattern={{major}}.{{minor}}
@@ -105,13 +105,13 @@ jobs:
           username: sbergit
           password: ${{ secrets.DOCKER_HUB }}
 
-      - name: Login to GitHub Container Registry
-        if: steps.checkTag.outputs.exists == 'false'
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+     # - name: Login to GitHub Container Registry
+     #   if: steps.checkTag.outputs.exists == 'false'
+     #   uses: docker/login-action@v1
+     #   with:
+     #     registry: ghcr.io
+     #     username: ${{ github.actor }}
+     #     password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         if: steps.checkTag.outputs.exists == 'false'

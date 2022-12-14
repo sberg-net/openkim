@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Github Actions
+- Dockerfile inklusive build und push zu [Dockerhub]
 
 ## [0.9.0]
 
@@ -23,3 +24,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [unreleased]: https://github.com/sberg-net/openkim/compare/0.9.0...HEAD
 [0.9.0]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.9.0
+[dockerhub]: https://hub.docker.com/repository/docker/sbergit/openkim
