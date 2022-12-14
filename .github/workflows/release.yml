@@ -71,7 +71,6 @@ jobs:
           # type=semver,pattern={{major}}.{{minor}}
           # type=semver,pattern={{major}}
           tags: |
-            type=ref,event=branch
             type=match,pattern=\d.\d.\d,value=v${{ steps.build_maven.outputs.version }}
             type=match,pattern=\d.\d,value=v${{ steps.build_maven.outputs.version }}
             type=sha
