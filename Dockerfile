@@ -1,13 +1,12 @@
 FROM amazoncorretto:8-alpine3.16-jdk
 
-ARG JAR_FILE
 ENV APP-PROFILES="default"
 
 RUN mkdir /opt/openkim
 RUN mkdir /opt/openkim/logs
 RUN mkdir /opt/openkim/data
 
-COPY $JAR_FILE /opt/openkim/app.jar
+COPY target/openkim-*.jar /opt/openkim/app.jar
 RUN cd /opt/openkim
 
 RUN apk add tzdata
