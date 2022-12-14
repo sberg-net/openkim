@@ -59,7 +59,7 @@ jobs:
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
       - name: Docker meta
-        if: steps.checkTag.outputs.exists == 'false'
+        #if: steps.checkTag.outputs.exists == 'false'
         id: meta
         uses: docker/metadata-action@v3
         with:
