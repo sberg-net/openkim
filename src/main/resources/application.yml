@@ -32,8 +32,3 @@ spring:
 server:
   servlet:
     context-path: /openkim
-
-konfiguration:
-  gatewayHostDefaultWert: 127.0.0.1
-  smtpGatewayPortDefaultWert: 8888
-  pop3GatewayPortDefaultWert: 8889
