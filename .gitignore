@@ -41,3 +41,5 @@ api-telematik/**
 /internals
 internalDocs
 internalDocs/**
+logs
+logs/**

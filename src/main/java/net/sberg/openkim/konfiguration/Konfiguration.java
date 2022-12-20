@@ -62,7 +62,7 @@ public class Konfiguration {
     @JsonIgnore
     private MultipartFile fachdienstCertFile;
 
-    private String xkimCmVersion = "OpenKIM_0.9.0";
+    private String xkimCmVersion = "OpenKIM_0.9.1";
     private String xkimPtVersion = "1.5.0-2";
     private String xkimPtShortVersion = "1.5";
 

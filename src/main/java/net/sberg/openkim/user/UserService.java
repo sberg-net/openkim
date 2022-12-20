@@ -68,6 +68,9 @@ public class UserService {
         }
         else {
             log.info("security auth file does not exist");
+            if (!file.getParentFile().exists()){
+                file.getParentFile().mkdir();
+            }
             List<User> userList = new ArrayList<>();
 
             int i = 0;
