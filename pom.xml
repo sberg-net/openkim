@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.3</version>
+        <version>3.0.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>net.sberg</groupId>
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity5</artifactId>
-            <version>3.0.4.RELEASE</version>
+            <version>3.1.1.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
@@ -67,17 +67,17 @@
         <dependency>
             <groupId>org.apache.james.protocols</groupId>
             <artifactId>protocols-netty</artifactId>
-            <version>3.7.0</version>
+            <version>3.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.james</groupId>
             <artifactId>metrics-logger</artifactId>
-            <version>3.7.0</version>
+            <version>3.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.james.protocols</groupId>
             <artifactId>protocols-smtp</artifactId>
-            <version>3.7.0</version>
+            <version>3.7.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.james</groupId>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>org.apache.james.protocols</groupId>
             <artifactId>protocols-pop3</artifactId>
-            <version>3.7.0</version>
+            <version>3.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
+            <version>4.5.14</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -138,12 +138,24 @@
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>3.8.0</version>
+            <version>3.9.0</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>1.4</version>
+            <exclusions>
+                <!-- exclude very old version 2.2, newer version is set later-->
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
         <dependency>
             <groupId>javax.jws</groupId>
@@ -153,6 +165,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>2.13.4.2</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
@@ -200,7 +213,7 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>
-            <version>3.5.1</version>
+            <version>3.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
@@ -215,8 +228,28 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
+            <version>1.18.24</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>2.3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+            <version>2.3.1</version>
         </dependency>
     </dependencies>
 
