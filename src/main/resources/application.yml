@@ -10,7 +10,10 @@ konfiguration:
   smtpGatewayPortDefaultWert: 8888
   pop3GatewayPortDefaultWert: 8889
 
+
 spring:
+  main:
+    allow-bean-definition-overriding: true
   ldap:
     base: dc=data,dc=vzd
 

@@ -19,13 +19,16 @@ package net.sberg.openkim;
 import net.sberg.openkim.common.EnumAuthRole;
 import net.sberg.openkim.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -35,19 +38,54 @@ public class WebSecurityConfig {
 
     @Configuration
     @Order(1)
-    public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
+    public static class ApiWebSecurityConfigurationAdapter {
+
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http.csrf().disable()
-                .antMatcher("/api/**")
-                .authorizeRequests()
-                .anyRequest()
-                .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_ADMIN.getSuffix())
-                .and()
-                .httpBasic();
+                    .authorizeHttpRequests((authz) -> authz
+                            .requestMatchers("/api/**")
+                            .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_ADMIN.getSuffix())
+                            .anyRequest()
+                            .authenticated()
+                    )
+                    .httpBasic(withDefaults());
+            return http.build();
         }
+
+//        protected void configure(HttpSecurity http) throws Exception {
+//            http.csrf().disable()
+//                .antMatcher("/api/**")
+//                .authorizeRequests()
+//                .anyRequest()
+//                .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_ADMIN.getSuffix())
+//                .and()
+//                .httpBasic();
+//        }
     }
 
     @Configuration
+    public static class FormLoginWebSecurityConfigurerAdapter {
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            http
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .invalidSessionUrl("/login")
+                    .and()
+                    .csrf()
+                    .and()
+                    .authorizeHttpRequests((authz) -> authz
+                            .requestMatchers("/dev/**")
+                            .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_ADMIN.getSuffix())
+                            .anyRequest()
+                            .authenticated()
+                    )
+                    .httpBasic(withDefaults());
+            return http.build();
+        }
+    }
+
+    /*@Configuration
     public class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -73,8 +111,7 @@ public class WebSecurityConfig {
                 .logout()
                 .permitAll()
                 .logoutSuccessUrl("/login");
-        }
-    }
+        }*/
 
     @Autowired
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
