@@ -46,14 +46,13 @@ import java.util.List;
 @ComponentScan
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private ApplicationContext applicationContext;
+    /*private ApplicationContext applicationContext;
 
-   /* public WebMvcConfig() {
+    public WebMvcConfig() {
         super();
-    }*/
+    }
 
-   /* public void setApplicationContext(final ApplicationContext applicationContext)
-            throws BeansException {
+    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }*/
 
@@ -156,10 +155,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/webjars/**").addResourceLocations("/webjars/").resourceChain(false);;
-        registry.addResourceHandler("/img/**").addResourceLocations("classpath:/static/img/").resourceChain(false);;
-        registry.addResourceHandler("/fonts/**").addResourceLocations("classpath:/static/fonts/").resourceChain(false);;
-        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/").resourceChain(false);;
-        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/").resourceChain(false);;
+        registry.addResourceHandler("/webjars/**").addResourceLocations("/webjars/").resourceChain(false);
+        registry.addResourceHandler("/img/**").addResourceLocations("classpath:/static/img/").resourceChain(false);
+        registry.addResourceHandler("/fonts/**").addResourceLocations("classpath:/static/fonts/").resourceChain(false);
+        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/").resourceChain(false);
+        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/").resourceChain(false);
     }
 }

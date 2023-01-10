@@ -111,20 +111,30 @@ public class WebSecurityConfig {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
-                    .authorizeHttpRequests((request) -> request
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .invalidSessionUrl("/login")
+                    .and()
+                    .csrf()
+                    .and()
+                    .authorizeHttpRequests()
+                            .requestMatchers("/webjars/**", "/static/**")
+                                .permitAll()
                             .requestMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**",
                                     "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**",
                                     "/dashboard/**", "/konnvzd/**", "/konnwebservice/**", "/konnntp/**",
                                     "/mailanalyzer/**", "/signencrypt/**", "/decryptverify/**", "/sendreceive/**",
                                     "/user/**")
-                            .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
+                                .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
                             .anyRequest().authenticated()
-                    )
+                    .and()
                     .formLogin((form) -> form
                             .loginPage("/login")
                             .permitAll()
                     )
-                    .logout((logout) -> logout.permitAll());
+                    .logout((logout) -> logout
+                            .permitAll()
+                            .logoutSuccessUrl("/login"));
             return http.build();
         }
     }
