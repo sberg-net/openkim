@@ -5,6 +5,9 @@ server:
   error:
     include-stacktrace: always
 
+app:
+  version: '@project.version@'
+
 konfiguration:
   gatewayHostDefaultWert: 127.0.0.1
   smtpGatewayPortDefaultWert: 8888
