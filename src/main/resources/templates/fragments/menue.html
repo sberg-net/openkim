@@ -13,7 +13,7 @@
                 <ul class="nav flex-column">
                     <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','MONITORING')">
                         <a class="nav-link"
-                           th:classappend="${#httpServletRequest.getRequestURI().endsWith('/') ? 'active':''}"
+                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/') ? 'active':''}"
                            th:href="@{/}">
                             <span data-feather="settings"></span>
                             Minimale Konfiguration
@@ -21,21 +21,23 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','MONITORING')">
                         <a class="nav-link"
-                           th:classappend="${#httpServletRequest.getRequestURI().endsWith('/dashboard') ? 'active':''}"
+                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/dashboard') ? 'active':''}"
                            th:href="@{/dashboard}">
                             <span data-feather="activity"></span>
                             Dashboard
                         </a>
                     </li>
                     <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
-                      <a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI().endsWith('/user/settings') ? 'active':''}" th:href="@{/user/settings}">
+                      <a class="nav-link"
+                         th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/user/settings') ? 'active':''}"
+                         th:href="@{/user/settings}">
                         <span data-feather="user"></span>
                         Benutzereinstellungen
                       </a>
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link"
-                           th:classappend="${#httpServletRequest.getRequestURI().endsWith('/konfiguration') ? 'active':''}"
+                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/konfiguration') ? 'active':''}"
                            th:href="@{/konfiguration}">
                             <span data-feather="settings"></span>
                             Konfiguration
@@ -43,7 +45,7 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link"
-                           th:classappend="${#httpServletRequest.getRequestURI().endsWith('/pop3log') ? 'active':''}"
+                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/pop3log') ? 'active':''}"
                            th:href="@{/pop3log}">
                             <span data-feather="info"></span>
                             POP3 Gateway Logs
@@ -51,7 +53,7 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link"
-                           th:classappend="${#httpServletRequest.getRequestURI().endsWith('/smtplog') ? 'active':''}"
+                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/smtplog') ? 'active':''}"
                            th:href="@{/smtplog}">
                             <span data-feather="info"></span>
                             SMTP Gateway Logs
@@ -65,7 +67,7 @@
                         <ul class="nav flex-column ml-4">
                             <li class="nav-item">
                                 <a class="nav-link"
-                                   th:classappend="${#httpServletRequest.getRequestURI().endsWith('/mailanalyzer') ? 'active':''}"
+                                   th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/mailanalyzer') ? 'active':''}"
                                    th:href="@{/mailanalyzer}">
                                     <span data-feather="mail"></span>
                                     Analysieren der Struktur
@@ -73,7 +75,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link"
-                                   th:classappend="${#httpServletRequest.getRequestURI().endsWith('/signencrypt') ? 'active':''}"
+                                   th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/signencrypt') ? 'active':''}"
                                    th:href="@{/signencrypt}">
                                     <span data-feather="mail"></span>
                                     Signieren und Verschlüsseln
@@ -81,7 +83,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link"
-                                   th:classappend="${#httpServletRequest.getRequestURI().endsWith('/decryptverify') ? 'active':''}"
+                                   th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/decryptverify') ? 'active':''}"
                                    th:href="@{/decryptverify}">
                                     <span data-feather="mail"></span>
                                     Entschlüsseln und Verifizieren
@@ -89,7 +91,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link"
-                                   th:classappend="${#httpServletRequest.getRequestURI().endsWith('/sendreceive') ? 'active':''}"
+                                   th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/sendreceive') ? 'active':''}"
                                    th:href="@{/sendreceive}">
                                     <span data-feather="mail"></span>
                                     Senden und Empfangen

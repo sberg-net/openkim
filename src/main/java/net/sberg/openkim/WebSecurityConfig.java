@@ -41,9 +41,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
-
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
    /* @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -117,8 +115,9 @@ public class WebSecurityConfig {
                     .and()
                     .csrf()
                     .and()
-                    .authorizeHttpRequests()
-                            .requestMatchers("/webjars/**", "/static/**")
+                    .authorizeHttpRequests((request) -> request
+                            .requestMatchers("/webjars/**", "/js/**", "/css/**",
+                                    "/img/**", "/fonts/**")
                                 .permitAll()
                             .requestMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**",
                                     "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**",
@@ -127,7 +126,7 @@ public class WebSecurityConfig {
                                     "/user/**")
                                 .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
                             .anyRequest().authenticated()
-                    .and()
+                    )
                     .formLogin((form) -> form
                             .loginPage("/login")
                             .permitAll()
