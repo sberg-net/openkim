@@ -5,8 +5,10 @@ server:
   error:
     include-stacktrace: always
 
-app:
-  version: '@project.version@'
+
+versions:
+  openKim: '@project.version@'
+  ProduktTypVersion: '1.5.0-2'
 
 konfiguration:
   gatewayHostDefaultWert: 127.0.0.1
