@@ -17,159 +17,77 @@
 package net.sberg.openkim;
 
 import net.sberg.openkim.common.EnumAuthRole;
-import net.sberg.openkim.gateway.GatewayKeystoreController;
 import net.sberg.openkim.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import static org.springframework.security.config.Customizer.withDefaults;
-
-// https://spring.io/guides/gs/securing-web/
-
 
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
-    @Autowired private UserService userService;
 
-   /* @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Autowired
+    private UserService userService;
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**",
-                                "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**",
-                                "/dashboard/**", "/konnvzd/**", "/konnwebservice/**", "/konnntp/**",
-                                "/mailanalyzer/**", "/signencrypt/**", "/decryptverify/**", "/sendreceive/**",
-                                "/user/**").permitAll()
-                        .anyRequest().authenticated()
+                .securityMatcher("/api/**")
+                .authorizeHttpRequests((request) -> request
+                        .anyRequest().hasRole(EnumAuthRole.ROLE_ADMIN.getSuffix())
                 )
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .permitAll()
-                )
-                .logout((logout) -> logout.permitAll());
-
+                .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("password")
-                        .roles("USER")
-                        .build();
-
-        return new InMemoryUserDetailsManager(user);
-    }*/
-
-    /*@Configuration
-    @Order(1)
-    public static class ApiWebSecurityConfigurationAdapter {
-
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http.csrf().disable()
-                    .authorizeHttpRequests((authz) -> authz
-                            .requestMatchers("/api/**")
-                            .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix())
-                            .anyRequest()
-                            .authenticated()
-                    )
-                    .httpBasic(withDefaults());
-            return http.build();
-        }*/
-
-//        protected void configure(HttpSecurity http) throws Exception {
-//            http.csrf().disable()
-//                .antMatcher("/api/**")
-//                .authorizeRequests()
-//                .anyRequest()
-//                .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_ADMIN.getSuffix())
-//                .and()
-//                .httpBasic();
-//        }
-//    }
-
-    @Configuration
-    public static class FormLoginWebSecurityConfigurerAdapter {
-
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http
-                    .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .invalidSessionUrl("/login")
-                    .and()
-                    .csrf()
-                    .and()
-                    .authorizeHttpRequests((request) -> request
-                            .requestMatchers("/webjars/**", "/js/**", "/css/**",
-                                    "/img/**", "/fonts/**")
-                                .permitAll()
-                            .requestMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**",
-                                    "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**",
-                                    "/dashboard/**", "/konnvzd/**", "/konnwebservice/**", "/konnntp/**",
-                                    "/mailanalyzer/**", "/signencrypt/**", "/decryptverify/**", "/sendreceive/**",
-                                    "/user/**")
-                                .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
-                            .anyRequest().authenticated()
-                    )
-                    .formLogin((form) -> form
-                            .loginPage("/login")
-                            .permitAll()
-                    )
-                    .logout((logout) -> logout
-                            .permitAll()
-                            .logoutSuccessUrl("/login"));
-            return http.build();
-        }
-    }
-
-    /*@Configuration
-    public class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
+    public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
+        http
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .invalidSessionUrl("/login")
                 .and()
                 .csrf()
                 .and()
-                .authorizeRequests()
-                .antMatchers("/dev/**")
-                .permitAll()
-                .and()
-                .authorizeRequests()
-                .antMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**", "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**", "/dashboard/**", "/konnvzd/**", "/konnwebservice/**", "/konnntp/**", "/mailanalyzer/**", "/signencrypt/**", "/decryptverify/**", "/sendreceive/**", "/user/**")
-                .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .and()
-                .logout()
-                .permitAll()
-                .logoutSuccessUrl("/login");
-        }*/
+                .authorizeHttpRequests((request) -> request
+                        .requestMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**",
+                                "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**",
+                                "/dashboard/**", "/konnvzd/**", "/konnwebservice/**", "/konnntp/**",
+                                "/mailanalyzer/**", "/signencrypt/**", "/decryptverify/**", "/sendreceive/**",
+                                "/user/**")
+                        .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
+                        .anyRequest().authenticated()
+                )
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                        .permitAll()
+                )
+                .logout((logout) -> logout
+                        .permitAll()
+                        .logoutSuccessUrl("/login"));
+        return http.build();
+    }
 
-        @Autowired
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.userDetailsService(userService.create());
-        }
+    // ignore resource paths and /dev/* in spring secure to have access without rules
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/webjars/**", "/js/**", "/css/**",
+                "/img/**", "/fonts/**", "/dev/**");
+    }
+
+    @Autowired
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userService.create());
+    }
 }
 
 
