@@ -45,8 +45,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Bean(name = "multipartResolver")
     public StandardServletMultipartResolver multipartResolver() {
-        StandardServletMultipartResolver multipartResolver = new StandardServletMultipartResolver();
-        return multipartResolver;
+        return new StandardServletMultipartResolver();
     }
 
     @Override
@@ -97,7 +96,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addViewController("/pop3log").setViewName("log/pop3log");
         registry.addViewController("/smtplog").setViewName("log/smtplog");
         registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/error").setViewName("error");
         registry.addViewController("/mailanalyzer").setViewName("mailanalyzer/mailanalyzer");
         registry.addViewController("/signencrypt").setViewName("signencrypt/signencrypt");
         registry.addViewController("/decryptverify").setViewName("decryptverify/decryptverify");
