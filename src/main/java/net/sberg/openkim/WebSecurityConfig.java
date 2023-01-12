@@ -39,7 +39,6 @@ public class WebSecurityConfig {
     final UserService userService;
 
     @Bean
-    @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
