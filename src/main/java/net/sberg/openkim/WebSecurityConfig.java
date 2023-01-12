@@ -16,6 +16,7 @@
  */
 package net.sberg.openkim;
 
+import lombok.RequiredArgsConstructor;
 import net.sberg.openkim.common.EnumAuthRole;
 import net.sberg.openkim.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    @Autowired
-    private UserService userService;
+    final UserService userService;
 
     @Bean
     @Order(1)
