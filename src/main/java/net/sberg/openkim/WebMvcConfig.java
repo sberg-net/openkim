@@ -17,34 +17,35 @@
 package net.sberg.openkim;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Description;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
-import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.thymeleaf.spring5.view.ThymeleafViewResolver;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring6.view.ThymeleafViewResolver;
+import org.thymeleaf.templatemode.TemplateMode;
 
 import java.util.List;
 
-@EnableWebMvc
+
 @Configuration
+@EnableWebMvc
+@ComponentScan
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Bean(name = "multipartResolver")
-    public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-        multipartResolver.setMaxUploadSize(5242880);
-        return multipartResolver;
+    public StandardServletMultipartResolver multipartResolver() {
+        return new StandardServletMultipartResolver();
     }
 
     @Override
@@ -53,46 +54,37 @@ public class WebMvcConfig implements WebMvcConfigurer {
         converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
     }
 
-    @Bean
-    @Description("Thymeleaf template resolver serving HTML 5")
-    public ClassLoaderTemplateResolver templateResolver() {
-
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-
-        templateResolver.setPrefix("templates/");
-        templateResolver.setCacheable(false);
+  @Bean
+    public SpringResourceTemplateResolver templateResolver(){
+        SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
+        templateResolver.setPrefix("classpath:/templates/");
         templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode("HTML");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding("UTF-8");
-
+        templateResolver.setCacheable(false);
         return templateResolver;
     }
 
     @Bean
-    public SpringSecurityDialect springSecurityDialect() {
-        return new SpringSecurityDialect();
-    }
-
-    @Bean
-    @Description("Thymeleaf template engine with Spring integration")
     public SpringTemplateEngine templateEngine() {
-
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.addDialect(new Java8TimeDialect());
-        templateEngine.addDialect(springSecurityDialect());
+        templateEngine.addDialect(new SpringSecurityDialect());
+        // Enabling the SpringEL compiler with Spring 4.2.4 or newer can
+        // speed up execution in most scenarios, but might be incompatible
+        // with specific cases when expressions in one template are reused
+        // across different data types, so this flag is "false" by default
+        // for safer backwards compatibility.
+        templateEngine.setEnableSpringELCompiler(false);
         return templateEngine;
     }
 
     @Bean
-    @Description("Thymeleaf view resolver")
     public ViewResolver viewResolver() {
-
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-
         viewResolver.setTemplateEngine(templateEngine());
         viewResolver.setCharacterEncoding("UTF-8");
-
         return viewResolver;
     }
 
@@ -104,7 +96,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addViewController("/pop3log").setViewName("log/pop3log");
         registry.addViewController("/smtplog").setViewName("log/smtplog");
         registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/error").setViewName("error");
         registry.addViewController("/mailanalyzer").setViewName("mailanalyzer/mailanalyzer");
         registry.addViewController("/signencrypt").setViewName("signencrypt/signencrypt");
         registry.addViewController("/decryptverify").setViewName("decryptverify/decryptverify");
@@ -112,20 +103,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry
-            .addResourceHandler(
-                "/webjars/**",
-                "/img/**",
-                "/fonts/**",
-                "/css/**",
-                "/js/**")
-            .addResourceLocations(
-                "/webjars/",
-                "classpath:/static/img/",
-                "classpath:/static/fonts/",
-                "classpath:/static/css/",
-                "classpath:/static/js/")
-            .resourceChain(false);
+    public void addResourceHandlers(final ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/webjars/**").addResourceLocations("/webjars/")
+                .resourceChain(false);
+        registry.addResourceHandler("/img/**").addResourceLocations("classpath:/static/img/")
+                .resourceChain(false);
+        registry.addResourceHandler("/fonts/**").addResourceLocations("classpath:/static/fonts/")
+                .resourceChain(false);
+        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/")
+                .resourceChain(false);
+        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/")
+                .resourceChain(false);
     }
 }

@@ -17,7 +17,6 @@
 package net.sberg.openkim.gateway.pop3.cmdhandler;
 
 import com.google.common.collect.ImmutableSet;
-import com.sun.mail.pop3.POP3Folder;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import org.apache.james.protocols.api.Request;
@@ -28,6 +27,7 @@ import org.apache.james.protocols.pop3.core.AbstractPOP3CommandHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.util.Collection;
 
@@ -53,7 +53,7 @@ public class Pop3GatewayListCmdHandler extends AbstractPOP3CommandHandler {
                     ((Pop3GatewaySession) session).log("list ends");
                     return response;
                 } else {
-                    int[] sizes = ((POP3Folder) ((Pop3GatewaySession) session).getPop3ClientFolder()).getSizes();
+                    Message[] sizes = ((Pop3GatewaySession) session).getPop3ClientFolder().getMessages();
                     POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, sizes.length == 0 ? "0 Messages" : "");
                     if (sizes.length == 0) {
                         response.appendLine(".");

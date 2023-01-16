@@ -8,7 +8,9 @@
 <nav id="navbar" th:fragment="navbar" class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
     <div class="logo">
         <a class="navbar-brand ml-2" href="#">
-            OpenKIM 0.9.1&nbsp;&nbsp;&nbsp;Produkttypversion 1.5.0-2
+            OpenKim <span th:text="${@environment.getProperty('versions.openKim')}"></span>
+            &nbsp&nbsp&nbsp
+            Produkttypversion <span th:text="${@environment.getProperty('versions.ProduktTypVersion')}"></span>
         </a>
     </div>
     <button

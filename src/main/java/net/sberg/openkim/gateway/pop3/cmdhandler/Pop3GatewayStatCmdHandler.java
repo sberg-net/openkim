@@ -17,7 +17,6 @@
 package net.sberg.openkim.gateway.pop3.cmdhandler;
 
 import com.google.common.collect.ImmutableSet;
-import com.sun.mail.pop3.POP3Folder;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import org.apache.james.protocols.api.Request;
@@ -51,7 +50,7 @@ public class Pop3GatewayStatCmdHandler extends AbstractPOP3CommandHandler {
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             try {
                 int count = ((Pop3GatewaySession) session).getPop3ClientFolder().getMessageCount();
-                int size = ((POP3Folder) ((Pop3GatewaySession) session).getPop3ClientFolder()).getSize();
+                int size = ((Pop3GatewaySession) session).getPop3ClientFolder().getMessageCount();
                 ((Pop3GatewaySession) session).log("stat ends");
                 return new POP3Response(POP3Response.OK_RESPONSE, count + " " + size);
             } catch (Exception e) {

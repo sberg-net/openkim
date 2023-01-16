@@ -17,8 +17,6 @@
 package net.sberg.openkim.gateway.pop3.cmdhandler;
 
 import com.google.common.collect.ImmutableSet;
-import com.sun.mail.pop3.POP3Folder;
-import com.sun.mail.pop3.POP3Message;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import org.apache.james.protocols.api.Request;
@@ -30,6 +28,8 @@ import org.apache.james.protocols.pop3.core.CapaCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.mail.Message;
+import javax.mail.UIDFolder;
 import java.util.Collection;
 import java.util.Set;
 
@@ -44,9 +44,10 @@ public class Pop3GatewayUidlCmdHandler extends AbstractPOP3CommandHandler implem
         return gatewayMetricFactory.decorateSupplierWithTimerMetric("pop3-uidl", () -> doUidl(session, request));
     }
 
-    private String getUid(int messageId, POP3Session session) throws Exception {
-        POP3Message message = (POP3Message) ((Pop3GatewaySession) session).getPop3ClientFolder().getMessage(messageId);
-        return ((POP3Folder) ((Pop3GatewaySession) session).getPop3ClientFolder()).getUID(message);
+    private long getUid(int messageId, POP3Session session) throws Exception {
+        Message msg = ((Pop3GatewaySession) session).getPop3ClientFolder().getMessage(messageId);
+        UIDFolder uidFolder = (UIDFolder) ((Pop3GatewaySession) session).getPop3ClientFolder();
+        return uidFolder.getUID(msg);
     }
 
     private Response doUidl(POP3Session session, Request request) {
@@ -59,7 +60,7 @@ public class Pop3GatewayUidlCmdHandler extends AbstractPOP3CommandHandler implem
                     ((Pop3GatewaySession) session).log("uidl ends");
                     return response;
                 } else {
-                    int length = ((POP3Folder) ((Pop3GatewaySession) session).getPop3ClientFolder()).getSizes().length;
+                    int length = ((Pop3GatewaySession) session).getPop3ClientFolder().getMessageCount();
                     POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, length == 0 ? "0 Messages" : "");
                     if (length == 0) {
                         response.appendLine(".");
