@@ -8,20 +8,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+```
+```
 
-- Github Actions
-- Dockerfile inklusive build und push zu [Dockerhub]
+### Changed
+```
+```
+
+### Fixed
+```
+```
+
+## [0.11.0]
+
+### Added
+```
+```
+
+### Changed
+```
+```
+
+### Fixed
+```
+```
 
 ## [0.9.0]
 
 ### Added
-
+```
 - Erstellen des Git-Repositorys
+- Github Actions
+- Dockerfile inklusive build und push zu [Dockerhub]
+```
 
 ### Changed
+```
+```
 
 ### Fixed
+```
+```
 
 [unreleased]: https://github.com/sberg-net/openkim/compare/0.9.0...HEAD
+[0.11.0]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.11.0
+[0.10.0-dev1]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.10.0-dev1
+[0.9.1]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.9.1
 [0.9.0]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.9.0
 [dockerhub]: https://hub.docker.com/repository/docker/sbergit/openkim
