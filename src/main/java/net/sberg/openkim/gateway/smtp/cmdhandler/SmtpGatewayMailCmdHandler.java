@@ -19,7 +19,7 @@ package net.sberg.openkim.gateway.smtp.cmdhandler;
 import com.google.common.collect.ImmutableSet;
 import net.sberg.openkim.gateway.smtp.AbstractGatewayHookableCmdHandler;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdService;
+import net.sberg.openkim.konnektor.vzd.VzdService;
 import org.apache.james.core.MailAddress;
 import org.apache.james.core.MaybeSender;
 import org.apache.james.protocols.api.ProtocolSession;

@@ -17,16 +17,16 @@
 package net.sberg.openkim.gateway.pop3.cmdhandler;
 
 import com.google.common.collect.ImmutableSet;
-import net.sberg.openkim.common.mail.EnumMailAuthMethod;
-import net.sberg.openkim.common.mail.EnumMailConnectionSecurity;
-import net.sberg.openkim.common.mail.MailUtils;
+import net.sberg.openkim.mail.EnumMailAuthMethod;
+import net.sberg.openkim.mail.EnumMailConnectionSecurity;
+import net.sberg.openkim.mail.MailUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.EnumPop3GatewayState;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import net.sberg.openkim.konfiguration.Konfiguration;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsResult;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsResultContainer;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsService;
+import net.sberg.openkim.konnektor.dns.DnsResult;
+import net.sberg.openkim.konnektor.dns.DnsResultContainer;
+import net.sberg.openkim.konnektor.dns.DnsService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.james.core.Username;
 import org.apache.james.metrics.api.TimeMetric;
@@ -389,7 +389,10 @@ public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implem
                 EnumMailAuthMethod.NORMALPWD,
                 mailServerIpAddress,
                 ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerPort(),
-                konfiguration
+                konfiguration.getPop3ClientIdleTimeoutInSeconds(),
+                konfiguration.getFachdienstCertFilename(),
+                konfiguration.getFachdienstCertAuthPwd(),
+                true
             );
 
             Store store = pop3ClientSession.getStore("pop3");

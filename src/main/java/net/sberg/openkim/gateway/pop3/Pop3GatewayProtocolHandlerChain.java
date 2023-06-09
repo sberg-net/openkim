@@ -16,10 +16,10 @@
  */
 package net.sberg.openkim.gateway.pop3;
 
-import net.sberg.openkim.common.mail.MailService;
+import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.gateway.pop3.cmdhandler.*;
 import net.sberg.openkim.kas.KasService;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsService;
+import net.sberg.openkim.konnektor.dns.DnsService;
 import org.apache.james.protocols.api.handler.*;
 import org.apache.james.protocols.pop3.POP3Session;
 

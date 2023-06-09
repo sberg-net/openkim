@@ -29,8 +29,6 @@ public interface ICommonConstants {
     String KONNEKTOR_TRUSTORE_JKS = KONNEKTOR_DIR + "truststore.jks";
     String KONNEKTOR_TRUSTORE_JKS_PWD = "changeit";
     String KONNEKTOR_TRUSTORE_JKS_CERT_ALIAS = "servercert";
-    String[] ENC_KEYS = new String[]{"qwzwebnjcv5461237884", "fgjnkfnkndfk", "tgzjnbdnbjdfngj", "dkgfjgkfjgkjfgkfxccnv", "rfughnvvcnbfjgjvnxcbn"};
     String OPENKIM_SERVER_KEYSTORE_FILENAME = "openkimkeystore.jks";
-    String OPENKIM_SERVER_KEYSTORE_PWD = "123!sberg!456";
     String OPENKIM_SERVER_KEYSTORE_ALIAS = "openkimkeystorealias_";
 }

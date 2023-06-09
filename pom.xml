@@ -5,17 +5,16 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>net.sberg</groupId>
     <artifactId>openkim</artifactId>
-    <version>0.10.0-dev1</version>
+    <version>0.11.0</version>
     <name>openkim</name>
     <description>Open KIM Client Modul</description>
 
     <properties>
-<!--        <log4j2.version>2.16.0</log4j2.version>-->
         <logback.version>1.4.5</logback.version>
     </properties>
 
@@ -186,7 +185,6 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
-            <!-- update >4.5.3 will crash GUI -->
             <version>4.5.3</version>
         </dependency>
         <dependency>

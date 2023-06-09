@@ -18,7 +18,7 @@ package net.sberg.openkim.gateway.pop3;
 
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.konfiguration.Konfiguration;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;

@@ -20,11 +20,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sberg.openkim.common.FileUtils;
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.StringUtils;
-import net.sberg.openkim.common.mail.EnumMailConnectionSecurity;
-import net.sberg.openkim.konfiguration.konnektor.EnumKonnektorAuthMethod;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
-import net.sberg.openkim.konfiguration.konnektor.KonnektorService;
-import net.sberg.openkim.konfiguration.konnektor.KonnektorServiceBean;
+import net.sberg.openkim.mail.EnumMailConnectionSecurity;
+import net.sberg.openkim.konnektor.EnumKonnektorAuthMethod;
+import net.sberg.openkim.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.KonnektorService;
+import net.sberg.openkim.konnektor.KonnektorServiceBean;
 import net.sberg.openkim.konfiguration.minimal.MinimalKonfiguration;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
@@ -71,6 +71,12 @@ public class KonfigurationService {
 
     @Value("${konfiguration.pop3GatewayPortDefaultWert}")
     private String pop3GatewayPortDefaultWert;
+
+    @Value("${konfiguration.encryptionKeys}")
+    private String encryptionKeys;
+
+    @Value("${konfiguration.encryptPasswords}")
+    private boolean encryptPasswords;
 
     @PostConstruct
     public void construct() throws Exception {
@@ -173,17 +179,24 @@ public class KonfigurationService {
     }
 
     private void write() throws Exception {
+        if (encryptPasswords) {
+            konfiguration.encryptPwds(encryptionKeys);
+        }
         String content = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(konfiguration);
-        content = StringUtils.xor(content, ICommonConstants.ENC_KEYS);
-        content = new String(Base64.getEncoder().encode(content.getBytes()));
         FileUtils.writeToFile(content, ICommonConstants.CONFIG_FILENAME);
     }
 
     private void read() throws Exception {
         String str = FileUtils.readFileContent(ICommonConstants.CONFIG_FILENAME);
-        str = new String(Base64.getDecoder().decode(str.getBytes()));
-        str = StringUtils.xor(str, ICommonConstants.ENC_KEYS);
+        try {
+            str = new String(Base64.getDecoder().decode(str.getBytes()));
+            str = StringUtils.xor(str, encryptionKeys.split(","));
+        }
+        catch (Exception e) {}
         konfiguration = new ObjectMapper().readValue(str, Konfiguration.class);
+        if (encryptPasswords) {
+            konfiguration.decryptPwds(encryptionKeys);
+        }
     }
 
     public String speichern(Konfiguration konfiguration) throws Exception {
@@ -205,6 +218,7 @@ public class KonfigurationService {
 
             this.konfiguration = konfiguration;
             write();
+            read();
             executeKonnektoren();
             return "ok";
         }
@@ -239,6 +253,7 @@ public class KonfigurationService {
             if (konnektor != null) {
                 konfiguration.getKonnektoren().remove(konnektor);
                 write();
+                read();
             } else {
                 throw new IllegalStateException("Die Konnektor-Konfiguration konnte nicht geladen werden mit der id: " + uuid);
             }
@@ -345,6 +360,7 @@ public class KonfigurationService {
                 konfiguration.getKonnektoren().add(konnektor);
             }
             write();
+            read();
             return "ok";
         }
     }

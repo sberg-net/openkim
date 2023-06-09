@@ -17,8 +17,8 @@
 package net.sberg.openkim.gateway.smtp;
 
 import net.sberg.openkim.gateway.smtp.cmdhandler.*;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsService;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdService;
+import net.sberg.openkim.konnektor.dns.DnsService;
+import net.sberg.openkim.konnektor.vzd.VzdService;
 import org.apache.james.protocols.api.handler.*;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.*;

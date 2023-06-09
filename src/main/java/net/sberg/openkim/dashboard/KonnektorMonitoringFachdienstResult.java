@@ -17,7 +17,7 @@
 package net.sberg.openkim.dashboard;
 
 import lombok.Data;
-import net.sberg.openkim.konfiguration.fachdienst.EnumFachdienst;
+import net.sberg.openkim.fachdienst.EnumFachdienst;
 
 @Data
 public class KonnektorMonitoringFachdienstResult {

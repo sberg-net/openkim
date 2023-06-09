@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sberg.openkim.WebSecurityConfig;
 import net.sberg.openkim.common.FileUtils;
-import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +94,7 @@ public class UserService {
             securityMap.put("users", userList);
 
             String content = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(securityMap);
-            content = StringUtils.xor(content, ICommonConstants.ENC_KEYS);
+            content = StringUtils.xor(content, env.getProperty("konfiguration.encryptionKeys").split(","));
             content = new String(Base64.getEncoder().encode(content.getBytes()));
             FileUtils.writeToFile(content, file.getAbsolutePath());
 
@@ -109,7 +108,7 @@ public class UserService {
         List<User> res = new ArrayList<>();
         String fileContent = FileUtils.readFileContent(file.getAbsolutePath());
         fileContent = new String(Base64.getDecoder().decode(fileContent.getBytes()));
-        fileContent = StringUtils.xor(fileContent, ICommonConstants.ENC_KEYS);
+        fileContent = StringUtils.xor(fileContent, env.getProperty("konfiguration.encryptionKeys").split(","));
 
         Map<String, List<HashMap>> properties = mapper.readValue(fileContent, new TypeReference<>(){});
         List<HashMap> userList = properties.get("users");
@@ -173,7 +172,7 @@ public class UserService {
         securityMap.put("users", dbUser);
 
         String content = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(securityMap);
-        content = StringUtils.xor(content, ICommonConstants.ENC_KEYS);
+        content = StringUtils.xor(content, env.getProperty("konfiguration.encryptionKeys").split(","));
         content = new String(Base64.getEncoder().encode(content.getBytes()));
         FileUtils.writeToFile(content, file.getAbsolutePath());
 

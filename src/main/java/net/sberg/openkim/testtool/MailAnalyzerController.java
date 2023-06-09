@@ -17,8 +17,8 @@
 package net.sberg.openkim.testtool;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.sberg.openkim.common.mail.MailPartContent;
-import net.sberg.openkim.common.mail.MailPartContentService;
+import net.sberg.openkim.mail.MailPartContent;
+import net.sberg.openkim.mail.MailPartContentService;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;

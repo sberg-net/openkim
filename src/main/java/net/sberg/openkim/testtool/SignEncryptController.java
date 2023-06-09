@@ -16,16 +16,17 @@
  */
 package net.sberg.openkim.testtool;
 
-import net.sberg.openkim.common.mail.MailService;
+import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdService;
+import net.sberg.openkim.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
+import net.sberg.openkim.mail.MailUtils;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +140,7 @@ public class SignEncryptController {
 
             if (signEncryptExecute) {
                 String signCardHandle = mailService.getSignCardHandle(logger, true);
-                List<String> recipients = mailService.getAddresses(originMessage, true);
+                List<String> recipients = MailUtils.getAddresses(originMessage, true);
                 List<X509CertificateResult> certs = vzdService.loadCerts(logger, recipients, false, true);
                 byte[] signedBytes = mailService.sign(logger, originMessage, signCardHandle, certs, true);
                 signEncryptResult.setMailSignedContent(new String(signedBytes, StandardCharsets.UTF_8));

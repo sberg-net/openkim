@@ -17,7 +17,7 @@
 package net.sberg.openkim.dashboard;
 
 import lombok.Data;
-import net.sberg.openkim.konfiguration.konnektor.EnumKonnektorServiceBeanType;
+import net.sberg.openkim.konnektor.EnumKonnektorServiceBeanType;
 
 @Data
 public class KonnektorMonitoringWebserviceResult {

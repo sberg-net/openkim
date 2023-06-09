@@ -19,7 +19,7 @@ package net.sberg.openkim.konfiguration.minimal;
 import net.sberg.openkim.common.AbstractWebController;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.Konnektor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

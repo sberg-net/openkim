@@ -16,10 +16,10 @@
  */
 package net.sberg.openkim.dashboard;
 
-import net.sberg.openkim.konfiguration.fachdienst.Fachdienst;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
-import net.sberg.openkim.konfiguration.konnektor.KonnektorServiceBean;
-import net.sberg.openkim.konfiguration.konnektor.card.KonnektorCard;
+import net.sberg.openkim.fachdienst.Fachdienst;
+import net.sberg.openkim.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.KonnektorServiceBean;
+import net.sberg.openkim.konnektor.card.KonnektorCard;
 import org.springframework.stereotype.Service;
 
 import java.util.Iterator;

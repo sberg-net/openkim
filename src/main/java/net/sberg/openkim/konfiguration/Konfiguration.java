@@ -19,11 +19,14 @@ package net.sberg.openkim.konfiguration;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import net.sberg.openkim.common.mail.EnumMailConnectionSecurity;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
+import net.sberg.openkim.common.StringUtils;
+import net.sberg.openkim.mail.EnumMailConnectionSecurity;
+import net.sberg.openkim.konnektor.Konnektor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Iterator;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -93,6 +96,31 @@ public class Konfiguration {
             getMandantId() != null && !getMandantId().trim().isEmpty() &&
             getWorkplaceId() != null && !getWorkplaceId().trim().isEmpty() &&
             getClientSystemId() != null && !getClientSystemId().trim().isEmpty();
+    }
+
+    public void encryptPwds(String encryptionKeys) throws Exception {
+        if (fachdienstCertAuthPwd != null && !fachdienstCertAuthPwd.trim().isEmpty()) {
+            fachdienstCertAuthPwd = StringUtils.xor(fachdienstCertAuthPwd, encryptionKeys.split(","));
+            fachdienstCertAuthPwd = new String(Base64.getEncoder().encode(fachdienstCertAuthPwd.getBytes()));
+        }
+        for (Iterator<Konnektor> iterator = konnektoren.iterator(); iterator.hasNext(); ) {
+            Konnektor konnektor = iterator.next();
+            konnektor.encryptPwds(encryptionKeys);
+        }
+    }
+
+    public void decryptPwds(String encryptionKeys) throws Exception {
+        if (fachdienstCertAuthPwd != null && !fachdienstCertAuthPwd.trim().isEmpty()) {
+            try {
+                fachdienstCertAuthPwd = new String(Base64.getDecoder().decode(fachdienstCertAuthPwd.getBytes()));
+                fachdienstCertAuthPwd = StringUtils.xor(fachdienstCertAuthPwd, encryptionKeys.split(","));
+            }
+            catch (Exception e) {}
+        }
+        for (Iterator<Konnektor> iterator = konnektoren.iterator(); iterator.hasNext(); ) {
+            Konnektor konnektor = iterator.next();
+            konnektor.decryptPwds(encryptionKeys);
+        }
     }
 
 }

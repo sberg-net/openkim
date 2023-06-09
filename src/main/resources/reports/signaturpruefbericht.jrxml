@@ -7,7 +7,7 @@
     <property name="ireport.zoom" value="1.5026296018031553"/>
     <property name="ireport.x" value="0"/>
     <property name="ireport.y" value="0"/>
-    <parameter name="result" class="net.sberg.openkim.common.mail.signreport.VerifyResult"/>
+    <parameter name="result" class="net.sberg.openkim.mail.signreport.VerifyResult"/>
     <background>
         <band splitType="Stretch"/>
     </background>

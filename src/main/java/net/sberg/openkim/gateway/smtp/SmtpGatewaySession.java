@@ -19,7 +19,7 @@ package net.sberg.openkim.gateway.smtp;
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konfiguration.Konfiguration;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;

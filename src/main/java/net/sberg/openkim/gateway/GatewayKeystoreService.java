@@ -21,8 +21,8 @@ import net.sberg.openkim.common.ICommonConstants;
 import org.jboss.netty.handler.ssl.util.SelfSignedCertificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -54,6 +54,9 @@ public class GatewayKeystoreService {
     private static final String BEGIN_KEY = "-----BEGIN PRIVATE KEY-----";
     private static final String END_KEY = "-----END PRIVATE KEY-----";
 
+    @Value("${gatewaykeystore.password}")
+    private String password;
+
     public void createSelfSigned() throws Exception {
         if (log.isInfoEnabled()) {
             log.info("***generateSelfSigned keys and cert - BEGIN***");
@@ -74,7 +77,7 @@ public class GatewayKeystoreService {
             .replaceAll(System.lineSeparator(), "")
             .replace(END_KEY, "");
 
-        byte[] encoded = Base64Utils.decodeFromString(privateKeyPEM);
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
 
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded);
         KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -82,10 +85,10 @@ public class GatewayKeystoreService {
 
         KeyStore keyStore = KeyStore.getInstance("PKCS12", "BC");
         keyStore.load(null, null);
-        keyStore.setKeyEntry(ICommonConstants.OPENKIM_SERVER_KEYSTORE_ALIAS, privKey, ICommonConstants.OPENKIM_SERVER_KEYSTORE_PWD.toCharArray(), chain);
+        keyStore.setKeyEntry(ICommonConstants.OPENKIM_SERVER_KEYSTORE_ALIAS, privKey, password.toCharArray(), chain);
         keyStore.store(
             new FileOutputStream(new File(ICommonConstants.BASE_DIR + ICommonConstants.OPENKIM_SERVER_KEYSTORE_FILENAME)),
-            ICommonConstants.OPENKIM_SERVER_KEYSTORE_PWD.toCharArray()
+            password.toCharArray()
         );
 
         if (log.isInfoEnabled()) {
@@ -122,10 +125,10 @@ public class GatewayKeystoreService {
         //write to keystore
         KeyStore keyStore = KeyStore.getInstance("PKCS12", "BC");
         keyStore.load(null, null);
-        keyStore.setKeyEntry(ICommonConstants.OPENKIM_SERVER_KEYSTORE_ALIAS, privKey, ICommonConstants.OPENKIM_SERVER_KEYSTORE_PWD.toCharArray(), certChain);
+        keyStore.setKeyEntry(ICommonConstants.OPENKIM_SERVER_KEYSTORE_ALIAS, privKey, password.toCharArray(), certChain);
         keyStore.store(
             new FileOutputStream(new File(ICommonConstants.BASE_DIR + ICommonConstants.OPENKIM_SERVER_KEYSTORE_FILENAME)),
-            ICommonConstants.OPENKIM_SERVER_KEYSTORE_PWD.toCharArray()
+            password.toCharArray()
         );
 
         if (log.isInfoEnabled()) {

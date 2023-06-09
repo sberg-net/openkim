@@ -18,7 +18,7 @@ package net.sberg.openkim.konfiguration.minimal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import net.sberg.openkim.konfiguration.konnektor.EnumKonnektorAuthMethod;
+import net.sberg.openkim.konnektor.EnumKonnektorAuthMethod;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data

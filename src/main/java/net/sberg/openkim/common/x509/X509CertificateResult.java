@@ -17,7 +17,7 @@
 package net.sberg.openkim.common.x509;
 
 import lombok.Data;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdResult;
+import net.sberg.openkim.konnektor.vzd.VzdResult;
 
 import java.util.ArrayList;
 import java.util.List;

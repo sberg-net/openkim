@@ -18,8 +18,8 @@ package net.sberg.openkim.log;
 
 import de.gematik.kim.al.model.AccountLimit;
 import net.sberg.openkim.konfiguration.Konfiguration;
-import net.sberg.openkim.konfiguration.fachdienst.Fachdienst;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
+import net.sberg.openkim.fachdienst.Fachdienst;
+import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.error.*;
 import org.bouncycastle.asn1.cms.ContentInfo;
 

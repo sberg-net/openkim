@@ -23,7 +23,7 @@ import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.gateway.smtp.AbstractGatewayHookableCmdHandler;
 import net.sberg.openkim.gateway.smtp.EnumSmtpGatewayState;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdService;
+import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.net.smtp.SMTPReply;

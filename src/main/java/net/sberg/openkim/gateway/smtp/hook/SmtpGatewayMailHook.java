@@ -17,12 +17,12 @@
 package net.sberg.openkim.gateway.smtp.hook;
 
 import net.sberg.openkim.common.FileUtils;
-import net.sberg.openkim.common.mail.MailService;
+import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.gateway.smtp.EnumSmtpGatewayState;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
 import net.sberg.openkim.kas.KasService;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdService;
+import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.log.DefaultLogger;
 import org.apache.james.protocols.smtp.MailEnvelope;
 import org.apache.james.protocols.smtp.SMTPSession;

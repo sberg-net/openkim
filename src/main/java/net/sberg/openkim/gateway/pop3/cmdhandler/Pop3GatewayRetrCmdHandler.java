@@ -17,7 +17,7 @@
 package net.sberg.openkim.gateway.pop3.cmdhandler;
 
 import com.google.common.collect.ImmutableSet;
-import net.sberg.openkim.common.mail.MailService;
+import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.EnumPop3GatewayState;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;

@@ -16,12 +16,12 @@
  */
 package net.sberg.openkim.testtool;
 
-import net.sberg.openkim.common.mail.MailService;
+import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdService;
+import net.sberg.openkim.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;

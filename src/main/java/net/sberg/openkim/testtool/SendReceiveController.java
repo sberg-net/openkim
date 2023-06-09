@@ -17,19 +17,19 @@
 package net.sberg.openkim.testtool;
 
 import net.sberg.openkim.common.ICommonConstants;
-import net.sberg.openkim.common.mail.EnumMailAuthMethod;
-import net.sberg.openkim.common.mail.EnumMailConnectionSecurity;
-import net.sberg.openkim.common.mail.MailService;
-import net.sberg.openkim.common.mail.MailUtils;
+import net.sberg.openkim.mail.EnumMailAuthMethod;
+import net.sberg.openkim.mail.EnumMailConnectionSecurity;
+import net.sberg.openkim.mail.MailService;
+import net.sberg.openkim.mail.MailUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konfiguration.konnektor.Konnektor;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsResult;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsResultContainer;
-import net.sberg.openkim.konfiguration.konnektor.dns.DnsService;
-import net.sberg.openkim.konfiguration.konnektor.vzd.VzdService;
+import net.sberg.openkim.konnektor.Konnektor;
+import net.sberg.openkim.konnektor.dns.DnsResult;
+import net.sberg.openkim.konnektor.dns.DnsResultContainer;
+import net.sberg.openkim.konnektor.dns.DnsService;
+import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
@@ -151,7 +151,7 @@ public class SendReceiveController {
                     originMessage.writeTo(byteArrayOutputStream);
                 }
 
-                List<String> recipients = mailService.getAddresses(originMessage, false);
+                List<String> recipients = MailUtils.getAddresses(originMessage, false);
                 List<X509CertificateResult> recipientsCerts = vzdService.loadCerts(logger, recipients, false, true);
 
                 String from = ((InternetAddress) originMessage.getFrom()[0]).getAddress();
@@ -205,7 +205,10 @@ public class SendReceiveController {
                 EnumMailAuthMethod.NORMALPWD,
                 dnsResult.getAddress(),
                 "995",
-                konfiguration
+                konfiguration.getPop3ClientIdleTimeoutInSeconds(),
+                konfiguration.getFachdienstCertFilename(),
+                konfiguration.getFachdienstCertAuthPwd(),
+                true
             );
 
             store = pop3ClientSession.getStore("pop3");
