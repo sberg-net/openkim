@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -19,7 +19,7 @@ package net.sberg.openkim.dashboard;
 import net.sberg.openkim.fachdienst.Fachdienst;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.konnektor.KonnektorServiceBean;
-import net.sberg.openkim.konnektor.card.KonnektorCard;
+import net.sberg.openkim.konnektor.KonnektorCard;
 import org.springframework.stereotype.Service;
 
 import java.util.Iterator;

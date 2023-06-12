@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -22,9 +22,7 @@ import net.sberg.openkim.dashboard.DashboardService;
 import net.sberg.openkim.konfiguration.ServerState;
 import net.sberg.openkim.konfiguration.ServerStateService;
 import net.sberg.openkim.fachdienst.FachdienstService;
-import net.sberg.openkim.konnektor.card.KonnektorCardService;
-import net.sberg.openkim.konnektor.card.KonnektorConnectionInfoService;
-import net.sberg.openkim.konnektor.ntp.NtpResult;
+import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpResult;
 import net.sberg.openkim.konnektor.ntp.NtpService;
 import net.sberg.openkim.log.DefaultLogger;
 import org.slf4j.Logger;

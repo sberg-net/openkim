@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -38,8 +38,8 @@ import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.konnektor.KonnektorWebserviceUtils;
-import net.sberg.openkim.konnektor.card.KonnektorCard;
-import net.sberg.openkim.konnektor.card.KonnektorCardService;
+import net.sberg.openkim.konnektor.KonnektorCard;
+import net.sberg.openkim.konnektor.KonnektorCardService;
 import net.sberg.openkim.konnektor.webservice.CertificateService;
 import net.sberg.openkim.konnektor.webservice.EncryptionService;
 import net.sberg.openkim.konnektor.webservice.SignatureService;

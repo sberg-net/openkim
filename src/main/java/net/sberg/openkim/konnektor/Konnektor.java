@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -24,7 +24,6 @@ import net.sberg.openkim.dashboard.KonnektorMonitoringResult;
 import net.sberg.openkim.konfiguration.EnumTIEnvironment;
 import net.sberg.openkim.konfiguration.ServerState;
 import net.sberg.openkim.fachdienst.Fachdienst;
-import net.sberg.openkim.konnektor.card.KonnektorCard;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;

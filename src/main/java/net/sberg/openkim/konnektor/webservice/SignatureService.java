@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -28,6 +28,10 @@ import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.konnektor.webservice.jaxb.CMSAttribute;
 import net.sberg.openkim.log.DefaultLogger;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.SignatureSignMailTextWebserviceBean;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.SignatureSignMailWebserviceBean;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.SignatureSignVerifyWebserviceBean;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.WebserviceBean;
 import oasis.names.tc.dss._1_0.core.schema.*;
 import oasis.names.tc.dss_x._1_0.profiles.verificationreport.schema_.ReturnVerificationReport;
 import org.apache.commons.codec.binary.Base64;

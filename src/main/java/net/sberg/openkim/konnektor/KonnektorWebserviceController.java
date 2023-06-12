@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -23,6 +23,9 @@ import net.sberg.openkim.konnektor.webservice.*;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.CardTerminalWebserviceBean;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.CardWebserviceBean;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.WebserviceBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;

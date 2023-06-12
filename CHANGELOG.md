@@ -19,6 +19,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ```
 
+## [0.12.0]
+
+### Added
+```
+- Hinzufügen einer Pipeline-Struktur für die Operationen (z.b. Signieren einer Mail)
+- bessere Test- und Erweiterbarkeit
+```
+
+### Changed
+```
+```
+
+### Fixed
+```
+```
+
 ## [0.11.0]
 
 ### Added
@@ -50,7 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ```
 
-[unreleased]: https://github.com/sberg-net/openkim/compare/0.9.0...HEAD
+[unreleased]: https://github.com/sberg-net/openkim/compare/0.12.0...HEAD
+[0.12.0]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.12.0
 [0.11.0]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.11.0
 [0.10.0-dev1]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.10.0-dev1
 [0.9.1]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.9.1

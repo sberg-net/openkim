@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.sberg</groupId>
     <artifactId>openkim</artifactId>
-    <version>0.11.0</version>
+    <version>0.12.0</version>
     <name>openkim</name>
     <description>Open KIM Client Modul</description>
 
@@ -140,6 +140,11 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.1</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -19,6 +19,8 @@ package net.sberg.openkim.konnektor.dns;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResult;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

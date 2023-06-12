@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -23,8 +23,8 @@ import de.gematik.kim.kas.api.AttachmentsApi;
 import net.sberg.openkim.konfiguration.EnumTIEnvironment;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
-import net.sberg.openkim.konnektor.dns.DnsResult;
-import net.sberg.openkim.konnektor.dns.DnsResultContainer;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResult;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
 import net.sberg.openkim.konnektor.dns.DnsService;
 import net.sberg.openkim.log.DefaultLogger;
 import org.slf4j.Logger;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -24,8 +24,8 @@ import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.EnumPop3GatewayState;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import net.sberg.openkim.konfiguration.Konfiguration;
-import net.sberg.openkim.konnektor.dns.DnsResult;
-import net.sberg.openkim.konnektor.dns.DnsResultContainer;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResult;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
 import net.sberg.openkim.konnektor.dns.DnsService;
 import org.apache.james.core.Username;
 import org.apache.james.protocols.api.Request;

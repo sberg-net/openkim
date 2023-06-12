@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -19,6 +19,7 @@ package net.sberg.openkim.konnektor.ntp;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
+import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpResult;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
 import org.apache.james.metrics.api.TimeMetric;

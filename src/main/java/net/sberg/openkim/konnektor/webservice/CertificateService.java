@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -28,6 +28,9 @@ import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.CertificateReadWebserviceBean;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.CertificateVerifyWebserviceBean;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.WebserviceBean;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;

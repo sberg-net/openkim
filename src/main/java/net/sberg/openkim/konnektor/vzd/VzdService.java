@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -28,6 +28,8 @@ import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.log.error.MailaddressCertErrorContext;
 import net.sberg.openkim.log.error.MailaddressKimVersionErrorContext;
+import net.sberg.openkim.pipeline.operation.konnektor.vzd.EnumVzdErrorCode;
+import net.sberg.openkim.pipeline.operation.konnektor.vzd.VzdResult;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 sberg it-systeme GmbH
+ * Copyright 2023 sberg it-systeme GmbH
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -17,7 +17,7 @@
 package net.sberg.openkim.common.x509;
 
 import lombok.Data;
-import net.sberg.openkim.konnektor.vzd.VzdResult;
+import net.sberg.openkim.pipeline.operation.konnektor.vzd.VzdResult;
 
 import java.util.ArrayList;
 import java.util.List;

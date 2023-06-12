@@ -18,6 +18,9 @@ konfiguration:
   encryptionKeys: qwzwebnjcv5461237884,fgjnkfnkndfk,tgzjnbdnbjdfngj,dkgfjgkfjgkjfgkfxccnv,rfughnvvcnbfjgjvnxcbn
   encryptPasswords: true
 
+pipeline:
+  scanPackages: net.sberg.openkim.pipeline.operation
+
 gatewaykeystore:
   password: 123!sberg!456
 
