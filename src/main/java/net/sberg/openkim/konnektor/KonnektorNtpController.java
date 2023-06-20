@@ -16,11 +16,15 @@
  */
 package net.sberg.openkim.konnektor;
 
+import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.ntp.NtpService;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.IPipelineOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpRequestOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,17 +39,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class KonnektorNtpController {
 
     @Autowired
-    private NtpService ntpService;
-    @Autowired
     private LogService logService;
     @Autowired
     private KonfigurationService konfigurationService;
+    @Autowired
+    private PipelineService pipelineService;
 
     @RequestMapping(value = "/ntp/testen/{konnektorId}", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public String testen(Model model, @PathVariable String konnektorId) throws Exception {
 
-        Konnektor dbKonnektor = konfigurationService.getKonnektor(konnektorId, true);
+        Konfiguration konfiguration = konfigurationService.getKonfiguration();
+        Konnektor dbKonnektor = konfiguration.extractKonnektor(konnektorId, true);
 
         DefaultLoggerContext defaultLoggerContext = new DefaultLoggerContext();
         DefaultLogger logger = logService.createLogger(defaultLoggerContext.buildHtmlMode(true).buildKonnektor(dbKonnektor));
@@ -54,15 +59,28 @@ public class KonnektorNtpController {
 
             model.addAttribute("konnektor", dbKonnektor);
 
-            NtpResult ntpResult = ntpService.request(logger, dbKonnektor);
+            IPipelineOperation dnsPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ NtpRequestOperation.NAME);
 
-            String resultBuilder = "Zeit von " + dbKonnektor.getIp() + ": " + ntpResult.getKonnektorTime()
-                                   + "<br/>"
-                                   + "Zeit vom System : " + ntpResult.getSystemTime()
-                                   + "<br/>";
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext.setLogger(logger);
 
-            model.addAttribute("ergebnis", resultBuilder);
-            model.addAttribute("fehler", false);
+            dnsPipelineOperation.execute(
+                defaultPipelineOperationContext,
+                context -> {
+                    NtpResult ntpResult = (NtpResult) context.getEnvironmentValue(NtpRequestOperation.NAME, NtpRequestOperation.ENV_NTP_RESULT);
+                    String resultBuilder = "Zeit von " + dbKonnektor.getIp() + ": " + ntpResult.getKonnektorTime()
+                            + "<br/>"
+                            + "Zeit vom System : " + ntpResult.getSystemTime()
+                            + "<br/>";
+
+                    model.addAttribute("ergebnis", resultBuilder);
+                    model.addAttribute("fehler", false);
+                },
+                (context, e) -> {
+                    model.addAttribute("fehler", true);
+                    model.addAttribute("ergebnis", "");
+                }
+            );
         } catch (Exception e) {
             model.addAttribute("fehler", true);
             model.addAttribute("ergebnis", "");

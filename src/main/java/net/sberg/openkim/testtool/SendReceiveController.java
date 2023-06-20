@@ -16,27 +16,8 @@
  */
 package net.sberg.openkim.testtool;
 
-import net.sberg.openkim.common.ICommonConstants;
-import net.sberg.openkim.mail.EnumMailAuthMethod;
-import net.sberg.openkim.mail.EnumMailConnectionSecurity;
-import net.sberg.openkim.mail.MailService;
-import net.sberg.openkim.mail.MailUtils;
-import net.sberg.openkim.common.metrics.DefaultMetricFactory;
-import net.sberg.openkim.common.x509.X509CertificateResult;
-import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.Konnektor;
-import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResult;
-import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
-import net.sberg.openkim.konnektor.dns.DnsService;
-import net.sberg.openkim.konnektor.vzd.VzdService;
-import net.sberg.openkim.log.DefaultLogger;
-import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
-import org.apache.commons.net.smtp.AuthenticatingSMTPClient;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
-import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,20 +29,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
-import org.xbill.DNS.Type;
-
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.net.ssl.SSLContext;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.security.KeyStore;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.*;
 
 @Controller
 public class SendReceiveController {
@@ -69,13 +36,7 @@ public class SendReceiveController {
     private static final Logger log = LoggerFactory.getLogger(SendReceiveController.class);
 
     @Autowired
-    private MailService mailService;
-    @Autowired
     private LogService logService;
-    @Autowired
-    private VzdService vzdService;
-    @Autowired
-    private DnsService dnsService;
     @Autowired
     private KonfigurationService konfigurationService;
 
@@ -93,6 +54,7 @@ public class SendReceiveController {
         @RequestParam(name = "mailFile", required = false) MultipartFile mailFile
     ) throws Exception {
 
+        /*
         SendReceiveResult sendReceiveResult = new SendReceiveResult();
 
         Konfiguration konfiguration = konfigurationService.getKonfiguration();
@@ -185,9 +147,12 @@ public class SendReceiveController {
 
         logService.removeLogger(logger.getId());
 
+
+         */
         return "sendreceive/sendreceiveFormular";
     }
 
+    /*
     private SendReceiveResult readMail(
         DefaultLogger logger,
         DnsResult dnsResult,
@@ -261,6 +226,9 @@ public class SendReceiveController {
         return sendReceiveResult;
     }
 
+     */
+
+    /*
     private void sendMail(
         DefaultLogger logger,
         DnsResult dnsResult,
@@ -300,4 +268,6 @@ public class SendReceiveController {
             logger.logLine("smtp sent: " + res);
         }
     }
+
+     */
 }

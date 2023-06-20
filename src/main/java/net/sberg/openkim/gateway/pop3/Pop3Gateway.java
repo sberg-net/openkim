@@ -16,13 +16,12 @@
  */
 package net.sberg.openkim.gateway.pop3;
 
-import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.gateway.GatewayNettyServer;
-import net.sberg.openkim.kas.KasService;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.dns.DnsService;
 import net.sberg.openkim.log.LogService;
+import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
+import net.sberg.openkim.pipeline.PipelineService;
 import org.apache.james.protocols.api.Encryption;
 import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.api.handler.WiringException;
@@ -45,13 +44,11 @@ public class Pop3Gateway {
     private GatewayNettyServer server;
 
     @Autowired
-    private KasService kasService;
-    @Autowired
-    private DnsService dnsService;
-    @Autowired
-    private MailService mailService;
-    @Autowired
     private LogService logService;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private SignReportService signReportService;
     @Autowired
     private KonfigurationService konfigurationService;
 
@@ -118,7 +115,7 @@ public class Pop3Gateway {
     }
 
     protected Protocol createProtocol(Konfiguration konfiguration) throws WiringException {
-        Pop3GatewayProtocolHandlerChain chain = new Pop3GatewayProtocolHandlerChain(kasService, dnsService, mailService);
+        Pop3GatewayProtocolHandlerChain chain = new Pop3GatewayProtocolHandlerChain(pipelineService, signReportService);
         chain.wireExtensibleHandlers();
         return new Pop3GatewayProtocol(chain, new Pop3GatewayConfiguration(konfiguration, logService));
     }

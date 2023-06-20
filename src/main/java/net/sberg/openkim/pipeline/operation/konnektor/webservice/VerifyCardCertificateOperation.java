@@ -34,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -51,7 +52,16 @@ public class VerifyCardCertificateOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        return context -> {
+            VerifyCertificateResponse verifyCertificateResponse = (VerifyCertificateResponse) context.getEnvironmentValue(NAME, ENV_VERIFY_CERT_RESPONSE);
+            context.getLogger().logLine("Status = " + verifyCertificateResponse.getStatus().getResult());
+            context.getLogger().logLine("Verification-Status = " + verifyCertificateResponse.getVerificationStatus().getVerificationResult().value());
+        };
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -81,33 +91,34 @@ public class VerifyCardCertificateOperation implements IPipelineOperation  {
 
             VerifyCertificate verifyCertificate = new VerifyCertificate();
             if (!verifyCertificate.getClass().getPackageName().equals(packageName)) {
-                throw new IllegalStateException(
-                        "certificate webservice not valid "
-                                + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
-                                + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
-                                + " - packagename not equal "
-                                + packageName
-                                + " - "
-                                + verifyCertificate.getClass().getPackageName()
-                );
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException(
+                    "certificate webservice not valid "
+                        + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
+                        + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
+                        + " - packagename not equal "
+                        + packageName
+                        + " - "
+                        + verifyCertificate.getClass().getPackageName()
+                ));
             }
-            verifyCertificate.setX509Certificate(cert.getEncoded());
-            verifyCertificate.setContext(contextType);
+            else {
+                verifyCertificate.setX509Certificate(cert.getEncoded());
+                verifyCertificate.setContext(contextType);
 
-            timeMetric = metricFactory.timer(NAME);
-            VerifyCertificateResponse verifyCertificateResponse = (VerifyCertificateResponse) webserviceConnector.getSoapResponse(verifyCertificate);
-            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_VERIFY_CERT_RESPONSE, verifyCertificateResponse);
-            timeMetric.stopAndPublish();
+                timeMetric = metricFactory.timer(NAME);
+                VerifyCertificateResponse verifyCertificateResponse = (VerifyCertificateResponse) webserviceConnector.getSoapResponse(verifyCertificate);
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_VERIFY_CERT_RESPONSE, verifyCertificateResponse);
+                timeMetric.stopAndPublish();
 
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+                okConsumer.accept(defaultPipelineOperationContext);
+            }
         }
         catch (Exception e) {
             log.error("error on executing the VerifyCardCertificateOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

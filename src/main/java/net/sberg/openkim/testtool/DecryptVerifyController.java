@@ -16,16 +16,8 @@
  */
 package net.sberg.openkim.testtool;
 
-import net.sberg.openkim.mail.MailService;
-import net.sberg.openkim.common.metrics.DefaultMetricFactory;
-import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.Konnektor;
-import net.sberg.openkim.konnektor.vzd.VzdService;
-import net.sberg.openkim.log.DefaultLogger;
-import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
-import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,22 +30,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
-import java.util.UUID;
-
 @Controller
 public class DecryptVerifyController {
 
     private static final Logger log = LoggerFactory.getLogger(DecryptVerifyController.class);
 
-    @Autowired
-    private MailService mailService;
-    @Autowired
-    private VzdService vzdService;
     @Autowired
     private LogService logService;
     @Autowired
@@ -74,6 +55,7 @@ public class DecryptVerifyController {
         @RequestParam(name = "mailFile", required = false) MultipartFile mailFile
     ) throws Exception {
 
+        /*
         DecryptVerifyResult decryptVerifyResult = new DecryptVerifyResult();
 
         Konfiguration konfiguration = konfigurationService.getKonfiguration();
@@ -146,7 +128,7 @@ public class DecryptVerifyController {
         model.addAttribute("logs", logger.getLogContentAsStr());
 
         logService.removeLogger(logger.getId());
-
+        */
         return "decryptverify/decryptverifyFormular";
     }
 }

@@ -17,11 +17,10 @@
 package net.sberg.openkim.log;
 
 import de.gematik.kim.al.model.AccountLimit;
-import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.fachdienst.Fachdienst;
+import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.error.*;
-import org.bouncycastle.asn1.cms.ContentInfo;
 
 public class DefaultLoggerContext {
 
@@ -54,10 +53,6 @@ public class DefaultLoggerContext {
     private final MailDecryptErrorContext mailDecryptErrorContext = new MailDecryptErrorContext();
     private final MailSignVerifyErrorContext mailSignVerifyErrorContext = new MailSignVerifyErrorContext();
 
-    //encrypt mail infos
-    private ContentInfo encryptedContentInfo;
-    private byte[] encryptedPart;
-
     public void reset() {
         konnektor = null;
         fachdienst = null;
@@ -86,6 +81,10 @@ public class DefaultLoggerContext {
         this.konnektorId = konnektorId;
     }
 
+    public void setKonnektor(Konnektor konnektor) {
+        this.konnektor = konnektor;
+    }
+
     public void setMailServerHost(String mailServerHost) {
         this.mailServerHost = mailServerHost;
     }
@@ -108,14 +107,6 @@ public class DefaultLoggerContext {
 
     public void setAccountLimit(AccountLimit accountLimit) {
         this.accountLimit = accountLimit;
-    }
-
-    public void setEncryptedContentInfo(ContentInfo encryptedContentInfo) {
-        this.encryptedContentInfo = encryptedContentInfo;
-    }
-
-    public void setEncryptedPart(byte[] encryptedPart) {
-        this.encryptedPart = encryptedPart;
     }
     //********************************************************
 
@@ -252,14 +243,6 @@ public class DefaultLoggerContext {
 
     public AccountLimit getAccountLimit() {
         return accountLimit;
-    }
-
-    public ContentInfo getEncryptedContentInfo() {
-        return encryptedContentInfo;
-    }
-
-    public byte[] getEncryptedPart() {
-        return encryptedPart;
     }
 
     public MailaddressCertErrorContext getMailaddressCertErrorContext() {

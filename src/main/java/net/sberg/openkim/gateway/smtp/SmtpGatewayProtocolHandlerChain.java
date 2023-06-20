@@ -17,13 +17,14 @@
 package net.sberg.openkim.gateway.smtp;
 
 import net.sberg.openkim.gateway.smtp.cmdhandler.*;
-import net.sberg.openkim.konnektor.dns.DnsService;
-import net.sberg.openkim.konnektor.vzd.VzdService;
-import org.apache.james.protocols.api.handler.*;
+import net.sberg.openkim.pipeline.PipelineService;
+import org.apache.james.protocols.api.handler.CommandDispatcher;
+import org.apache.james.protocols.api.handler.CommandHandlerResultLogger;
+import org.apache.james.protocols.api.handler.ProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandlerChainImpl;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.*;
 import org.apache.james.protocols.smtp.core.esmtp.MailSizeEsmtpExtension;
-import org.apache.james.protocols.smtp.hook.Hook;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,31 +32,23 @@ import java.util.List;
 
 public class SmtpGatewayProtocolHandlerChain extends ProtocolHandlerChainImpl {
 
-    public SmtpGatewayProtocolHandlerChain(boolean addDefault, VzdService vzdService, DnsService dnsService) {
+    public SmtpGatewayProtocolHandlerChain(boolean addDefault, PipelineService pipelineService) {
         if (addDefault) {
-            addAll(initDefaultHandlers(vzdService, dnsService));
+            addAll(initDefaultHandlers(pipelineService));
         }
     }
 
-    private SmtpGatewayProtocolHandlerChain(Hook... hooks) throws WiringException {
-        this(true, null, null);
-        for (Hook hook : hooks) {
-            add(hook);
-        }
-        wireExtensibleHandlers();
-    }
-
-    protected List<ProtocolHandler> initDefaultHandlers(VzdService vzdService, DnsService dnsService) {
+    protected List<ProtocolHandler> initDefaultHandlers(PipelineService pipelineService) {
         List<ProtocolHandler> defaultHandlers = new ArrayList<>();
         defaultHandlers.add(new CommandDispatcher<SMTPSession>());
         defaultHandlers.add(new ExpnCmdHandler());
         defaultHandlers.add(new SmtpGatewayEhloCmdHandler());
         defaultHandlers.add(new SmtpGatewayHeloCmdHandler());
         defaultHandlers.add(new HelpCmdHandler());
-        defaultHandlers.add(new SmtpGatewayMailCmdHandler(vzdService));
+        defaultHandlers.add(new SmtpGatewayMailCmdHandler());
         defaultHandlers.add(new SmtpGatewayNoopCmdHandler());
         defaultHandlers.add(new SmtpGatewayQuitCmdHandler());
-        defaultHandlers.add(new SmtpGatewayRcptCmdHandler(vzdService));
+        defaultHandlers.add(new SmtpGatewayRcptCmdHandler(pipelineService));
         defaultHandlers.add(new SmtpGatewayRsetCmdHandler());
         defaultHandlers.add(new VrfyCmdHandler());
         defaultHandlers.add(new SmtpGatewayDataCmdHandler());
@@ -63,7 +56,7 @@ public class SmtpGatewayProtocolHandlerChain extends ProtocolHandlerChainImpl {
         defaultHandlers.add(new SmtpGatewayWelcomeMessageHandler());
         defaultHandlers.add(new PostmasterAbuseRcptHook());
         defaultHandlers.add(new ReceivedDataLineFilter());
-        defaultHandlers.add(new SmtpGatewayAuthCmdHandler(dnsService));
+        defaultHandlers.add(new SmtpGatewayAuthCmdHandler(pipelineService));
         defaultHandlers.add(new DataLineMessageHookHandler());
         defaultHandlers.add(new SmtpGatewayStartTlsCmdHandler());
         defaultHandlers.add(new SmtpGatewayUnknownCmdHandler());

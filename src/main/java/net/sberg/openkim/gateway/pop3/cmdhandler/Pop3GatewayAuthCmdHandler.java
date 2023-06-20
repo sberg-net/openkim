@@ -17,16 +17,19 @@
 package net.sberg.openkim.gateway.pop3.cmdhandler;
 
 import com.google.common.collect.ImmutableSet;
-import net.sberg.openkim.mail.EnumMailAuthMethod;
-import net.sberg.openkim.mail.EnumMailConnectionSecurity;
-import net.sberg.openkim.mail.MailUtils;
+import net.sberg.openkim.common.EnumMailAuthMethod;
+import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.EnumPop3GatewayState;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
+import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konfiguration.Konfiguration;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsRequestOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResult;
 import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
-import net.sberg.openkim.konnektor.dns.DnsService;
+import net.sberg.openkim.pipeline.operation.mail.MailUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.james.core.Username;
 import org.apache.james.metrics.api.TimeMetric;
@@ -49,6 +52,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implements CapaCapability {
 
@@ -62,10 +66,10 @@ public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implem
     private static final Response UNKNOWN_AUTH_TYPE = new POP3Response(POP3Response.ERR_RESPONSE, "Security features not supported").immutable();
 
     private TimeMetric timeMetric;
-    private final DnsService dnsService;
+    private PipelineService pipelineService;
 
-    public Pop3GatewayAuthCmdHandler(DnsService dnsService) {
-        this.dnsService = dnsService;
+    public Pop3GatewayAuthCmdHandler(PipelineService pipelineService) {
+        this.pipelineService = pipelineService;
     }
 
     @Override
@@ -354,34 +358,51 @@ public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implem
 
         try {
 
-            String mailServerIpAddress;
-            if (!IPAddress.isValid(((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost())) {
+            Konfiguration konfiguration = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getKonfiguration();
+            String mailServerIpAddress = null;
 
-                ((Pop3GatewaySession) session).log("make a dns request for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+            //instantiate mailserver domain check
+            if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
+                if (!IPAddress.isValid(((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost())) {
 
-                DnsResult dnsResult = null;
-                DnsResultContainer dnsResultContainer = dnsService.request(
-                    ((Pop3GatewaySession) session).getLogger(),
-                    ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost(),
-                    Type.string(Type.A)
-                );
-                if (!dnsResultContainer.isError() && dnsResultContainer.getResult().size() >= 1) {
-                    dnsResult = dnsResultContainer.getResult().get(0);
+                    ((Pop3GatewaySession) session).log("make a dns request for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+
+                    DnsResult dnsResult = null;
+                    AtomicInteger failedCounter = new AtomicInteger();
+                    DnsRequestOperation dnsRequestOperation = (DnsRequestOperation) pipelineService.getOperation(DnsRequestOperation.BUILTIN_VENDOR+"."+DnsRequestOperation.NAME);
+                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                    defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+                    defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
+                    dnsRequestOperation.execute(
+                            defaultPipelineOperationContext,
+                            context -> {
+                                ((Pop3GatewaySession) session).log("dns request finished for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+                            },
+                            (context, e) -> {
+                                log.error("dns request failed for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost(), e);
+                                failedCounter.incrementAndGet();
+                            }
+                    );
+                    DnsResultContainer dnsResultContainer = (DnsResultContainer) defaultPipelineOperationContext.getEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DNS_RESULT);
+                    if (failedCounter.get() > 0 || dnsResultContainer == null || dnsResultContainer.isError()) {
+                        throw new IllegalStateException("ip-address for domain " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
+                    }
+                    if (!dnsResultContainer.isError() && dnsResultContainer.getResult().size() >= 1) {
+                        dnsResult = dnsResultContainer.getResult().get(0);
+                    }
+                    if (dnsResult == null) {
+                        throw new IllegalStateException("ip-address for domain " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
+                    }
+
+                    mailServerIpAddress = dnsResult.getAddress();
+                } else {
+                    mailServerIpAddress = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
+                    ((Pop3GatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerIpAddress);
                 }
-
-                if (dnsResult == null) {
-                    throw new IllegalStateException("ip-address for domain " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
-                }
-
-                mailServerIpAddress = dnsResult.getAddress();
-            } else {
-                mailServerIpAddress = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
-                ((Pop3GatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerIpAddress);
             }
 
             ((Pop3GatewaySession) session).log("connect to " + mailServerIpAddress);
 
-            Konfiguration konfiguration = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getKonfiguration();
             Properties props = new Properties();
             Session pop3ClientSession = MailUtils.createPop3ClientSession(
                 props,
@@ -390,9 +411,9 @@ public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implem
                 mailServerIpAddress,
                 ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerPort(),
                 konfiguration.getPop3ClientIdleTimeoutInSeconds(),
-                konfiguration.getFachdienstCertFilename(),
-                konfiguration.getFachdienstCertAuthPwd(),
-                true
+                konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)?konfiguration.getFachdienstCertFilename():null,
+                konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)?konfiguration.getFachdienstCertAuthPwd():null,
+                konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)
             );
 
             Store store = pop3ClientSession.getStore("pop3");

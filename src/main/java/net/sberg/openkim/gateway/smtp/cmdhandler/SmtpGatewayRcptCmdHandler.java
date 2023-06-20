@@ -19,12 +19,14 @@ package net.sberg.openkim.gateway.smtp.cmdhandler;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.gateway.smtp.AbstractGatewayHookableCmdHandler;
 import net.sberg.openkim.gateway.smtp.EnumSmtpGatewayState;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
-import net.sberg.openkim.konnektor.vzd.VzdService;
+import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.log.DefaultLoggerContext;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.konnektor.vzd.LoadVzdCertsOperation;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.core.MailAddress;
@@ -69,13 +71,13 @@ public class SmtpGatewayRcptCmdHandler extends AbstractGatewayHookableCmdHandler
         ""
     ).immutable();
 
-    private VzdService vzdService;
+    private PipelineService pipelineService;
 
     private SmtpGatewayRcptCmdHandler() {
     }
 
-    public SmtpGatewayRcptCmdHandler(VzdService vzdService) {
-        this.vzdService = vzdService;
+    public SmtpGatewayRcptCmdHandler(PipelineService pipelineService) {
+        this.pipelineService = pipelineService;
     }
 
     /**
@@ -101,23 +103,36 @@ public class SmtpGatewayRcptCmdHandler extends AbstractGatewayHookableCmdHandler
 
                 DefaultLoggerContext loggerContext = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext();
 
-                try {
-                    ((SmtpGatewaySession) session).log("load certs for rcpt");
-                    List<X509CertificateResult> rcptCerts = vzdService.loadCerts(
-                        ((SmtpGatewaySession) session).getLogger(),
-                        new ArrayList<>(List.of(recipientAddress.asString().toLowerCase())),
-                        false,
-                        true
-                    );
-                    ((SmtpGatewaySession) session).getRecipientCerts().addAll(rcptCerts);
-                    ((SmtpGatewaySession) session).log("load certs ending for rcpt");
+                if (!loggerContext.getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
+                    try {
+                        ((SmtpGatewaySession) session).log("load certs for rcpt");
 
-                    if (loggerContext.getMailaddressCertErrorContext().isError(recipientAddress.asString().toLowerCase())) {
+                        LoadVzdCertsOperation loadVzdCertsOperation = (LoadVzdCertsOperation) pipelineService.getOperation(LoadVzdCertsOperation.BUILTIN_VENDOR+"."+LoadVzdCertsOperation.NAME);
+                        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_ADDRESSES, new ArrayList<>(List.of(recipientAddress.asString().toLowerCase())));
+                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_SEARCH_BASE, loggerContext.getKonnektor().getVzdSearchBase());
+                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_SENDER_ADRESSES, false);
+                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_RCPT_ADRESSES, true);
+
+                        loadVzdCertsOperation.execute(
+                            defaultPipelineOperationContext,
+                            context -> {
+                                List rcptCerts = (List)defaultPipelineOperationContext.getEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_CERTS);
+                                ((SmtpGatewaySession) session).getRecipientCerts().addAll(rcptCerts);
+                                ((SmtpGatewaySession) session).log("load certs ending for rcpt");
+                            },
+                            (context, e) -> {
+                                log.error("error on loading rcpt-address: "+recipientAddress.asString().toLowerCase(), e);
+                            }
+                        );
+
+                        if (loadVzdCertsOperation.hasError(defaultPipelineOperationContext, LoadVzdCertsOperation.NAME) || loggerContext.getMailaddressCertErrorContext().isError(recipientAddress.asString().toLowerCase())) {
+                            return MAILBOX_PERM_UNAVAILABLE;
+                        }
+                    } catch (Exception e) {
+                        ((SmtpGatewaySession) session).log("rcpt certs not available");
                         return MAILBOX_PERM_UNAVAILABLE;
                     }
-                } catch (Exception e) {
-                    ((SmtpGatewaySession) session).log("rcpt certs not available");
-                    return MAILBOX_PERM_UNAVAILABLE;
                 }
 
                 int res = ((SmtpGatewaySession) session).getSmtpClient().rcpt("<" + recipientAddress.asString().toLowerCase() + ">");

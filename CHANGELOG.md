@@ -19,6 +19,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ```
 
+## [0.13.0]
+
+### Added
+```
+- Hinzufügen einer Pipeline-Struktur für die Operationen (z.b. Signieren einer Mail)
+- bessere Test- und Erweiterbarkeit
+  - besseres Handling der Komplexität
+  - Testen von drei Szenarien
+    - Testen komplet ohne TI mit "handelsüblichen" Mailservern -> Checken, ob der POP3/SMTP-Stack funktioniert
+    - Testen ohne Fachdienst-Servern, mit Konnektor und mit "handelsüblichen" Mailservern -> Checken, ob die Konnektor-Kommunikation funktioniert
+    - Testen "Fullstack" -> mit Fachdienst-Servern und Konnektor 
+- Weitere Umbauarbeiten
+```
+
+### Changed
+```
+```
+
+### Fixed
+```
+```
+
 ## [0.12.0]
 
 ### Added

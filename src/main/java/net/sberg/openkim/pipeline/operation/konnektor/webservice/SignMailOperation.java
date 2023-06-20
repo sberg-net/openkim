@@ -24,25 +24,21 @@ import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.CMSUtils;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konnektor.*;
-import net.sberg.openkim.konnektor.webservice.jaxb.CMSAttribute;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.vzd.LoadVzdCertsOperation;
 import oasis.names.tc.dss._1_0.core.schema.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.Message;
-import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimePart;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -52,12 +48,15 @@ public class SignMailOperation implements IPipelineOperation  {
     public static final String NAME = "SignMail";
 
     public static final String ENV_CARDHANDLE = "cardHandle";
-    public static final String ENV_MIMEMESSAGE_AS_STRING = "mimeMessageAsString";
-    public static final String ENV_MAIL_FROM = "mailFrom";
-    public static final String ENV_MAIL_TO = "mailTo";
-    public static final String ENV_MAIL_SUBJECT = "mailSubject";
-    public static final String ENV_MAIL_BODY = "mailBody";
+    public static final String ENV_MIMEMESSAGE = "mimeMessage";
+    public static final String ENV_VZD_CERTS = "vzdCerts";
     public static final String ENV_SIGN_DOCUMENT_RESPONSE = "signDocumentResponse";
+
+    private GetJobNumberOperation getJobNumberOperation;
+
+    public void setGetJobNumberOperation(GetJobNumberOperation getJobNumberOperation) {
+        this.getJobNumberOperation = getJobNumberOperation;
+    }
 
     @Override
     public String getName() {
@@ -65,7 +64,16 @@ public class SignMailOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        return context -> {
+            SignDocumentResponse signDocumentResponse = (SignDocumentResponse) context.getEnvironmentValue(NAME, ENV_SIGN_DOCUMENT_RESPONSE);
+            context.getLogger().logLine("Status = " + signDocumentResponse.getSignResponse().get(0).getStatus().getResult());
+            context.getLogger().logLine("Dokument = " + Base64.encodeBase64String(signDocumentResponse.getSignResponse().get(0).getSignatureObject().getBase64Signature().getValue()));
+        };
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -92,109 +100,110 @@ public class SignMailOperation implements IPipelineOperation  {
             );
 
             String cardHandle = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_CARDHANDLE);
-            String mimeMessageAsString = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MIMEMESSAGE_AS_STRING);
-            MimeMessage mimeMessage = null;
-            String mailFrom = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MAIL_FROM);
-            String mailTo = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MAIL_TO);
-            String mailSubject = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MAIL_SUBJECT);
-            String mailBody = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MAIL_BODY);
-            if (mimeMessageAsString != null && !mimeMessageAsString.trim().isEmpty()) {
-                mimeMessage = new MimeMessage(Session.getInstance(new java.util.Properties()));
-                mimeMessage.setFrom(mailFrom);
-                mimeMessage.setRecipients(Message.RecipientType.TO, mailTo);
-                mimeMessage.setSubject(mailSubject);
-                ((MimePart) mimeMessage).setText(mailBody);
-                mimeMessage.saveChanges();
-            }
+            MimeMessage mimeMessage = (MimeMessage)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MIMEMESSAGE);
+            List<X509CertificateResult> x509CertificateResults = (List<X509CertificateResult>) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_VZD_CERTS);
 
             SignDocument signDocument = new SignDocument();
             if (!signDocument.getClass().getPackageName().equals(packageName)) {
-                throw new IllegalStateException(
-                        "signature webservice not valid "
-                                + konnektor.getIp()
-                                + " - "
-                                + konnektorServiceBean.getId()
-                                + " - packagename not equal "
-                                + packageName
-                                + " - "
-                                + signDocument.getClass().getPackageName()
-                );
-            }
-
-            List<X509CertificateResult> x509CertificateResults = (List<X509CertificateResult>) defaultPipelineOperationContext.getEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_CERTS);
-            byte[] cmsAttr = CMSUtils.buildCmsAttributeRecipientEmails(x509CertificateResults, konnektor);
-            CMSAttribute cmsAttribute = new CMSAttribute();
-            cmsAttribute.setContent(Base64.encodeBase64String(cmsAttr));
-
-            //recipientsEmailsAttribute anytype
-            AnyType recipientsEmailsAttribute = new AnyType();
-            recipientsEmailsAttribute.getAny().add(cmsAttribute);
-
-            //sign property
-            Property signProperty = new Property();
-            signProperty.setIdentifier("RecipientEmailsAttribute");
-            signProperty.setValue(recipientsEmailsAttribute);
-
-            //signPropertiesType
-            PropertiesType signPropertiesType = new PropertiesType();
-            signPropertiesType.getProperty().add(signProperty);
-
-            //signProperties
-            Properties signProperties = new Properties();
-            signProperties.setSignedProperties(signPropertiesType);
-
-            //optionalinputs
-            SignRequest.OptionalInputs optionalInputs = new SignRequest.OptionalInputs();
-            optionalInputs.setProperties(signProperties);
-            optionalInputs.setSignatureType("urn:ietf:rfc:5652");
-            optionalInputs.setIncludeEContent(true);
-
-            //base64 Data
-            Base64Data base64Data = new Base64Data();
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            if (mimeMessageAsString != null && !mimeMessageAsString.trim().isEmpty()) {
-                byteArrayOutputStream.write(mimeMessageAsString.getBytes(StandardCharsets.UTF_8));
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException(
+                    "signature webservice not valid "
+                        + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
+                        + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
+                        + " - packagename not equal "
+                        + packageName
+                        + " - "
+                        + signDocument.getClass().getPackageName()
+                ));
             }
             else {
+
+                byte[] cmsAttr = CMSUtils.buildCmsAttributeRecipientEmails(x509CertificateResults, konnektor);
+                CMSAttribute cmsAttribute = new CMSAttribute();
+                cmsAttribute.setContent(Base64.encodeBase64String(cmsAttr));
+
+                //recipientsEmailsAttribute anytype
+                AnyType recipientsEmailsAttribute = new AnyType();
+                recipientsEmailsAttribute.getAny().add(cmsAttribute);
+
+                //sign property
+                Property signProperty = new Property();
+                signProperty.setIdentifier("RecipientEmailsAttribute");
+                signProperty.setValue(recipientsEmailsAttribute);
+
+                //signPropertiesType
+                PropertiesType signPropertiesType = new PropertiesType();
+                signPropertiesType.getProperty().add(signProperty);
+
+                //signProperties
+                Properties signProperties = new Properties();
+                signProperties.setSignedProperties(signPropertiesType);
+
+                //optionalinputs
+                SignRequest.OptionalInputs optionalInputs = new SignRequest.OptionalInputs();
+                optionalInputs.setProperties(signProperties);
+                optionalInputs.setSignatureType("urn:ietf:rfc:5652");
+                optionalInputs.setIncludeEContent(true);
+
+                //base64 Data
+                Base64Data base64Data = new Base64Data();
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 byteArrayOutputStream.write("Content-Type: message/rfc822\r\n\r\n".getBytes(StandardCharsets.UTF_8));
                 mimeMessage.writeTo(byteArrayOutputStream);
+                base64Data.setValue(byteArrayOutputStream.toByteArray());
+                byteArrayOutputStream.close();
+
+                //document
+                de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentType = new DocumentType();
+                documentType.setBase64Data(base64Data);
+
+                //sign request
+                SignRequest signRequest = new SignRequest();
+                signRequest.setOptionalInputs(optionalInputs);
+                signRequest.setDocument(documentType);
+                signRequest.setRequestID("KimSignRequest");
+                signRequest.setIncludeRevocationInfo(false);
+
+                timeMetric = metricFactory.timer(NAME);
+
+                //job number
+                getJobNumberOperation.execute(
+                    defaultPipelineOperationContext,
+                    context -> {
+                        try {
+                            GetJobNumberResponse getJobNumberResponse = (GetJobNumberResponse) defaultPipelineOperationContext.getEnvironmentValue(GetJobNumberOperation.NAME, GetJobNumberOperation.ENV_GET_JOB_NUMBER_RESPONSE);
+                            String jobNumber = getJobNumberResponse.getJobNumber();
+                            signDocument.setJobNumber(jobNumber);
+                            signDocument.getSignRequest().add(signRequest);
+                            signDocument.setContext(contextType);
+                            signDocument.setCardHandle(cardHandle);
+                            signDocument.setTvMode("NONE");
+
+                            SignDocumentResponse signDocumentResponse = (SignDocumentResponse) webserviceConnector.getSoapResponse(signDocument);
+                            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_SIGN_DOCUMENT_RESPONSE, signDocumentResponse);
+                        }
+                        catch (Exception e) {
+                            defaultPipelineOperationContext.setEnvironmentValue(getJobNumberOperation.getName(), ENV_EXCEPTION, e);
+                        }
+                    },
+                    (context, e) -> {
+                        defaultPipelineOperationContext.setEnvironmentValue(getJobNumberOperation.getName(), ENV_EXCEPTION, e);
+                    }
+                );
+
+                timeMetric.stopAndPublish();
+                if (hasError(defaultPipelineOperationContext, new String[] {NAME,getJobNumberOperation.getName()})) {
+                    failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException("failed state"));
+                }
+                else {
+                    okConsumer.accept(defaultPipelineOperationContext);
+                }
             }
-            base64Data.setValue(byteArrayOutputStream.toByteArray());
-            byteArrayOutputStream.close();
-
-            //document
-            de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentType = new DocumentType();
-            documentType.setBase64Data(base64Data);
-
-            //sign request
-            SignRequest signRequest = new SignRequest();
-            signRequest.setOptionalInputs(optionalInputs);
-            signRequest.setDocument(documentType);
-            signRequest.setRequestID("KimSignRequest");
-            signRequest.setIncludeRevocationInfo(false);
-
-            //job number
-            GetJobNumberResponse getJobNumberResponse = (GetJobNumberResponse) defaultPipelineOperationContext.getEnvironmentValue(GetJobNumberOperation.NAME, GetJobNumberOperation.ENV_GET_JOB_NUMBER_RESPONSE);
-            signDocument.setJobNumber(getJobNumberResponse.getJobNumber());
-            signDocument.getSignRequest().add(signRequest);
-            signDocument.setContext(contextType);
-            signDocument.setCardHandle(cardHandle);
-            signDocument.setTvMode("NONE");
-
-            timeMetric = metricFactory.timer(NAME);
-            SignDocumentResponse signDocumentResponse = (SignDocumentResponse) webserviceConnector.getSoapResponse(signDocument);
-            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_SIGN_DOCUMENT_RESPONSE, signDocumentResponse);
-
-            timeMetric.stopAndPublish();
-
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
         } catch (Exception e) {
             log.error("error on executing the SignMailOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

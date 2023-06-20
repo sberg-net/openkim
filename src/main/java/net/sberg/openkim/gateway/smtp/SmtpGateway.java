@@ -16,16 +16,13 @@
  */
 package net.sberg.openkim.gateway.smtp;
 
-import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.gateway.GatewayNettyServer;
 import net.sberg.openkim.gateway.smtp.hook.SmtpGatewayMailHook;
 import net.sberg.openkim.gateway.smtp.hook.SmtpGatewayQuitHook;
-import net.sberg.openkim.kas.KasService;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.dns.DnsService;
-import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.log.LogService;
+import net.sberg.openkim.pipeline.PipelineService;
 import org.apache.james.protocols.api.Encryption;
 import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.api.handler.WiringException;
@@ -52,13 +49,7 @@ public class SmtpGateway {
     @Autowired
     private LogService logService;
     @Autowired
-    private KasService kasService;
-    @Autowired
-    private VzdService vzdService;
-    @Autowired
-    private DnsService dnsService;
-    @Autowired
-    private MailService mailService;
+    private PipelineService pipelineService;
 
     private boolean startSucces = false;
 
@@ -124,8 +115,8 @@ public class SmtpGateway {
     }
 
     protected Protocol createProtocol(Konfiguration konfiguration) throws WiringException {
-        SmtpGatewayProtocolHandlerChain chain = new SmtpGatewayProtocolHandlerChain(true, vzdService, dnsService);
-        chain.addAll(0, Arrays.asList(new SmtpGatewayMailHook(kasService, mailService, vzdService), new SmtpGatewayQuitHook()));
+        SmtpGatewayProtocolHandlerChain chain = new SmtpGatewayProtocolHandlerChain(true, pipelineService);
+        chain.addAll(0, Arrays.asList(new SmtpGatewayMailHook(pipelineService), new SmtpGatewayQuitHook()));
         chain.wireExtensibleHandlers();
         return new SmtpGatewayProtocol(chain, new SmtpGatewayConfiguration(konfiguration, logService));
     }

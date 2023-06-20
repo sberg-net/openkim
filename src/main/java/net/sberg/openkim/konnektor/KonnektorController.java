@@ -63,7 +63,7 @@ public class KonnektorController {
             konnektor.setUuid(UUID.randomUUID().toString());
             model.addAttribute("konnektor", konnektor);
         } else {
-            Konnektor konnektor = konfigurationService.getKonnektor(uuid, false);
+            Konnektor konnektor = konfiguration.extractKonnektor(uuid, false);
             if (konnektor != null) {
                 if (refresh) {
                     konnektor = konfigurationService.executeKonnektor(konnektor);

@@ -26,6 +26,7 @@ import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -44,7 +45,12 @@ public class DnsRequestOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
 
         TimeMetric timeMetric = null;
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -63,15 +69,13 @@ public class DnsRequestOperation implements IPipelineOperation  {
             defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_DNS_RESULT, dnsResultContainer);
             timeMetric.stopAndPublish();
 
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
-
+            okConsumer.accept(defaultPipelineOperationContext);
         } catch (Exception e) {
             log.error("error on executing the DnsRequestOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

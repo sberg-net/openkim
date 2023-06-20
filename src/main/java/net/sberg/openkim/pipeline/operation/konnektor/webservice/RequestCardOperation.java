@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -49,7 +50,18 @@ public class RequestCardOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        return context -> {
+            RequestCardResponse requestCardResponse = (RequestCardResponse) context.getEnvironmentValue(NAME, ENV_REQ_CARD_RESPONSE);
+            context.getLogger().logLine("Status = " + requestCardResponse.getStatus().getResult());
+            context.getLogger().logLine("CardHandle = " + requestCardResponse.getCard().getCardHandle());
+            context.getLogger().logLine("Kartenterminal = " + requestCardResponse.getCard().getCtId());
+            context.getLogger().logLine("CardType = " + requestCardResponse.getCard().getCardType());
+        };
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -71,42 +83,42 @@ public class RequestCardOperation implements IPipelineOperation  {
 
             RequestCard requestCard = new RequestCard();
             if (!requestCard.getClass().getPackageName().equals(packageName)) {
-                throw new IllegalStateException(
-                        "cardterminal webservice not valid "
-                                + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
-                                + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
-                                + " - packagename not equal "
-                                + packageName
-                                + " - "
-                                + requestCard.getClass().getPackageName()
-                );
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException(
+                    "cardterminal webservice not valid "
+                        + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
+                        + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
+                        + " - packagename not equal "
+                        + packageName
+                        + " - "
+                        + requestCard.getClass().getPackageName()
+                ));
             }
+            else {
+                ContextType contextType = new ContextType();
+                contextType.setMandantId(logger.getDefaultLoggerContext().getMandantId());
+                contextType.setClientSystemId(logger.getDefaultLoggerContext().getClientSystemId());
+                contextType.setWorkplaceId(logger.getDefaultLoggerContext().getWorkplaceId());
+                requestCard.setContext(contextType);
 
-            ContextType contextType = new ContextType();
-            contextType.setMandantId(logger.getDefaultLoggerContext().getMandantId());
-            contextType.setClientSystemId(logger.getDefaultLoggerContext().getClientSystemId());
-            contextType.setWorkplaceId(logger.getDefaultLoggerContext().getWorkplaceId());
-            requestCard.setContext(contextType);
+                Slot slot = new Slot();
+                slot.setCtId((String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_CARD_TERMINAL_ID));
+                slot.setSlotId(BigInteger.valueOf((Integer) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SLOT_ID)));
+                requestCard.setSlot(slot);
 
-            Slot slot = new Slot();
-            slot.setCtId((String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_CARD_TERMINAL_ID));
-            slot.setSlotId(BigInteger.valueOf((Integer)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SLOT_ID)));
-            requestCard.setSlot(slot);
+                timeMetric = metricFactory.timer(NAME);
+                RequestCardResponse requestCardResponse = (RequestCardResponse) webserviceConnector.getSoapResponse(requestCard);
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_REQ_CARD_RESPONSE, requestCardResponse);
+                timeMetric.stopAndPublish();
 
-            timeMetric = metricFactory.timer(NAME);
-            RequestCardResponse requestCardResponse = (RequestCardResponse) webserviceConnector.getSoapResponse(requestCard);
-            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_REQ_CARD_RESPONSE, requestCardResponse);
-            timeMetric.stopAndPublish();
-
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+                okConsumer.accept(defaultPipelineOperationContext);
+            }
         }
         catch (Exception e) {
             log.error("error on executing the RequestCardOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

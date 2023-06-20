@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -47,7 +48,12 @@ public class SearchVzdOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -66,14 +72,13 @@ public class SearchVzdOperation implements IPipelineOperation  {
             defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_VZD_RESULT, result);
             timeMetric.stopAndPublish();
 
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+            okConsumer.accept(defaultPipelineOperationContext);
         } catch (Exception e) {
             log.error("error on executing the LoadVzdCertsOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

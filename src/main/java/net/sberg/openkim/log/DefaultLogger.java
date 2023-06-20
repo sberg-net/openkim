@@ -17,6 +17,7 @@
 package net.sberg.openkim.log;
 
 import lombok.Data;
+import net.sberg.openkim.konnektor.Konnektor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +108,11 @@ public class DefaultLogger {
         try {
             getDefaultLoggerContext().setKonnektorId(user.split("#")[6]);
         } catch (Exception e) {
+        }
+
+        if (getDefaultLoggerContext().getKonnektorId() != null && !getDefaultLoggerContext().getKonnektorId().trim().isEmpty()) {
+            Konnektor dbKonnektor = getDefaultLoggerContext().getKonfiguration().extractKonnektor(getDefaultLoggerContext().getKonnektorId(), true);
+            getDefaultLoggerContext().setKonnektor(dbKonnektor);
         }
     }
 }

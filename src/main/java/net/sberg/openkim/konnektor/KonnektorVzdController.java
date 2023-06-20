@@ -16,14 +16,21 @@
  */
 package net.sberg.openkim.konnektor;
 
+import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.vzd.VzdService;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.vzd.EnumVzdErrorCode;
+import net.sberg.openkim.pipeline.operation.konnektor.vzd.SearchVzdOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.vzd.VzdResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,18 +45,24 @@ import java.util.List;
 @Controller
 public class KonnektorVzdController {
 
-    @Autowired
-    private VzdService vzdService;
+    private static final Logger log = LoggerFactory.getLogger(KonnektorVzdController.class);
+
     @Autowired
     private KonfigurationService konfigurationService;
     @Autowired
     private LogService logService;
+    @Autowired
+    private PipelineService pipelineService;
+
+    @Value("${spring.ldap.base}")
+    private String ldapBase;
 
     @RequestMapping(value = "/vzd/suchen/{konnektorId}/{resultWithCertificates}", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public String suche(Model model, @PathVariable String konnektorId, @PathVariable boolean resultWithCertificates, String searchValue) throws Exception {
 
-        Konnektor dbKonnektor = konfigurationService.getKonnektor(konnektorId, false);
+        Konfiguration konfiguration = konfigurationService.getKonfiguration();
+        Konnektor dbKonnektor = konfiguration.extractKonnektor(konnektorId, false);
         if (dbKonnektor == null) {
             throw new IllegalStateException("Die Konnektor-Konfiguration konnte nicht geladen werden mit der Id: " + konnektorId);
         }
@@ -60,18 +73,35 @@ public class KonnektorVzdController {
         try {
 
             model.addAttribute("konnektor", dbKonnektor);
+            model.addAttribute("fehler", false);
 
             if (searchValue != null && !searchValue.trim().isEmpty()) {
-                List eintraege = vzdService.search(logger, searchValue, false, resultWithCertificates);
-                if (eintraege.size() == 1 && ((VzdResult) eintraege.get(0)).getErrorCode().equals(EnumVzdErrorCode.NOT_FOUND)) {
-                    eintraege.clear();
-                }
-                model.addAttribute("eintraege", eintraege);
-            } else {
-                model.addAttribute("eintraege", new ArrayList<>());
-            }
 
-            model.addAttribute("fehler", false);
+                IPipelineOperation vzdPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR + "." + SearchVzdOperation.NAME);
+
+                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_SEARCH_BASE, ldapBase);
+                defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_SEARCH_VALUE, searchValue);
+                defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_RESULT_WITH_CERTIFICATES, resultWithCertificates);
+                defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_ONLY_SEARCH_MAIL_ATTR, false);
+                defaultPipelineOperationContext.setLogger(logger);
+
+                vzdPipelineOperation.execute(
+                    defaultPipelineOperationContext,
+                    context -> {
+                        List eintraege = (List) defaultPipelineOperationContext.getEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_RESULT);
+                        if (eintraege.size() == 1 && ((VzdResult) eintraege.get(0)).getErrorCode().equals(EnumVzdErrorCode.NOT_FOUND)) {
+                            eintraege.clear();
+                        }
+                        model.addAttribute("eintraege", eintraege);
+                    },
+                    (context, e) -> {
+                        log.error("error on searching vzd for the konnektor: " + dbKonnektor.getIp());
+                        model.addAttribute("eintraege", new ArrayList<>());
+                        model.addAttribute("fehler", true);
+                    }
+                );
+            }
         } catch (Exception e) {
             model.addAttribute("fehler", true);
             model.addAttribute("eintraege", new ArrayList<>());

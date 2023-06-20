@@ -19,14 +19,18 @@ package net.sberg.openkim.gateway.smtp.cmdhandler;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.smtp.EnumSmtpGatewayState;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
+import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konfiguration.Konfiguration;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsRequestOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResult;
 import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
-import net.sberg.openkim.konnektor.dns.DnsService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.smtp.AuthenticatingSMTPClient;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -60,6 +64,7 @@ import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, EhloExtension, ExtensibleHandler, MailParametersHook {
     private static final Collection<String> COMMANDS = ImmutableSet.of("AUTH");
@@ -77,13 +82,13 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
     private static final Response AUTH_FAILED = new SMTPResponse(SMTPRetCode.AUTH_FAILED, "Authentication Failed").immutable();
     private static final Response UNKNOWN_AUTH_TYPE = new SMTPResponse(SMTPRetCode.PARAMETER_NOT_IMPLEMENTED, "Security features not supported").immutable();
 
-    private DnsService dnsService;
+    private PipelineService pipelineService;
 
     private SmtpGatewayAuthCmdHandler() {
     }
 
-    public SmtpGatewayAuthCmdHandler(DnsService dnsService) {
-        this.dnsService = dnsService;
+    public SmtpGatewayAuthCmdHandler(PipelineService pipelineService) {
+        this.pipelineService = pipelineService;
     }
 
     private abstract static class AbstractSMTPLineHandler implements LineHandler<SMTPSession> {
@@ -406,46 +411,74 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
         try {
             Konfiguration konfiguration = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getKonfiguration();
 
-            String certfileName = ICommonConstants.BASE_DIR + File.separator + konfiguration.getFachdienstCertFilename();
-            char[] passCharArray = konfiguration.getFachdienstCertAuthPwd().toCharArray();
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            keyStore.load(new FileInputStream(certfileName), passCharArray);
+            AuthenticatingSMTPClient client = null;
 
-            SSLContext sslContext = new SSLContextBuilder().loadKeyMaterial(keyStore, passCharArray).loadTrustMaterial(new TrustStrategy() {
-                @Override
-                public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                    return true;
+            //instantiate client
+            if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
+                String certfileName = ICommonConstants.BASE_DIR + File.separator + konfiguration.getFachdienstCertFilename();
+                char[] passCharArray = konfiguration.getFachdienstCertAuthPwd().toCharArray();
+                KeyStore keyStore = KeyStore.getInstance("PKCS12");
+                keyStore.load(new FileInputStream(certfileName), passCharArray);
+
+                SSLContext sslContext = new SSLContextBuilder().loadKeyMaterial(keyStore, passCharArray).loadTrustMaterial(new TrustStrategy() {
+                    @Override
+                    public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                        return true;
+                    }
+                }).build();
+
+                client = new AuthenticatingSMTPClient(true, sslContext);
+                client.setDefaultTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
+                client.setConnectTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
+                ((SmtpGatewaySession) session).setSmtpClient(client);
+            }
+            else {
+                client = new AuthenticatingSMTPClient("TLS", konfiguration.getSmtpGatewayConnectionSec().equals(EnumMailConnectionSecurity.SSLTLS));
+                client.setDefaultTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
+                client.setConnectTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
+                ((SmtpGatewaySession) session).setSmtpClient(client);
+            }
+
+            String mailServerIpAddress = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
+
+            //instantiate mailserver domain check
+            if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
+                if (!IPAddress.isValid(((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost())) {
+
+                    ((SmtpGatewaySession) session).log("make a dns request for: " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+
+                    DnsResult dnsResult = null;
+                    AtomicInteger failedCounter = new AtomicInteger();
+                    DnsRequestOperation dnsRequestOperation = (DnsRequestOperation) pipelineService.getOperation(DnsRequestOperation.BUILTIN_VENDOR+"."+DnsRequestOperation.NAME);
+                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                    defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+                    defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
+                    dnsRequestOperation.execute(
+                        defaultPipelineOperationContext,
+                        context -> {
+                            ((SmtpGatewaySession) session).log("dns request finished for: " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+                        },
+                        (context, e) -> {
+                            log.error("dns request failed for: " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost(), e);
+                            failedCounter.incrementAndGet();
+                        }
+                    );
+                    DnsResultContainer dnsResultContainer = (DnsResultContainer) defaultPipelineOperationContext.getEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DNS_RESULT);
+                    if (failedCounter.get() > 0 || dnsResultContainer == null || dnsResultContainer.isError()) {
+                        throw new IllegalStateException("ip-address for domain " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
+                    }
+                    if (!dnsResultContainer.isError() && dnsResultContainer.getResult().size() >= 1) {
+                        dnsResult = dnsResultContainer.getResult().get(0);
+                    }
+                    if (dnsResult == null) {
+                        throw new IllegalStateException("ip-address for domain " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
+                    }
+
+                    mailServerIpAddress = dnsResult.getAddress();
+                } else {
+                    mailServerIpAddress = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
+                    ((SmtpGatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerIpAddress);
                 }
-            }).build();
-
-            AuthenticatingSMTPClient client = new AuthenticatingSMTPClient(true, sslContext);
-            client.setDefaultTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
-            client.setConnectTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
-            ((SmtpGatewaySession) session).setSmtpClient(client);
-
-            String mailServerIpAddress;
-            if (!IPAddress.isValid(((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost())) {
-
-                ((SmtpGatewaySession) session).log("make a dns request for: " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
-
-                DnsResult dnsResult = null;
-                DnsResultContainer dnsResultContainer = dnsService.request(
-                    ((SmtpGatewaySession) session).getLogger(),
-                    ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost(),
-                    Type.string(Type.A)
-                );
-                if (!dnsResultContainer.isError() && dnsResultContainer.getResult().size() >= 1) {
-                    dnsResult = dnsResultContainer.getResult().get(0);
-                }
-
-                if (dnsResult == null) {
-                    throw new IllegalStateException("ip-address for domain " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
-                }
-
-                mailServerIpAddress = dnsResult.getAddress();
-            } else {
-                mailServerIpAddress = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
-                ((SmtpGatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerIpAddress);
             }
 
             try {

@@ -29,6 +29,7 @@ import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -45,7 +46,15 @@ public class GetJobNumberOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        return context -> {
+            GetJobNumberResponse getJobNumberResponse = (GetJobNumberResponse) context.getEnvironmentValue(NAME, ENV_GET_JOB_NUMBER_RESPONSE);
+            context.getLogger().logLine("JobNumber = " + getJobNumberResponse.getJobNumber());
+        };
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -74,32 +83,32 @@ public class GetJobNumberOperation implements IPipelineOperation  {
             GetJobNumber getJobNumber = new GetJobNumber();
 
             if (!getJobNumber.getClass().getPackageName().equals(packageName)) {
-                throw new IllegalStateException(
-                        "card webservice not valid "
-                                + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
-                                + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
-                                + " - packagename not equal "
-                                + packageName
-                                + " - "
-                                + getJobNumber.getClass().getPackageName()
-                );
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException(
+                    "card webservice not valid "
+                        + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
+                        + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
+                        + " - packagename not equal "
+                        + packageName
+                        + " - "
+                        + getJobNumber.getClass().getPackageName()
+                ));
             }
+            else {
+                getJobNumber.setContext(contextType);
 
-            getJobNumber.setContext(contextType);
+                timeMetric = metricFactory.timer(NAME);
+                GetJobNumberResponse getJobNumberResponse = (GetJobNumberResponse) webserviceConnector.getSoapResponse(getJobNumber);
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_GET_JOB_NUMBER_RESPONSE, getJobNumberResponse);
+                timeMetric.stopAndPublish();
 
-            timeMetric = metricFactory.timer(NAME);
-            GetJobNumberResponse getJobNumberResponse = (GetJobNumberResponse) webserviceConnector.getSoapResponse(getJobNumber);
-            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_GET_JOB_NUMBER_RESPONSE, getJobNumberResponse);
-            timeMetric.stopAndPublish();
-
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+                okConsumer.accept(defaultPipelineOperationContext);
+            }
         } catch (Exception e) {
             log.error("error on executing the GetJobNumberOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

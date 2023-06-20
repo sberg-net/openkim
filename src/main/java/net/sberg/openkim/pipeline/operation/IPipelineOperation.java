@@ -16,19 +16,36 @@
  */
 package net.sberg.openkim.pipeline.operation;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public interface IPipelineOperation {
 
     public static final String BUILTIN_VENDOR = "OpenKIM";
 
+    public static final String ENV_EXCEPTION = "exception";
+
     public String getName();
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer);
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer();
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer);
 
     public default String getOperationKey() {
         return getVendor()+"."+getName();
     }
     public default String getVendor() {
         return BUILTIN_VENDOR;
+    }
+    public default BiConsumer<DefaultPipelineOperationContext, Exception> getDefaultFailConsumer() {
+        return (context, e) -> {
+            context.setEnvironmentValue(getName(), ENV_EXCEPTION, e);
+        };
+    }
+    public default boolean hasError(DefaultPipelineOperationContext defaultPipelineOperationContext, String... prefixes) {
+        for (int i = 0; i < prefixes.length; i++) {
+            if (defaultPipelineOperationContext.hasEnvironmentValue(prefixes[i], ENV_EXCEPTION)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

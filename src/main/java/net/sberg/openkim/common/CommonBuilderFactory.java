@@ -17,7 +17,7 @@
 package net.sberg.openkim.common;
 
 import net.sberg.openkim.konnektor.*;
-import net.sberg.openkim.konnektor.webservice.jaxb.CMSAttribute;
+import net.sberg.openkim.konnektor.CMSAttribute;
 import net.sberg.openkim.log.DefaultLogger;
 import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;

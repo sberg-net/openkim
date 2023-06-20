@@ -16,10 +16,9 @@
  */
 package net.sberg.openkim.gateway.pop3;
 
-import net.sberg.openkim.mail.MailService;
 import net.sberg.openkim.gateway.pop3.cmdhandler.*;
-import net.sberg.openkim.kas.KasService;
-import net.sberg.openkim.konnektor.dns.DnsService;
+import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
+import net.sberg.openkim.pipeline.PipelineService;
 import org.apache.james.protocols.api.handler.*;
 import org.apache.james.protocols.pop3.POP3Session;
 
@@ -28,24 +27,24 @@ import java.util.List;
 
 public class Pop3GatewayProtocolHandlerChain extends ProtocolHandlerChainImpl {
 
-    public Pop3GatewayProtocolHandlerChain(KasService kasService, DnsService dnsService, MailService mailService) throws WiringException {
-        addAll(initDefaultHandlers(kasService, dnsService, mailService));
+    public Pop3GatewayProtocolHandlerChain(PipelineService pipelineService, SignReportService signReportService) throws WiringException {
+        addAll(initDefaultHandlers(pipelineService, signReportService));
         wireExtensibleHandlers();
     }
 
-    protected List<ProtocolHandler> initDefaultHandlers(KasService kasService, DnsService dnsService, MailService mailService) {
+    protected List<ProtocolHandler> initDefaultHandlers(PipelineService pipelineService, SignReportService signReportService) {
         List<ProtocolHandler> handlers = new ArrayList<>();
 
-        handlers.add(new Pop3GatewayPassCmdHandler(dnsService));
+        handlers.add(new Pop3GatewayPassCmdHandler(pipelineService));
         handlers.add(new Pop3GatewayCapaCmdHandler());
-        handlers.add(new Pop3GatewayAuthCmdHandler(dnsService));
+        handlers.add(new Pop3GatewayAuthCmdHandler(pipelineService));
         handlers.add(new Pop3GatewayUserCmdHandler());
         handlers.add(new Pop3GatewayListCmdHandler());
         handlers.add(new Pop3GatewayUidlCmdHandler());
         handlers.add(new Pop3GatewayRsetCmdHandler());
         handlers.add(new Pop3GatewayDeleCmdHandler());
         handlers.add(new Pop3GatewayNoopCmdHandler());
-        handlers.add(new Pop3GatewayRetrCmdHandler(kasService, mailService));
+        handlers.add(new Pop3GatewayRetrCmdHandler(pipelineService, signReportService));
         handlers.add(new Pop3GatewayTopCmdHandler());
         handlers.add(new Pop3GatewayStatCmdHandler());
         handlers.add(new Pop3GatewayQuitCmdHandler());

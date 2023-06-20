@@ -79,6 +79,8 @@ public class Konnektor {
     private long diffSystemKonnektorTime;
     @JsonIgnore
     private KonnektorMonitoringResult konnektorMonitoringResult;
+    @JsonIgnore
+    private String vzdSearchBase;
 
     public KonnektorServiceBean extractKonnektorServiceBean(EnumKonnektorServiceBeanType webServiceBeanType, boolean throwException) throws Exception {
         for (Iterator<KonnektorServiceBean> iterator = getKonnektorServiceBeans().iterator(); iterator.hasNext(); ) {

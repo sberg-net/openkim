@@ -23,10 +23,13 @@ import de.gematik.kim.kas.api.AttachmentsApi;
 import net.sberg.openkim.konfiguration.EnumTIEnvironment;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
+import net.sberg.openkim.log.DefaultLogger;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsFqdnRequestOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsRequestOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResult;
 import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
-import net.sberg.openkim.konnektor.dns.DnsService;
-import net.sberg.openkim.log.DefaultLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class FachdienstService {
@@ -49,10 +53,10 @@ public class FachdienstService {
     private static final String ACCMGR_PTR_SEARCH = "_accmgr._tcp.kim.telematik";
     private static final String KAS_PTR_SEARCH = "_kas._tcp.kim.telematik";
 
-    @Autowired
-    private DnsService dnsService;
-
     private TreeMap<EnumFachdienst, FachdienstDescr> descrMap;
+
+    @Autowired
+    private PipelineService pipelineService;
 
     @PostConstruct
     public void init() throws Exception {
@@ -118,7 +122,6 @@ public class FachdienstService {
         HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         httpRequestFactory.setConnectionRequestTimeout(konfiguration.getFachdienstKasTimeOutInSeconds() * 1000);
         httpRequestFactory.setConnectTimeout(konfiguration.getFachdienstKasTimeOutInSeconds() * 1000);
-        httpRequestFactory.setReadTimeout(konfiguration.getFachdienstKasTimeOutInSeconds() * 1000);
         RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
 
         ApiClient apiClient = new ApiClient(restTemplate);
@@ -130,12 +133,31 @@ public class FachdienstService {
 
     private String aRequest(DefaultLogger logger, Konnektor konnektor, String domain) throws Exception {
 
-        DnsResultContainer dnsResultContainer = dnsService.request(logger, domain, Type.string(Type.A));
-        if (dnsResultContainer.isError()) {
-            return null;
+        AtomicInteger failedCounter = new AtomicInteger();
+        DnsRequestOperation dnsRequestOperation = (DnsRequestOperation) pipelineService.getOperation(DnsRequestOperation.BUILTIN_VENDOR+"."+DnsRequestOperation.NAME);
+        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+        defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, domain);
+        defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
+        dnsRequestOperation.execute(
+            defaultPipelineOperationContext,
+            context -> {
+                log.info("dns request finished for: " + domain);
+            },
+            (context, e) -> {
+                log.error("dns request failed for: " + domain, e);
+                failedCounter.incrementAndGet();
+            }
+        );
+
+        List<DnsResult> result = null;
+        DnsResultContainer dnsResultContainer = (DnsResultContainer) defaultPipelineOperationContext.getEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DNS_RESULT);
+        if (failedCounter.get() > 0 || dnsResultContainer == null || dnsResultContainer.isError()) {
+            throw new IllegalStateException("ip-address for domain " + domain + " not found");
+        }
+        if (!dnsResultContainer.isError()) {
+            result = dnsResultContainer.getResult();
         }
 
-        List<DnsResult> result = dnsResultContainer.getResult();
         if (result.isEmpty()) {
             log.info("empty result -> error on aRequest " + domain + " for konnektor: " + konnektor.getIp());
             logger.logLine("empty result -> error on aRequest " + domain + " for konnektor: " + konnektor.getIp());
@@ -148,8 +170,26 @@ public class FachdienstService {
     }
 
     private Fachdienst fqdnRequest(DefaultLogger logger, Konnektor konnektor, Fachdienst fachdienst, String domain) throws Exception {
-        DnsResultContainer dnsResultContainer = dnsService.fqdnRequest(logger, domain, fachdienst.getTyp().getDomainSuffix());
-        if (dnsResultContainer.isError()) {
+
+        AtomicInteger failedCounter = new AtomicInteger();
+
+        DnsFqdnRequestOperation dnsFqdnRequestOperation = (DnsFqdnRequestOperation) pipelineService.getOperation(DnsFqdnRequestOperation.BUILTIN_VENDOR+"."+DnsFqdnRequestOperation.NAME);
+        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+        defaultPipelineOperationContext.setEnvironmentValue(DnsFqdnRequestOperation.NAME, DnsFqdnRequestOperation.ENV_DOMAIN, domain);
+        defaultPipelineOperationContext.setEnvironmentValue(DnsFqdnRequestOperation.NAME, DnsFqdnRequestOperation.ENV_PTR_DOMAIN_SUFFIX, fachdienst.getTyp().getDomainSuffix());
+        dnsFqdnRequestOperation.execute(
+            defaultPipelineOperationContext,
+            context -> {
+                log.info("dns request finished for: " + domain);
+            },
+            (context, e) -> {
+                log.error("dns request failed for: " + domain, e);
+                failedCounter.incrementAndGet();
+            }
+        );
+
+        DnsResultContainer dnsResultContainer = (DnsResultContainer) defaultPipelineOperationContext.getEnvironmentValue(DnsFqdnRequestOperation.NAME, DnsFqdnRequestOperation.ENV_DNS_RESULT);
+        if (failedCounter.get() > 0 || dnsResultContainer == null || dnsResultContainer.isError()) {
             fachdienst.setErrorOnCreating(true);
             return fachdienst;
         }

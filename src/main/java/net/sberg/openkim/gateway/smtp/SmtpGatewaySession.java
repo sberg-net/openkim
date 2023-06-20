@@ -18,6 +18,7 @@ package net.sberg.openkim.gateway.smtp;
 
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.x509.X509CertificateResult;
+import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
@@ -94,6 +95,10 @@ public class SmtpGatewaySession extends SMTPSessionImpl {
 
     public int getSmtpClientIdleTimeoutInSeconds() {
         return ((SmtpGatewayConfiguration) getConfiguration()).getKonfiguration().getSmtpClientIdleTimeoutInSeconds();
+    }
+
+    public EnumGatewayTIMode getGatewayTIMode() {
+        return ((SmtpGatewayConfiguration) getConfiguration()).getKonfiguration().getGatewayTIMode();
     }
 
     public AuthenticatingSMTPClient getSmtpClient() {

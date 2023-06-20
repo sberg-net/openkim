@@ -25,6 +25,7 @@ public class DefaultPipelineOperationContext implements IPipelineOperationContex
 
     public static final String ENV_KONNEKTOR_ID = "konnId";
     public static final String ENV_WEBSERVICE_ID = "wsId";
+    public static final String ENV_OP_ID = "opId";
 
     private DefaultLogger logger;
     private Map<String, Object> environment = new HashMap<>();
@@ -40,11 +41,10 @@ public class DefaultPipelineOperationContext implements IPipelineOperationContex
     public Object getEnvironmentValue(String prefix, String key) {
         return environment.get(prefix+"."+key);
     }
-
+    public boolean hasEnvironmentValue(String prefix, String key) { return environment.containsKey(prefix+"."+key); }
     public void setEnvironmentValue(String prefix, String key, Object val) {
         environment.put(prefix+"."+key, val);
     }
-
     public void setEnvironmentValues(Map<String, Object> values) {
         environment.putAll(values);
     }

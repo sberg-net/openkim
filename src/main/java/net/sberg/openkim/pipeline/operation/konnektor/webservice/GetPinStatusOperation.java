@@ -29,6 +29,7 @@ import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -47,7 +48,17 @@ public class GetPinStatusOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        return context -> {
+            GetPinStatusResponse getPinStatusResponse = (GetPinStatusResponse) context.getEnvironmentValue(NAME, ENV_PIN_STATUS_RESPONSE);
+            context.getLogger().logLine("Status = " + getPinStatusResponse.getStatus().getResult());
+            context.getLogger().logLine("PinStatus = " + getPinStatusResponse.getPinStatus());
+            context.getLogger().logLine("LeftTries = " + getPinStatusResponse.getLeftTries());
+        };
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -69,40 +80,40 @@ public class GetPinStatusOperation implements IPipelineOperation  {
 
             GetPinStatus getPinStatus = new GetPinStatus();
             if (!getPinStatus.getClass().getPackageName().equals(packageName)) {
-                throw new IllegalStateException(
-                        "card webservice not valid "
-                                + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
-                                + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
-                                + " - packagename not equal "
-                                + packageName
-                                + " - "
-                                + getPinStatus.getClass().getPackageName()
-                );
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException(
+                    "card webservice not valid "
+                        + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
+                        + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
+                        + " - packagename not equal "
+                        + packageName
+                        + " - "
+                        + getPinStatus.getClass().getPackageName()
+                ));
             }
+            else {
+                ContextType contextType = new ContextType();
+                contextType.setMandantId(logger.getDefaultLoggerContext().getMandantId());
+                contextType.setClientSystemId(logger.getDefaultLoggerContext().getClientSystemId());
+                contextType.setWorkplaceId(logger.getDefaultLoggerContext().getWorkplaceId());
+                getPinStatus.setContext(contextType);
 
-            ContextType contextType = new ContextType();
-            contextType.setMandantId(logger.getDefaultLoggerContext().getMandantId());
-            contextType.setClientSystemId(logger.getDefaultLoggerContext().getClientSystemId());
-            contextType.setWorkplaceId(logger.getDefaultLoggerContext().getWorkplaceId());
-            getPinStatus.setContext(contextType);
+                getPinStatus.setPinTyp((String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_PINTYP));
+                getPinStatus.setCardHandle((String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_CARDHANDLE));
 
-            getPinStatus.setPinTyp((String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_PINTYP));
-            getPinStatus.setCardHandle((String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_CARDHANDLE));
+                timeMetric = metricFactory.timer(NAME);
+                GetPinStatusResponse getPinStatusResponse = (GetPinStatusResponse) webserviceConnector.getSoapResponse(getPinStatus);
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_PIN_STATUS_RESPONSE, getPinStatusResponse);
+                timeMetric.stopAndPublish();
 
-            timeMetric = metricFactory.timer(NAME);
-            GetPinStatusResponse getPinStatusResponse = (GetPinStatusResponse) webserviceConnector.getSoapResponse(getPinStatus);
-            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_PIN_STATUS_RESPONSE, getPinStatusResponse);
-            timeMetric.stopAndPublish();
-
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+                okConsumer.accept(defaultPipelineOperationContext);
+            }
         }
         catch (Exception e) {
             log.error("error on executing the GetPinStatusOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

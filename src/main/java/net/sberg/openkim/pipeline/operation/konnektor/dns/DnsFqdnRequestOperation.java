@@ -30,6 +30,7 @@ import org.xbill.DNS.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -48,7 +49,12 @@ public class DnsFqdnRequestOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
 
         TimeMetric timeMetric = null;
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -65,43 +71,42 @@ public class DnsFqdnRequestOperation implements IPipelineOperation  {
 
             List<DnsResult> srvResults = new ArrayList<>();
 
-            DnsResultContainer dnsResultContainer = DnsUtils.request(logger, domain, Type.string(Type.PTR));
-            if (dnsResultContainer.isError()) {
+            DnsResultContainer resultContainer = DnsUtils.request(logger, domain, Type.string(Type.PTR));
+            if (resultContainer.isError()) {
                 timeMetric.stopAndPublish();
-                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_DNS_RESULT, dnsResultContainer);
-                consumer.accept(defaultPipelineOperationContext);
-                return true;
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_DNS_RESULT, resultContainer);
+                okConsumer.accept(defaultPipelineOperationContext);
             }
-            List<DnsResult> ptrResults = dnsResultContainer.getResult();
+            else {
+                List<DnsResult> ptrResults = resultContainer.getResult();
 
-            for (Iterator<DnsResult> iterator = ptrResults.iterator(); iterator.hasNext(); ) {
-                DnsResult ptrResult = iterator.next();
-                if (ptrResult.getAddress().toLowerCase().endsWith(ptrDomainSuffix.toLowerCase())) {
-                    dnsResultContainer = DnsUtils.request(logger, ptrResult.getAddress(), Type.string(Type.SRV));
-                    if (dnsResultContainer.isError()) {
-                        timeMetric.stopAndPublish();
-                        defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_DNS_RESULT, dnsResultContainer);
-                        consumer.accept(defaultPipelineOperationContext);
-                        return true;
+                for (Iterator<DnsResult> iterator = ptrResults.iterator(); iterator.hasNext(); ) {
+                    DnsResult ptrResult = iterator.next();
+                    if (ptrResult.getAddress().toLowerCase().endsWith(ptrDomainSuffix.toLowerCase())) {
+                        resultContainer = DnsUtils.request(logger, ptrResult.getAddress(), Type.string(Type.SRV));
+                        if (resultContainer.isError()) {
+                            break;
+                        }
+                        srvResults.addAll(resultContainer.getResult());
                     }
-                    srvResults.addAll(dnsResultContainer.getResult());
                 }
+
+                timeMetric.stopAndPublish();
+
+                if (!resultContainer.isError()) {
+                    resultContainer = new DnsResultContainer();
+                    resultContainer.setResult(srvResults);
+                }
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_DNS_RESULT, resultContainer);
+
+                okConsumer.accept(defaultPipelineOperationContext);
             }
-
-            timeMetric.stopAndPublish();
-
-            DnsResultContainer resultContainer = new DnsResultContainer();
-            resultContainer.setResult(srvResults);
-
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
-
         } catch (Exception e) {
             log.error("error on executing the DnsFqdnRequestOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

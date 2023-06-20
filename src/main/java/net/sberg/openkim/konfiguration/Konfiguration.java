@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import net.sberg.openkim.common.StringUtils;
-import net.sberg.openkim.mail.EnumMailConnectionSecurity;
+import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.konnektor.Konnektor;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +34,7 @@ import java.util.List;
 public class Konfiguration {
 
     private String gatewayHost;
+    private EnumGatewayTIMode gatewayTIMode = EnumGatewayTIMode.FULLSTACK;
     private String smtpGatewayPort;
     private EnumMailConnectionSecurity smtpGatewayConnectionSec = EnumMailConnectionSecurity.SSLTLS;
     private String pop3GatewayPort;
@@ -70,6 +71,19 @@ public class Konfiguration {
     private String xkimPtShortVersion = "1.5";
 
     private List<Konnektor> konnektoren = new ArrayList<>();
+
+    public Konnektor extractKonnektor(String konnId, boolean throwException) throws Exception {
+        for (Iterator<Konnektor> iterator = getKonnektoren().iterator(); iterator.hasNext(); ) {
+            Konnektor konnektor = iterator.next();
+            if (konnektor.getUuid().equals(konnId)) {
+                return konnektor;
+            }
+        }
+        if (throwException) {
+            throw new IllegalStateException("unknow konnektor for: " + konnId);
+        }
+        return null;
+    }
 
     public void synchronize(Konfiguration dbKonfiguration) {
         if (gatewayHost == null) {

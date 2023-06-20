@@ -16,10 +16,12 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor.webservice;
 
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.ContextType;
 import de.gematik.ws.conn.eventservice.v7_2_0.GetCards;
 import de.gematik.ws.conn.eventservice.v7_2_0.GetCardsResponse;
+import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
@@ -31,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -50,7 +54,33 @@ public class GetCardsOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        return context -> {
+            try {
+                GetCardsResponse getCardsResponse = (GetCardsResponse) context.getEnvironmentValue(NAME, ENV_GET_CARDS_RESPONSE);
+                context.getLogger().logLine("Status = " + getCardsResponse.getStatus().getResult());
+                for (Iterator<CardInfoType> iterator = getCardsResponse.getCards().getCard().iterator(); iterator.hasNext(); ) {
+                    context.getLogger().logLine("***********************************");
+                    CardInfoType cardInfoType = iterator.next();
+                    context.getLogger().logLine("Kartenterminal = " + cardInfoType.getCtId());
+                    context.getLogger().logLine("Slot = " + cardInfoType.getSlotId());
+                    context.getLogger().logLine("CardHandle = " + cardInfoType.getCardHandle());
+                    context.getLogger().logLine("Kvnr = " + cardInfoType.getKvnr());
+                    context.getLogger().logLine("CardType = " + cardInfoType.getCardType());
+                    context.getLogger().logLine("CardHolderName = " + cardInfoType.getCardHolderName());
+                    context.getLogger().logLine("Iccsn = " + cardInfoType.getIccsn());
+                    context.getLogger().logLine("InsertTime = " + StringUtils.convertToStr(cardInfoType.getInsertTime()));
+                    context.getLogger().logLine("CertificateExpirationDate = " + StringUtils.convertToStr(cardInfoType.getCertificateExpirationDate()));
+                }
+            }
+            catch (Exception e) {
+                log.error("error on consuming GetCardsResponse", e);
+            }
+        };
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -87,29 +117,29 @@ public class GetCardsOperation implements IPipelineOperation  {
             }
 
             if (!getCards.getClass().getPackageName().equals(packageName)) {
-                throw new IllegalStateException(
-                        "event webservice not valid "
-                                + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
-                                + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
-                                + " - packagename not equal "
-                                + packageName + " - "
-                                + getCards.getClass().getPackageName()
-                );
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException(
+                    "event webservice not valid "
+                        + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
+                        + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
+                        + " - packagename not equal "
+                        + packageName + " - "
+                        + getCards.getClass().getPackageName()
+                ));
             }
+            else {
+                timeMetric = metricFactory.timer(NAME);
+                GetCardsResponse getCardsResponse = (GetCardsResponse) webserviceConnector.getSoapResponse(getCards);
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_GET_CARDS_RESPONSE, getCardsResponse);
+                timeMetric.stopAndPublish();
 
-            timeMetric = metricFactory.timer(NAME);
-            GetCardsResponse getCardsResponse = (GetCardsResponse) webserviceConnector.getSoapResponse(getCards);
-            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_GET_CARDS_RESPONSE, getCardsResponse);
-            timeMetric.stopAndPublish();
-
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+                okConsumer.accept(defaultPipelineOperationContext);
+            }
         } catch (Exception e) {
             log.error("error on executing the GetCardsOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

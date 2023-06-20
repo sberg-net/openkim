@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sberg.openkim.common.FileUtils;
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.StringUtils;
-import net.sberg.openkim.mail.EnumMailConnectionSecurity;
+import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.konnektor.EnumKonnektorAuthMethod;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.konnektor.KonnektorService;
@@ -249,7 +249,7 @@ public class KonfigurationService {
 
     public String loeschenKonnektor(String uuid) throws Exception {
         synchronized (mutex) {
-            Konnektor konnektor = getKonnektor(uuid, false);
+            Konnektor konnektor = konfiguration.extractKonnektor(uuid, false);
             if (konnektor != null) {
                 konfiguration.getKonnektoren().remove(konnektor);
                 write();
@@ -263,7 +263,7 @@ public class KonfigurationService {
 
     public String speichernKonnektor(Konnektor konnektor) throws Exception {
         synchronized (mutex) {
-            Konnektor dbKonnektor = getKonnektor(konnektor.getUuid(), false);
+            Konnektor dbKonnektor = konfiguration.extractKonnektor(konnektor.getUuid(), false);
 
             //delete old client cert file
             if (!konnektor.getKonnektorAuthMethod().equals(EnumKonnektorAuthMethod.CERT)
@@ -379,19 +379,6 @@ public class KonfigurationService {
         }
         if (throwException) {
             throw new IllegalStateException("unknow webservice for: " + konnId + " - " + wsId);
-        }
-        return null;
-    }
-
-    public Konnektor getKonnektor(String konnId, boolean throwException) throws Exception {
-        for (Iterator<Konnektor> iterator = this.konfiguration.getKonnektoren().iterator(); iterator.hasNext(); ) {
-            Konnektor konnektor = iterator.next();
-            if (konnektor.getUuid().equals(konnId)) {
-                return konnektor;
-            }
-        }
-        if (throwException) {
-            throw new IllegalStateException("unknow konnektor for: " + konnId);
         }
         return null;
     }

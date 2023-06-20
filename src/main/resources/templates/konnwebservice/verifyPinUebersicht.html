@@ -20,9 +20,9 @@
     <div class="col-12 p-0">
         <form id="verifyPinForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
 
-            <input type="hidden" name="konnId" th:value="${cardWebserviceBean.konnId}">
-            <input type="hidden" name="wsId" th:value="${cardWebserviceBean.wsId}">
-            <input type="hidden" name="opId" value="VerifyPin">
+            <input type="hidden" name="konnId" th:value="${serviceBean['konnId']}">
+            <input type="hidden" name="wsId" th:value="${serviceBean['wsId']}">
+            <input type="hidden" name="opId" value="OpenKIM.VerifyPin">
 
             <div class="row">
                 <div class="col-12 col-lg-6">
@@ -32,7 +32,7 @@
 
                             <div class="form-group needs-validation">
                                 <label for="cardHandle">Karten-Handle</label>
-                                <input type="text" th:value="${cardWebserviceBean.cardHandle}" class="form-control"
+                                <input type="text" th:value="${serviceBean['cardHandle']}" class="form-control"
                                        id="cardHandle" name="cardHandle" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
@@ -41,7 +41,7 @@
 
                             <div class="form-group needs-validation">
                                 <label for="pinTyp">PIN-Typ</label>
-                                <input type="text" th:value="${cardWebserviceBean.pinTyp}" class="form-control"
+                                <input type="text" th:value="${serviceBean['pinTyp']}" class="form-control"
                                        id="pinTyp" name="pinTyp" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
@@ -56,7 +56,7 @@
             <div class="container-fluid p-0 mb-2">
                 <div class="row justify-content-start">
                     <div class="col-12 col-md-6 col-lg-6 pb-1">
-                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${cardWebserviceBean.konnId}"
+                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${serviceBean['konnId']}"
                                 onclick="konnektorLaden($(this).attr('data-konnid'), true);">Zurück zu den
                             Konnektoreinstellungen
                         </button>

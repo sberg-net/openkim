@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -52,7 +53,16 @@ public class VerifySignedDocumentOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        return context -> {
+            VerifyDocumentResponse verifyDocumentResponse = (VerifyDocumentResponse) context.getEnvironmentValue(NAME, ENV_VERIFY_DOCUMENT_RESPONSE);
+            context.getLogger().logLine("Status = " + verifyDocumentResponse.getStatus().getResult());
+            context.getLogger().logLine("Result = " + verifyDocumentResponse.getVerificationResult().getHighLevelResult());
+        };
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
         TimeMetric timeMetric = null;
 
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -79,56 +89,56 @@ public class VerifySignedDocumentOperation implements IPipelineOperation  {
 
             VerifyDocument verifyDocument = new VerifyDocument();
             if (!verifyDocument.getClass().getPackageName().equals(packageName)) {
-                throw new IllegalStateException(
-                        "signature webservice not valid "
-                                + konnektor.getIp()
-                                + " - "
-                                + konnektorServiceBean.getId()
-                                + " - packagename not equal "
-                                + packageName
-                                + " - "
-                                + verifyDocument.getClass().getPackageName()
-                );
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException(
+                    "signature webservice not valid "
+                        + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
+                        + " - " + defaultPipelineOperationContext.getEnvironmentValue(NAME, DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
+                        + " - packagename not equal "
+                        + packageName
+                        + " - "
+                        + verifyDocument.getClass().getPackageName()
+                ));
             }
+            else {
 
-            verifyDocument.setContext(contextType);
+                verifyDocument.setContext(contextType);
 
-            boolean signedDataAsBase64 = (boolean)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_DATA_AS_BASE64);
-            byte[] signedData = ((String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_CONTENT)).getBytes(StandardCharsets.UTF_8);
+                boolean signedDataAsBase64 = (boolean) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_DATA_AS_BASE64);
+                byte[] signedData = ((String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_CONTENT)).getBytes(StandardCharsets.UTF_8);
 
-            SignatureObject signatureObject = new SignatureObject();
-            Base64Signature base64Signature = new Base64Signature();
-            base64Signature.setValue(signedDataAsBase64 ? Base64.decodeBase64(signedData) : signedData);
-            base64Signature.setType("urn:ietf:rfc:5652");
-            signatureObject.setBase64Signature(base64Signature);
-            verifyDocument.setSignatureObject(signatureObject);
+                SignatureObject signatureObject = new SignatureObject();
+                Base64Signature base64Signature = new Base64Signature();
+                base64Signature.setValue(signedDataAsBase64 ? Base64.decodeBase64(signedData) : signedData);
+                base64Signature.setType("urn:ietf:rfc:5652");
+                signatureObject.setBase64Signature(base64Signature);
+                verifyDocument.setSignatureObject(signatureObject);
 
-            VerifyDocument.OptionalInputs optionalInputs = new VerifyDocument.OptionalInputs();
-            ReturnVerificationReport returnVerificationReport = new ReturnVerificationReport();
-            returnVerificationReport.setExpandBinaryValues(false);
-            returnVerificationReport.setIncludeCertificateValues(true);
-            returnVerificationReport.setIncludeRevocationValues(true);
-            returnVerificationReport.setIncludeVerifier(false);
-            returnVerificationReport.setReportDetailLevel("urn:oasis:names:tc:dss:1.0:profiles:verificationreport:reportdetail:allDetails");
-            optionalInputs.setReturnVerificationReport(returnVerificationReport);
-            verifyDocument.setOptionalInputs(optionalInputs);
+                VerifyDocument.OptionalInputs optionalInputs = new VerifyDocument.OptionalInputs();
+                ReturnVerificationReport returnVerificationReport = new ReturnVerificationReport();
+                returnVerificationReport.setExpandBinaryValues(false);
+                returnVerificationReport.setIncludeCertificateValues(true);
+                returnVerificationReport.setIncludeRevocationValues(true);
+                returnVerificationReport.setIncludeVerifier(false);
+                returnVerificationReport.setReportDetailLevel("urn:oasis:names:tc:dss:1.0:profiles:verificationreport:reportdetail:allDetails");
+                optionalInputs.setReturnVerificationReport(returnVerificationReport);
+                verifyDocument.setOptionalInputs(optionalInputs);
 
-            verifyDocument.setIncludeRevocationInfo(false);
+                verifyDocument.setIncludeRevocationInfo(false);
 
-            timeMetric = metricFactory.timer(NAME);
-            VerifyDocumentResponse verifyDocumentResponse = (VerifyDocumentResponse) webserviceConnector.getSoapResponse(verifyDocument);
-            defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_VERIFY_DOCUMENT_RESPONSE, verifyDocumentResponse);
-            timeMetric.stopAndPublish();
+                timeMetric = metricFactory.timer(NAME);
+                VerifyDocumentResponse verifyDocumentResponse = (VerifyDocumentResponse) webserviceConnector.getSoapResponse(verifyDocument);
+                defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_VERIFY_DOCUMENT_RESPONSE, verifyDocumentResponse);
+                timeMetric.stopAndPublish();
 
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+                okConsumer.accept(defaultPipelineOperationContext);
+            }
         }
         catch (Exception e) {
             log.error("error on executing the VerifySignedDocumentOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

@@ -1,8 +1,8 @@
 <div class="row" xmlns:th="http://www.thymeleaf.org">
     <div class="col-sm-8 col-lg-7 mb-3 p-0 pr-1">
-        <span style="font-weight: bold">Ausführen des Webservices, um Kartenterminals am Konnektor </span><span
+        <span style="font-weight: bold">Ausführen des Webservices, um gesteckte Karten an Terminals, die mit dem Konnektor </span><span
             style="font-weight: bold" th:text="${konnektor.ip}">ID</span>
-        <span style="font-weight: bold"> abzufragen</span>
+        <span style="font-weight: bold"> verbunden sind, abzufragen</span>
     </div>
 </div>
 <div class="row">
@@ -11,6 +11,7 @@
 
             <input type="hidden" id="konnId" name="konnId" th:value="${konnId}">
             <input type="hidden" id="wsId" name="wsId" th:value="${wsId}">
+          <input type="hidden" id="opId" name="opId" value="OpenKIM.RequestCard">
 
             <div class="row">
                 <div class="col-12 col-lg-6">
@@ -19,8 +20,8 @@
                             <h5 class="card-title">Terminalinformationen</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="ctId">Kartenterminal-ID</label>
-                                <input type="text" class="form-control" id="ctId" name="ctId" required>
+                                <label for="cardTerminalId">Kartenterminal-ID</label>
+                                <input type="text" class="form-control" id="cardTerminalId" name="cardTerminalId" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>

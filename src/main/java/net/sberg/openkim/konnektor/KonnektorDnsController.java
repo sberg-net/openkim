@@ -16,11 +16,15 @@
  */
 package net.sberg.openkim.konnektor;
 
+import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.dns.DnsService;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.IPipelineOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsRequestOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.dns.DnsResultContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,17 +41,18 @@ import java.util.ArrayList;
 public class KonnektorDnsController {
 
     @Autowired
-    private DnsService dnsService;
-    @Autowired
     private KonfigurationService konfigurationService;
     @Autowired
     private LogService logService;
+    @Autowired
+    private PipelineService pipelineService;
 
     @RequestMapping(value = "/dns/testen/{konnektorId}/{recordType}", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public String suche(Model model, @PathVariable String konnektorId, @PathVariable String recordType, String domain) throws Exception {
 
-        Konnektor dbKonnektor = konfigurationService.getKonnektor(konnektorId, false);
+        Konfiguration konfiguration = konfigurationService.getKonfiguration();
+        Konnektor dbKonnektor = konfiguration.extractKonnektor(konnektorId, false);
         if (dbKonnektor == null) {
             throw new IllegalStateException("Die Konnektor-Konfiguration konnte nicht geladen werden mit der Id: " + konnektorId);
         }
@@ -59,14 +64,31 @@ public class KonnektorDnsController {
             model.addAttribute("konnektor", dbKonnektor);
 
             if (domain != null && !domain.trim().isEmpty()) {
-                DnsResultContainer dnsResultContainer = dnsService.request(logger, domain, recordType);
-                if (dnsResultContainer.isError()) {
-                    model.addAttribute("fehler", true);
-                    model.addAttribute("eintraege", new ArrayList<>());
-                } else {
-                    model.addAttribute("fehler", false);
-                    model.addAttribute("eintraege", dnsResultContainer.getResult());
-                }
+
+                IPipelineOperation dnsPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ DnsRequestOperation.NAME);
+
+                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, recordType);
+                defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, domain);
+                defaultPipelineOperationContext.setLogger(logger);
+
+                dnsPipelineOperation.execute(
+                    defaultPipelineOperationContext,
+                    context -> {
+                        DnsResultContainer dnsResultContainer = (DnsResultContainer) context.getEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DNS_RESULT);
+                        if (dnsResultContainer.isError()) {
+                            model.addAttribute("fehler", true);
+                            model.addAttribute("eintraege", new ArrayList<>());
+                        } else {
+                            model.addAttribute("fehler", false);
+                            model.addAttribute("eintraege", dnsResultContainer.getResult());
+                        }
+                    },
+                    (context, e) -> {
+                        model.addAttribute("fehler", true);
+                        model.addAttribute("eintraege", new ArrayList<>());
+                    }
+                );
             } else {
                 model.addAttribute("fehler", false);
                 model.addAttribute("eintraege", new ArrayList<>());

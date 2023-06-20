@@ -16,16 +16,15 @@
  */
 package net.sberg.openkim.konnektor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
-import net.sberg.openkim.konnektor.webservice.*;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.CardTerminalWebserviceBean;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.CardWebserviceBean;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.bean.WebserviceBean;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.IPipelineOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.VerifyPinOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -40,26 +39,17 @@ public class KonnektorWebserviceController {
     @Autowired
     private KonfigurationService konfigurationService;
     @Autowired
-    private CardTerminalService cardTerminalService;
-    @Autowired
-    private CardService cardService;
-    @Autowired
-    private CertificateService certificateService;
-    @Autowired
-    private EventService eventService;
-    @Autowired
-    private EncryptionService encryptionService;
-    @Autowired
-    private SignatureService signatureService;
+    private PipelineService pipelineService;
     @Autowired
     private LogService logService;
 
     @RequestMapping(value = "/konnwebservice/uebersicht/{konnId}/{wsId}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public String konnwebserviceUebersicht(Model model, @PathVariable String konnId, @PathVariable String wsId) throws Exception {
-        model.addAttribute("konnId", konnId);
-        model.addAttribute("wsId", wsId);
-        Konnektor konnektor = konfigurationService.getKonnektor(konnId, true);
+        model.addAttribute(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID, konnId);
+        model.addAttribute(DefaultPipelineOperationContext.ENV_WEBSERVICE_ID, wsId);
+        Konfiguration konfiguration = konfigurationService.getKonfiguration();
+        Konnektor konnektor = konfiguration.extractKonnektor(konnId, true);
         model.addAttribute("konnektor", konnektor);
         KonnektorServiceBean konnektorServiceBean = konfigurationService.getKonnektorServiceBean(konnId, wsId, true);
 
@@ -83,27 +73,25 @@ public class KonnektorWebserviceController {
     @ResponseStatus(value = HttpStatus.OK)
     public String konnwebserviceUebersicht(Model model, @RequestBody Map serviceBean) throws Exception {
 
-        WebserviceBean webserviceBean = new ObjectMapper().convertValue(serviceBean, WebserviceBean.class);
-
-        Konnektor konnektor = konfigurationService.getKonnektor(webserviceBean.getKonnId(), true);
+        Konfiguration konfiguration = konfigurationService.getKonfiguration();
+        Konnektor konnektor = konfiguration.extractKonnektor((String)serviceBean.get(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID), true);
         model.addAttribute("konnektor", konnektor);
 
-        KonnektorServiceBean konnektorServiceBean = konfigurationService.getKonnektorServiceBean(webserviceBean.getKonnId(), webserviceBean.getWsId(), true);
+        KonnektorServiceBean konnektorServiceBean = konfigurationService.getKonnektorServiceBean((String)serviceBean.get(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID), (String)serviceBean.get(DefaultPipelineOperationContext.ENV_WEBSERVICE_ID), true);
 
         if (konnektorServiceBean.getEnumKonnektorServiceBeanType().equals(EnumKonnektorServiceBeanType.CardService)
-            && webserviceBean.getOpId().equals(CardService.OP_VERIFY_PIN)
+            && pipelineService.getOperationClass((String)serviceBean.get(DefaultPipelineOperationContext.ENV_OP_ID)).equals(VerifyPinOperation.class)
         ) {
-            CardWebserviceBean cardWebserviceBean = new ObjectMapper().convertValue(serviceBean, CardWebserviceBean.class);
-            model.addAttribute("cardWebserviceBean", cardWebserviceBean);
+            model.addAttribute("serviceBean", serviceBean);
             return "konnwebservice/verifyPinUebersicht";
         }
         throw new IllegalStateException(
             "webservice for "
-            + webserviceBean.getKonnId()
+            + (String)serviceBean.get(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID)
             + " - "
-            + webserviceBean.getWsId()
+            + (String)serviceBean.get(DefaultPipelineOperationContext.ENV_WEBSERVICE_ID)
             + " - "
-            + webserviceBean.getOpId()
+            + (String)serviceBean.get(DefaultPipelineOperationContext.ENV_OP_ID)
             + " not supported"
         );
     }
@@ -114,10 +102,9 @@ public class KonnektorWebserviceController {
     public String ausfuehren(@RequestBody Map serviceBean) throws Exception {
 
         Konfiguration konfiguration = konfigurationService.getKonfiguration();
-        WebserviceBean webserviceBean = new ObjectMapper().convertValue(serviceBean, WebserviceBean.class);
 
-        KonnektorServiceBean konnektorServiceBean = konfigurationService.getKonnektorServiceBean(webserviceBean.getKonnId(), webserviceBean.getWsId(), true);
-        Konnektor konnektor = konfigurationService.getKonnektor(webserviceBean.getKonnId(), true);
+        KonnektorServiceBean konnektorServiceBean = konfigurationService.getKonnektorServiceBean((String)serviceBean.get(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID), (String)serviceBean.get(DefaultPipelineOperationContext.ENV_WEBSERVICE_ID), true);
+        Konnektor konnektor = konfiguration.extractKonnektor((String)serviceBean.get(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID), true);
 
         DefaultLoggerContext defaultLoggerContext = new DefaultLoggerContext();
         DefaultLogger logger = logService.createLogger(
@@ -126,22 +113,20 @@ public class KonnektorWebserviceController {
                 .buildKonfiguration(konfiguration)
         );
 
-        if (konnektorServiceBean.getEnumKonnektorServiceBeanType().equals(EnumKonnektorServiceBeanType.CardTerminalService)) {
-            CardTerminalWebserviceBean cardTerminalWebserviceBean = new ObjectMapper().convertValue(serviceBean, CardTerminalWebserviceBean.class);
-            return cardTerminalService.execute(logger, cardTerminalWebserviceBean);
-        } else if (konnektorServiceBean.getEnumKonnektorServiceBeanType().equals(EnumKonnektorServiceBeanType.CardService)) {
-            CardWebserviceBean cardWebserviceBean = new ObjectMapper().convertValue(serviceBean, CardWebserviceBean.class);
-            return cardService.execute(logger, cardWebserviceBean);
-        } else if (konnektorServiceBean.getEnumKonnektorServiceBeanType().equals(EnumKonnektorServiceBeanType.CertificateService)) {
-            return certificateService.execute(logger, webserviceBean, serviceBean);
-        } else if (konnektorServiceBean.getEnumKonnektorServiceBeanType().equals(EnumKonnektorServiceBeanType.EventService)) {
-            return eventService.execute(logger, webserviceBean, serviceBean);
-        } else if (konnektorServiceBean.getEnumKonnektorServiceBeanType().equals(EnumKonnektorServiceBeanType.EncryptionService)) {
-            return encryptionService.execute(logger, webserviceBean, serviceBean);
-        } else if (konnektorServiceBean.getEnumKonnektorServiceBeanType().equals(EnumKonnektorServiceBeanType.SignatureService)) {
-            return signatureService.execute(logger, webserviceBean, serviceBean);
-        }
+        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+        defaultPipelineOperationContext.setLogger(logger);
+        defaultPipelineOperationContext.setEnvironmentValues(serviceBean);
+
+        IPipelineOperation operation = pipelineService.getOperation((String)serviceBean.get(DefaultPipelineOperationContext.ENV_OP_ID));
+        operation.execute(
+            defaultPipelineOperationContext,
+            operation.getDefaultOkConsumer(),
+            (context, e) -> {
+
+            }
+        );
+        String result = logger.getLogContentAsStr();
         logService.removeLogger(logger.getId());
-        return "ok";
+        return result;
     }
 }

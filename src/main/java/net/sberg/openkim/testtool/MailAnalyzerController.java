@@ -16,11 +16,6 @@
  */
 package net.sberg.openkim.testtool;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.sberg.openkim.mail.MailPartContent;
-import net.sberg.openkim.mail.MailPartContentService;
-import net.sberg.openkim.log.DefaultLogger;
-import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,20 +29,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
-import java.util.UUID;
-
 @Controller
 public class MailAnalyzerController {
 
     private static final Logger log = LoggerFactory.getLogger(MailAnalyzerController.class);
 
-    @Autowired
-    private MailPartContentService mailPartContentService;
     @Autowired
     private LogService logService;
 
@@ -61,6 +47,7 @@ public class MailAnalyzerController {
         @RequestParam(name = "mailFile", required = false) MultipartFile mailFile
     ) throws Exception {
 
+        /*
         DefaultLoggerContext defaultLoggerContext = new DefaultLoggerContext();
         DefaultLogger logger = logService.createLogger(defaultLoggerContext.buildHtmlMode(true));
         MailAnalyzerResult mailAnalyzerResult = new MailAnalyzerResult();
@@ -95,6 +82,7 @@ public class MailAnalyzerController {
         model.addAttribute("result", mailAnalyzerResult);
         model.addAttribute("logs", logger.getLogContentAsStr());
         logService.removeLogger(logger.getId());
+         */
 
         return "mailanalyzer/mailanalyzerFormular";
     }

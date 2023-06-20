@@ -16,35 +16,14 @@
  */
 package net.sberg.openkim.kas;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.sberg.openkim.common.FileUtils;
-import net.sberg.openkim.common.StringUtils;
-import net.sberg.openkim.mail.MailPartContent;
-import net.sberg.openkim.mail.MailPartContentService;
-import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
-import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.log.DefaultLogger;
-import net.sberg.openkim.log.error.EnumErrorCode;
-import net.sberg.openkim.log.error.MailaddressKimVersionErrorContext;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 
-import javax.activation.DataHandler;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.mail.Address;
 import javax.mail.BodyPart;
-import javax.mail.Header;
-import javax.mail.Part;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,10 +31,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.security.MessageDigest;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 @Service
 public class KasService {
@@ -64,12 +39,10 @@ public class KasService {
 
     private static final Logger log = LoggerFactory.getLogger(KasService.class);
 
-    @Autowired
-    private MailPartContentService mailPartContentService;
-
     public MimeMessage executeOutgoing(DefaultLogger logger, MimeMessage mimeMessage, SmtpGatewaySession smtpGatewaySession) throws KasServiceException {
         try {
-
+            throw new IllegalStateException("not implemented");
+            /*
             Konfiguration konfiguration = logger.getDefaultLoggerContext().getKonfiguration();
 
             smtpGatewaySession.log("start executeOutgoing message");
@@ -280,8 +253,8 @@ public class KasService {
 
             smtpGatewaySession.log("ends executeOutgoing message");
             return mimeMessage;
-        } catch (KasServiceException e) {
-            throw e;
+
+             */
         } catch (Exception e) {
             log.error("error on executeOutgoing message: " + smtpGatewaySession.getSessionID(), e);
             throw new KasServiceException(
@@ -295,6 +268,8 @@ public class KasService {
 
     public MimeMessage executeIncoming(DefaultLogger logger, MimeMessage mimeMessage, Pop3GatewaySession pop3GatewaySession) throws KasServiceException {
         try {
+            throw new IllegalStateException("not implemented");
+            /*
             pop3GatewaySession.log("start executeIncoming message");
 
             MailPartContent mailPartContent = mailPartContentService.analyze(logger, mimeMessage);
@@ -484,9 +459,10 @@ public class KasService {
 
             pop3GatewaySession.log("ends executeIncoming message");
             return mimeMessage;
-        } catch (KasServiceException e) {
-            throw e;
-        } catch (Exception e) {
+
+             */
+        }
+        catch (Exception e) {
             log.error("error on executeIncoming message: " + pop3GatewaySession.getSessionID(), e);
             throw new KasServiceException(
                 EnumKasServiceErrorCode.technical,

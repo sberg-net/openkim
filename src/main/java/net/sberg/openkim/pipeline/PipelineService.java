@@ -27,6 +27,13 @@ public class PipelineService {
         throw new IllegalStateException("no operation available: "+key);
     }
 
+    public Class getOperationClass(String key) throws Exception {
+        if (operationMap.containsKey(key)) {
+            return operationMap.get(key).getClass();
+        }
+        throw new IllegalStateException("no operation available: "+key);
+    }
+
     public List<IPipelineOperation> getOperations(List<String> keys) throws Exception {
         List<IPipelineOperation> operations = new ArrayList<>();
         for (Iterator<String> iterator = keys.iterator(); iterator.hasNext(); ) {

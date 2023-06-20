@@ -21,6 +21,9 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><span class="font-weight-bold">Gateway-Host&nbsp;&nbsp;</span><span
                             th:text="${konfig.gatewayHost}">n.a.</span></li>
+                    <li class="list-group-item"><span class="font-weight-bold">Gateway-Mode&nbsp;&nbsp;</span><span
+                            th:text="${konfig.gatewayTIMode != null?konfig.gatewayTIMode.getHrText():''}"></span>
+                    </li>
                     <li class="list-group-item"><span class="font-weight-bold">Time to Live für gecachte Verschlüsselungszertifikate und Prüfergebnisse in Stunden&nbsp;&nbsp;</span><span
                             th:text="${konfig.ttlEncCertInHours}"></span></li>
                     <li class="list-group-item"><span class="font-weight-bold">Time to Live für gecachte Zuordnungen von E-Mail-Adressen der Sender bzw. Empfänger zu ICCSNs von deren HBAs/SM-Bs in Tagen&nbsp;&nbsp;</span><span

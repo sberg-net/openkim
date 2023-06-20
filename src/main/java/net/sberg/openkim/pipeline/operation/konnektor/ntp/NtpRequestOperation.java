@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.Date;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
@@ -46,7 +47,12 @@ public class NtpRequestOperation implements IPipelineOperation  {
     }
 
     @Override
-    public boolean execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> consumer) {
+    public Consumer<DefaultPipelineOperationContext> getDefaultOkConsumer() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    @Override
+    public void execute(DefaultPipelineOperationContext defaultPipelineOperationContext, Consumer<DefaultPipelineOperationContext> okConsumer, BiConsumer<DefaultPipelineOperationContext, Exception> failConsumer) {
 
         TimeMetric timeMetric = null;
         DefaultLogger logger = defaultPipelineOperationContext.getLogger();
@@ -78,14 +84,13 @@ public class NtpRequestOperation implements IPipelineOperation  {
             timeMetric.stopAndPublish();
             timeClient.close();
 
-            consumer.accept(defaultPipelineOperationContext);
-            return true;
+            okConsumer.accept(defaultPipelineOperationContext);
         } catch (Exception e) {
             log.error("error on executing the NtpRequestOperation for the konnektor: " + konnektor.getIp(), e);
             if (timeMetric != null) {
                 timeMetric.stopAndPublish();
             }
-            return false;
+            failConsumer.accept(defaultPipelineOperationContext, e);
         }
     }
 }

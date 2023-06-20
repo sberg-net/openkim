@@ -19,7 +19,6 @@ package net.sberg.openkim.gateway.smtp.cmdhandler;
 import com.google.common.collect.ImmutableSet;
 import net.sberg.openkim.gateway.smtp.AbstractGatewayHookableCmdHandler;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
-import net.sberg.openkim.konnektor.vzd.VzdService;
 import org.apache.james.core.MailAddress;
 import org.apache.james.core.MaybeSender;
 import org.apache.james.protocols.api.ProtocolSession;
@@ -39,15 +38,6 @@ import javax.mail.internet.AddressException;
 import java.util.*;
 
 public class SmtpGatewayMailCmdHandler extends AbstractGatewayHookableCmdHandler<MailHook> {
-
-    private VzdService vzdService;
-
-    private SmtpGatewayMailCmdHandler() {
-    }
-
-    public SmtpGatewayMailCmdHandler(VzdService vzdService) {
-        this.vzdService = vzdService;
-    }
 
     private static final Collection<String> COMMANDS = ImmutableSet.of("MAIL");
     private static final Logger log = LoggerFactory.getLogger(SmtpGatewayMailCmdHandler.class);

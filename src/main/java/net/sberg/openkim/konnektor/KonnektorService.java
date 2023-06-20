@@ -19,12 +19,21 @@ package net.sberg.openkim.konnektor;
 import net.sberg.openkim.common.CommonBuilderFactory;
 import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.dashboard.DashboardService;
+import net.sberg.openkim.fachdienst.FachdienstService;
 import net.sberg.openkim.konfiguration.ServerState;
 import net.sberg.openkim.konfiguration.ServerStateService;
-import net.sberg.openkim.fachdienst.FachdienstService;
-import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpResult;
-import net.sberg.openkim.konnektor.ntp.NtpService;
 import net.sberg.openkim.log.DefaultLogger;
+import net.sberg.openkim.pipeline.PipelineService;
+import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
+import net.sberg.openkim.pipeline.operation.IPipelineOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.KonnektorConnectionInformationOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.KonnektorLoadAllCardInformationOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpRequestOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpResult;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetCardsOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetPinStatusOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetResourceInformationOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.ReadCardCertificateOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,18 +60,14 @@ public class KonnektorService {
     @Autowired
     private ServerStateService serverStateService;
     @Autowired
-    private KonnektorCardService konnektorCardService;
-    @Autowired
-    private KonnektorConnectionInfoService konnektorConnectionInfoService;
-    @Autowired
     private FachdienstService fachdienstService;
     @Autowired
-    private NtpService ntpService;
-    @Autowired
     private DashboardService dashboardService;
+    @Autowired
+    private PipelineService pipelineService;
 
     @Value("${spring.ldap.base}")
-    private String base;
+    private String vzdSearchBase;
 
     public Konnektor execute(
         DefaultLogger logger) {
@@ -71,6 +76,7 @@ public class KonnektorService {
         KonnektorServiceBean signatureServiceBean = null;
 
         Konnektor konnektor = logger.getDefaultLoggerContext().getKonnektor();
+        konnektor.setVzdSearchBase(vzdSearchBase);
 
         //parse service descriptors
         try {
@@ -215,10 +221,21 @@ public class KonnektorService {
 
     private void checkNtp(Konnektor konnektor, DefaultLogger logger) {
         try {
-            NtpResult ntpResult = ntpService.request(logger, konnektor);
-            konnektor.setKonnektorTime(ntpResult.getKonnektorTime());
-            konnektor.setSystemTime(ntpResult.getSystemTime());
-            konnektor.setDiffSystemKonnektorTime(ntpResult.getKonnektorTime().getTime() - ntpResult.getSystemTime().getTime());
+            IPipelineOperation ntpPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ NtpRequestOperation.NAME);
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext.setLogger(logger);
+            ntpPipelineOperation.execute(
+                defaultPipelineOperationContext,
+                context -> {
+                    NtpResult ntpResult = (NtpResult) defaultPipelineOperationContext.getEnvironmentValue(NtpRequestOperation.NAME, NtpRequestOperation.ENV_NTP_RESULT);
+                    konnektor.setKonnektorTime(ntpResult.getKonnektorTime());
+                    konnektor.setSystemTime(ntpResult.getSystemTime());
+                    konnektor.setDiffSystemKonnektorTime(ntpResult.getKonnektorTime().getTime() - ntpResult.getSystemTime().getTime());
+                },
+                (context, e) -> {
+                    log.error("error on checking ntp service for the konnektor: " + konnektor.getIp(), e);
+                }
+            );
         } catch (Exception e) {
             log.error("error on checking ntp service for the konnektor: " + konnektor.getIp(), e);
         }
@@ -228,7 +245,23 @@ public class KonnektorService {
         try {
             log.info("load card infos for the konnektor: " + konnektor.getIp());
             logger.logLine("load card infos for the konnektor: " + konnektor.getIp());
-            konnektorCardService.loadAllCards(logger);
+
+            KonnektorLoadAllCardInformationOperation konnektorLoadAllCardsPipelineOperation = (KonnektorLoadAllCardInformationOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ KonnektorLoadAllCardInformationOperation.NAME);
+            konnektorLoadAllCardsPipelineOperation.setGetCardsOperation((GetCardsOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetCardsOperation.NAME));
+            konnektorLoadAllCardsPipelineOperation.setReadCardCertificateOperation((ReadCardCertificateOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ ReadCardCertificateOperation.NAME));
+            konnektorLoadAllCardsPipelineOperation.setGetPinStatusOperation((GetPinStatusOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetPinStatusOperation.NAME));
+
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext.setLogger(logger);
+            konnektorLoadAllCardsPipelineOperation.execute(
+                defaultPipelineOperationContext,
+                context -> {
+                    logger.logLine("load card infos successful for the konnektor: " + konnektor.getIp());
+                },
+                (context, e) -> {
+                    log.error("error on loading all cards for the konnektor: " + konnektor.getIp(), e);
+                }
+            );
         } catch (Exception e) {
             log.error("error on loading all cards for the konnektor: " + konnektor.getIp(), e);
         }
@@ -238,7 +271,22 @@ public class KonnektorService {
         try {
             log.info("load connectivity info for the konnektor: " + konnektor.getIp());
             logger.logLine("load connectivity info for the konnektor: " + konnektor.getIp());
-            konnektorConnectionInfoService.loadConnectionInfo(logger);
+
+            KonnektorConnectionInformationOperation konnektorConnectionInfoPipelineOperation = (KonnektorConnectionInformationOperation) pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ KonnektorConnectionInformationOperation.NAME);
+            konnektorConnectionInfoPipelineOperation.setGetResourceInformationOperation((GetResourceInformationOperation) pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetResourceInformationOperation.NAME));
+
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext.setLogger(logger);
+            konnektorConnectionInfoPipelineOperation.execute(
+                defaultPipelineOperationContext,
+                context -> {
+                    logger.logLine("load connectivity info successful for the konnektor: " + konnektor.getIp());
+                },
+                (context, e) -> {
+                    log.error("error on loading connectivity infos for the konnektor: " + konnektor.getIp(), e);
+                }
+            );
+
         } catch (Exception e) {
             log.error("error on loading connectivity infos for the konnektor: " + konnektor.getIp(), e);
         }
