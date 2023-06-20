@@ -17,6 +17,7 @@
 package net.sberg.openkim.gateway.pop3.cmdhandler;
 
 import com.google.common.collect.ImmutableSet;
+import com.sun.mail.pop3.POP3Folder;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import org.apache.james.protocols.api.Request;
@@ -29,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.Message;
-import javax.mail.UIDFolder;
 import java.util.Collection;
 import java.util.Set;
 
@@ -44,9 +44,9 @@ public class Pop3GatewayUidlCmdHandler extends AbstractPOP3CommandHandler implem
         return gatewayMetricFactory.decorateSupplierWithTimerMetric("pop3-uidl", () -> doUidl(session, request));
     }
 
-    private long getUid(int messageId, POP3Session session) throws Exception {
+    private String getUid(int messageId, POP3Session session) throws Exception {
         Message msg = ((Pop3GatewaySession) session).getPop3ClientFolder().getMessage(messageId);
-        UIDFolder uidFolder = (UIDFolder) ((Pop3GatewaySession) session).getPop3ClientFolder();
+        POP3Folder uidFolder = (POP3Folder) ((Pop3GatewaySession) session).getPop3ClientFolder();
         return uidFolder.getUID(msg);
     }
 

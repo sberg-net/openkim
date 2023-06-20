@@ -61,8 +61,7 @@ public class KonnektorNtpController {
 
             IPipelineOperation dnsPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ NtpRequestOperation.NAME);
 
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
-            defaultPipelineOperationContext.setLogger(logger);
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
 
             dnsPipelineOperation.execute(
                 defaultPipelineOperationContext,

@@ -67,10 +67,9 @@ public class KonnektorDnsController {
 
                 IPipelineOperation dnsPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ DnsRequestOperation.NAME);
 
-                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
                 defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, recordType);
                 defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, domain);
-                defaultPipelineOperationContext.setLogger(logger);
 
                 dnsPipelineOperation.execute(
                     defaultPipelineOperationContext,

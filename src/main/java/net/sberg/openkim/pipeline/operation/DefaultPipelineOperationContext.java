@@ -34,9 +34,8 @@ public class DefaultPipelineOperationContext implements IPipelineOperationContex
         return logger;
     }
 
-    public void setLogger(DefaultLogger logger) {
-        this.logger = logger;
-    }
+    private DefaultPipelineOperationContext() {}
+    public DefaultPipelineOperationContext(DefaultLogger logger) { this.logger = logger; }
 
     public Object getEnvironmentValue(String prefix, String key) {
         return environment.get(prefix+"."+key);

@@ -108,7 +108,7 @@ public class SmtpGatewayRcptCmdHandler extends AbstractGatewayHookableCmdHandler
                         ((SmtpGatewaySession) session).log("load certs for rcpt");
 
                         LoadVzdCertsOperation loadVzdCertsOperation = (LoadVzdCertsOperation) pipelineService.getOperation(LoadVzdCertsOperation.BUILTIN_VENDOR+"."+LoadVzdCertsOperation.NAME);
-                        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(((SmtpGatewaySession) session).getLogger());
                         defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_ADDRESSES, new ArrayList<>(List.of(recipientAddress.asString().toLowerCase())));
                         defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_SEARCH_BASE, loggerContext.getKonnektor().getVzdSearchBase());
                         defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_SENDER_ADRESSES, false);

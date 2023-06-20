@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.sberg</groupId>
     <artifactId>openkim</artifactId>
-    <version>0.13.1</version>
+    <version>0.14.0</version>
     <name>openkim</name>
     <description>Open KIM Client Modul</description>
 
@@ -35,10 +35,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,6 +69,10 @@
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-text</artifactId>
                 </exclusion>
+                <!--exclusion>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>javax.mail</artifactId>
+                </exclusion-->
             </exclusions>
         </dependency>
         <dependency>
@@ -94,6 +94,10 @@
                     <groupId>org.apache.james</groupId>
                     <artifactId>james-server-jwt</artifactId>
                 </exclusion>
+                <!--exclusion>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>javax.mail</artifactId>
+                </exclusion-->
             </exclusions>
         </dependency>
         <dependency>
@@ -184,8 +188,13 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>dsn</artifactId>
-            <!-- update to 2.0.x crashes at the moment -->
             <version>1.6.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>jakarta.mail</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -197,6 +206,12 @@
             <artifactId>jaxws-ri</artifactId>
             <version>4.0.0</version>
             <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.mail</groupId>
+                    <artifactId>jakarta.mail-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>

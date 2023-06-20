@@ -135,7 +135,7 @@ public class FachdienstService {
 
         AtomicInteger failedCounter = new AtomicInteger();
         DnsRequestOperation dnsRequestOperation = (DnsRequestOperation) pipelineService.getOperation(DnsRequestOperation.BUILTIN_VENDOR+"."+DnsRequestOperation.NAME);
-        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
         defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, domain);
         defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
         dnsRequestOperation.execute(
@@ -174,7 +174,7 @@ public class FachdienstService {
         AtomicInteger failedCounter = new AtomicInteger();
 
         DnsFqdnRequestOperation dnsFqdnRequestOperation = (DnsFqdnRequestOperation) pipelineService.getOperation(DnsFqdnRequestOperation.BUILTIN_VENDOR+"."+DnsFqdnRequestOperation.NAME);
-        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
         defaultPipelineOperationContext.setEnvironmentValue(DnsFqdnRequestOperation.NAME, DnsFqdnRequestOperation.ENV_DOMAIN, domain);
         defaultPipelineOperationContext.setEnvironmentValue(DnsFqdnRequestOperation.NAME, DnsFqdnRequestOperation.ENV_PTR_DOMAIN_SUFFIX, fachdienst.getTyp().getDomainSuffix());
         dnsFqdnRequestOperation.execute(

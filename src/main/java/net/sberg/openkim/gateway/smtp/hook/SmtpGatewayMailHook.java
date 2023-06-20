@@ -86,7 +86,7 @@ public class SmtpGatewayMailHook implements MessageHook {
             Konfiguration konfiguration = smtpGatewaySession.getLogger().getDefaultLoggerContext().getKonfiguration();
             SendDsnOperation sendDsnOperation = (SendDsnOperation) pipelineService.getOperation(SendDsnOperation.BUILTIN_VENDOR+"."+SendDsnOperation.NAME);
 
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(smtpGatewaySession.getLogger());
             defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_ERROR_CONTEXT, errorContext);
             defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_ORIGIN_MSG, originMessage);
             defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_SMTP_GATEWAY_SESSION, smtpGatewaySession);
@@ -157,7 +157,7 @@ public class SmtpGatewayMailHook implements MessageHook {
                     MimeMessage encryptedBodyPart = MailUtils.createMimeMessage(null, bodyPart.getInputStream(), true);
 
                     CheckEncryptedMailFormatOperation checkEncryptedMailFormatOperation = (CheckEncryptedMailFormatOperation) pipelineService.getOperation(CheckEncryptedMailFormatOperation.BUILTIN_VENDOR+"."+CheckEncryptedMailFormatOperation.NAME);
-                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
                     defaultPipelineOperationContext.setEnvironmentValue(CheckEncryptedMailFormatOperation.NAME, CheckEncryptedMailFormatOperation.ENV_ENCRYPTED_MSG, encryptedBodyPart);
                     defaultPipelineOperationContext.setEnvironmentValue(CheckEncryptedMailFormatOperation.NAME, CheckEncryptedMailFormatOperation.ENV_DECRYPT_MODE, false);
 
@@ -188,7 +188,7 @@ public class SmtpGatewayMailHook implements MessageHook {
 
             //get card handle
             GetSignCardHandleOperation getSignCardHandleOperation = (GetSignCardHandleOperation) pipelineService.getOperation(GetSignCardHandleOperation.BUILTIN_VENDOR+"."+GetSignCardHandleOperation.NAME);
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             KonnektorLoadAllCardInformationOperation konnektorLoadAllCardInformationOperation = (KonnektorLoadAllCardInformationOperation) pipelineService.getOperation(KonnektorLoadAllCardInformationOperation.BUILTIN_VENDOR+"."+KonnektorLoadAllCardInformationOperation.NAME);
             getSignCardHandleOperation.setKonnektorLoadAllCardInformationOperation(konnektorLoadAllCardInformationOperation);
 
@@ -227,7 +227,7 @@ public class SmtpGatewayMailHook implements MessageHook {
 
             //signing mail
             SignMailOperation signMailOperation = (SignMailOperation) pipelineService.getOperation(SignMailOperation.BUILTIN_VENDOR+"."+SignMailOperation.NAME);
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
 
             defaultPipelineOperationContext.setEnvironmentValue(SignMailOperation.NAME, SignMailOperation.ENV_CARDHANDLE, cardSignHandle);
             defaultPipelineOperationContext.setEnvironmentValue(SignMailOperation.NAME, SignMailOperation.ENV_MIMEMESSAGE, originMimeMessage);
@@ -287,7 +287,7 @@ public class SmtpGatewayMailHook implements MessageHook {
 
             //encrypting mail
             EncryptMailOperation encryptMailOperation = (EncryptMailOperation) pipelineService.getOperation(EncryptMailOperation.BUILTIN_VENDOR+"."+EncryptMailOperation.NAME);
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
 
             defaultPipelineOperationContext.setEnvironmentValue(EncryptMailOperation.NAME, EncryptMailOperation.ENV_SIGNED_MAIL, signedMsg);
             defaultPipelineOperationContext.setEnvironmentValue(EncryptMailOperation.NAME, EncryptMailOperation.ENV_VZD_CERTS, recipientSenderCerts);
@@ -329,7 +329,7 @@ public class SmtpGatewayMailHook implements MessageHook {
 
             //compose encrypting mail
             ComposeEncryptedMailOperation composeEncryptedMailOperation = (ComposeEncryptedMailOperation) pipelineService.getOperation(ComposeEncryptedMailOperation.BUILTIN_VENDOR+"."+ComposeEncryptedMailOperation.NAME);
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
 
             defaultPipelineOperationContext.setEnvironmentValue(ComposeEncryptedMailOperation.NAME, ComposeEncryptedMailOperation.ENV_ENCRYPTED_MSG, encryptedMsg);
             defaultPipelineOperationContext.setEnvironmentValue(ComposeEncryptedMailOperation.NAME, ComposeEncryptedMailOperation.ENV_RECIPIENT_CERTS, recipientSenderCerts);
@@ -373,14 +373,15 @@ public class SmtpGatewayMailHook implements MessageHook {
             MimeMessage message = new MimeMessage(Session.getInstance(new Properties()), new FileInputStream(tempMailFile));
             tempMailFile.delete();
 
-            if (smtpGatewaySession.extractNoFailureCertRcpts().isEmpty() || !smtpGatewaySession.extractFailureCertRcpts().isEmpty()) {
-                smtpGatewaySession.getSmtpClient().rset();
-                return sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressCertErrorContext(), message, false);
-            }
-
             String fromAddressStr = smtpGatewaySession.getFromAddressStr().toLowerCase();
             String msgContent = null;
             if (!logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
+
+                if (smtpGatewaySession.extractNoFailureCertRcpts().isEmpty() || !smtpGatewaySession.extractFailureCertRcpts().isEmpty()) {
+                    smtpGatewaySession.getSmtpClient().rset();
+                    return sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressCertErrorContext(), message, false);
+                }
+
                 //add sender certs -> check kim version
                 List<X509CertificateResult> fromSenderCerts = new ArrayList<>();
                 try {
@@ -391,7 +392,7 @@ public class SmtpGatewayMailHook implements MessageHook {
                     smtpGatewaySession.log("load certs for from: " + fromAddressStr);
 
                     LoadVzdCertsOperation loadVzdCertsOperation = (LoadVzdCertsOperation) pipelineService.getOperation(LoadVzdCertsOperation.BUILTIN_VENDOR+"."+LoadVzdCertsOperation.NAME);
-                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
                     defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_ADDRESSES, fromSenderAddress);
                     defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_SEARCH_BASE, logger.getDefaultLoggerContext().getKonnektor().getVzdSearchBase());
                     defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_SENDER_ADRESSES, true);
@@ -436,7 +437,7 @@ public class SmtpGatewayMailHook implements MessageHook {
 
                 //check origin message
                 CheckSendingMailOperation checkSendingMailOperation = (CheckSendingMailOperation) pipelineService.getOperation(CheckSendingMailOperation.BUILTIN_VENDOR+"."+CheckSendingMailOperation.NAME);
-                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
                 defaultPipelineOperationContext.setEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_MSG, message);
                 defaultPipelineOperationContext.setEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_RECIPIENT_CERTS, smtpGatewaySession.getRecipientCerts());
                 defaultPipelineOperationContext.setEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_SENDER_ADDRESS, fromAddressStr);

@@ -96,9 +96,23 @@ public class DefaultLogger {
         getDefaultLoggerContext().setMailServerHost(hostPort[0]);
         getDefaultLoggerContext().setMailServerPort(hostPort[1]);
 
-        getDefaultLoggerContext().setMandantId(user.split("#")[2]);
-        getDefaultLoggerContext().setClientSystemId(user.split("#")[3]);
-        getDefaultLoggerContext().setWorkplaceId(user.split("#")[4]);
+        try {
+            getDefaultLoggerContext().setMandantId(user.split("#")[2]);
+        }
+        catch (Exception e) {
+        }
+
+        try {
+            getDefaultLoggerContext().setClientSystemId(user.split("#")[3]);
+        }
+        catch (Exception e) {
+        }
+
+        try {
+            getDefaultLoggerContext().setWorkplaceId(user.split("#")[4]);
+        }
+        catch (Exception e) {
+        }
 
         try {
             getDefaultLoggerContext().setUserId(user.split("#")[5]);

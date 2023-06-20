@@ -85,7 +85,7 @@ public class Pop3GatewayPassCmdHandler extends AbstractPOP3CommandHandler {
         try {
 
             Konfiguration konfiguration = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getKonfiguration();
-            String mailServerIpAddress = null;
+            String mailServerHost = null;
 
             //instantiate mailserver domain check
             if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
@@ -96,7 +96,7 @@ public class Pop3GatewayPassCmdHandler extends AbstractPOP3CommandHandler {
                     DnsResult dnsResult = null;
                     AtomicInteger failedCounter = new AtomicInteger();
                     DnsRequestOperation dnsRequestOperation = (DnsRequestOperation) pipelineService.getOperation(DnsRequestOperation.BUILTIN_VENDOR+"."+DnsRequestOperation.NAME);
-                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(((Pop3GatewaySession) session).getLogger());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
                     dnsRequestOperation.execute(
@@ -120,21 +120,24 @@ public class Pop3GatewayPassCmdHandler extends AbstractPOP3CommandHandler {
                         throw new IllegalStateException("ip-address for domain " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
                     }
 
-                    mailServerIpAddress = dnsResult.getAddress();
+                    mailServerHost = dnsResult.getAddress();
                 } else {
-                    mailServerIpAddress = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
-                    ((Pop3GatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerIpAddress);
+                    mailServerHost = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
+                    ((Pop3GatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerHost);
                 }
             }
+            else {
+                mailServerHost = ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
+            }
 
-            ((Pop3GatewaySession) session).log("connect to " + mailServerIpAddress);
+            ((Pop3GatewaySession) session).log("connect to " + mailServerHost);
 
             Properties props = new Properties();
             Session pop3ClientSession = MailUtils.createPop3ClientSession(
                 props,
                 EnumMailConnectionSecurity.SSLTLS,
                 EnumMailAuthMethod.NORMALPWD,
-                mailServerIpAddress,
+                mailServerHost,
                 ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerPort(),
                 konfiguration.getPop3ClientIdleTimeoutInSeconds(),
                 konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)?konfiguration.getFachdienstCertFilename():null,
@@ -149,6 +152,7 @@ public class Pop3GatewayPassCmdHandler extends AbstractPOP3CommandHandler {
             ((Pop3GatewaySession) session).setPop3ClientFolder(inbox);
             ((Pop3GatewaySession) session).setPop3ClientStore(store);
 
+            ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().setMailServerPassword(pass);
             ((Pop3GatewaySession) session).setGatewayState(EnumPop3GatewayState.PROXY);
             session.setHandlerState(POP3Session.TRANSACTION);
 

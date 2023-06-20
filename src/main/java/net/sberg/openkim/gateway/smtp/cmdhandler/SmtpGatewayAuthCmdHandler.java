@@ -439,7 +439,7 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
                 ((SmtpGatewaySession) session).setSmtpClient(client);
             }
 
-            String mailServerIpAddress = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
+            String mailServerHost = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
 
             //instantiate mailserver domain check
             if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
@@ -450,7 +450,7 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
                     DnsResult dnsResult = null;
                     AtomicInteger failedCounter = new AtomicInteger();
                     DnsRequestOperation dnsRequestOperation = (DnsRequestOperation) pipelineService.getOperation(DnsRequestOperation.BUILTIN_VENDOR+"."+DnsRequestOperation.NAME);
-                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(((SmtpGatewaySession) session).getLogger());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
                     dnsRequestOperation.execute(
@@ -474,16 +474,19 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
                         throw new IllegalStateException("ip-address for domain " + ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost() + " not found");
                     }
 
-                    mailServerIpAddress = dnsResult.getAddress();
+                    mailServerHost = dnsResult.getAddress();
                 } else {
-                    mailServerIpAddress = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
-                    ((SmtpGatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerIpAddress);
+                    mailServerHost = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
+                    ((SmtpGatewaySession) session).log("DO NOT make a dns request. is an ip-address: " + mailServerHost);
                 }
+            }
+            else {
+                mailServerHost = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost();
             }
 
             try {
-                ((SmtpGatewaySession) session).log("connect to " + mailServerIpAddress);
-                client.connect(mailServerIpAddress, Integer.parseInt(((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerPort()));
+                ((SmtpGatewaySession) session).log("connect to " + mailServerHost);
+                client.connect(mailServerHost, Integer.parseInt(((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerPort()));
             } catch (Exception e) {
                 log.error("erron on connecting the mta - " + session.getSessionID(), e);
                 ((SmtpGatewaySession) session).log("auth ends - smtp client auth - connect error");
@@ -493,6 +496,7 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
             client.login();
 
             try {
+                ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().setMailServerPassword(pass);
                 boolean res = client.auth(AuthenticatingSMTPClient.AUTH_METHOD.LOGIN, ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerUsername(), pass);
                 if (res) {
                     ((SmtpGatewaySession) session).setGatewayState(EnumSmtpGatewayState.PROXY);

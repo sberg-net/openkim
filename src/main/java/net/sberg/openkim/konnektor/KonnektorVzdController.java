@@ -79,12 +79,11 @@ public class KonnektorVzdController {
 
                 IPipelineOperation vzdPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR + "." + SearchVzdOperation.NAME);
 
-                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+                DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
                 defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_SEARCH_BASE, ldapBase);
                 defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_SEARCH_VALUE, searchValue);
                 defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_RESULT_WITH_CERTIFICATES, resultWithCertificates);
                 defaultPipelineOperationContext.setEnvironmentValue(SearchVzdOperation.NAME, SearchVzdOperation.ENV_VZD_ONLY_SEARCH_MAIL_ATTR, false);
-                defaultPipelineOperationContext.setLogger(logger);
 
                 vzdPipelineOperation.execute(
                     defaultPipelineOperationContext,

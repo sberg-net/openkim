@@ -113,8 +113,7 @@ public class KonnektorWebserviceController {
                 .buildKonfiguration(konfiguration)
         );
 
-        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
-        defaultPipelineOperationContext.setLogger(logger);
+        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
         defaultPipelineOperationContext.setEnvironmentValues(serviceBean);
 
         IPipelineOperation operation = pipelineService.getOperation((String)serviceBean.get(DefaultPipelineOperationContext.ENV_OP_ID));

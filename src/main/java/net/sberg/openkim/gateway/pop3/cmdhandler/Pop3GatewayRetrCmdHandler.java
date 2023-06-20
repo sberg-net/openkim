@@ -26,6 +26,7 @@ import net.sberg.openkim.common.x509.CMSUtils;
 import net.sberg.openkim.gateway.pop3.EnumPop3GatewayState;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
+import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
@@ -131,7 +132,7 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
             logger.logLine("analyze mail encrypt format");
 
             CheckEncryptedMailFormatOperation checkEncryptedMailFormatOperation = (CheckEncryptedMailFormatOperation) pipelineService.getOperation(CheckEncryptedMailFormatOperation.BUILTIN_VENDOR+"."+CheckEncryptedMailFormatOperation.NAME);
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
 
             defaultPipelineOperationContext.setEnvironmentValue(CheckEncryptedMailFormatOperation.NAME, CheckEncryptedMailFormatOperation.ENV_ENCRYPTED_MSG, encryptedMsg);
             defaultPipelineOperationContext.setEnvironmentValue(CheckEncryptedMailFormatOperation.NAME, CheckEncryptedMailFormatOperation.ENV_DECRYPT_MODE, true);
@@ -168,7 +169,7 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
 
             GetDecryptCardHandleOperation getDecryptCardHandleOperation = (GetDecryptCardHandleOperation) pipelineService.getOperation(GetDecryptCardHandleOperation.BUILTIN_VENDOR+"."+GetDecryptCardHandleOperation.NAME);
 
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             defaultPipelineOperationContext.setEnvironmentValue(GetDecryptCardHandleOperation.NAME, GetDecryptCardHandleOperation.ENV_CONTENT_INFO, contentInfo);
             defaultPipelineOperationContext.setEnvironmentValue(GetDecryptCardHandleOperation.NAME, GetDecryptCardHandleOperation.ENV_USER_MAIL_ADDRESS, userMailAddress);
 
@@ -200,7 +201,7 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
             //decrypt
             DecryptDocumentOperation decryptDocumentOperation = (DecryptDocumentOperation) pipelineService.getOperation(DecryptDocumentOperation.BUILTIN_VENDOR+"."+DecryptDocumentOperation.NAME);
 
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             defaultPipelineOperationContext.setEnvironmentValue(DecryptDocumentOperation.NAME, DecryptDocumentOperation.ENV_DOCUMENT, encryptedPart);
             defaultPipelineOperationContext.setEnvironmentValue(DecryptDocumentOperation.NAME, DecryptDocumentOperation.ENV_CARDHANDLE, decryptCardHandle);
 
@@ -266,7 +267,7 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
 
             VerifySignedDocumentOperation verifySignedDocumentOperation = (VerifySignedDocumentOperation) pipelineService.getOperation(VerifySignedDocumentOperation.BUILTIN_VENDOR+"."+VerifySignedDocumentOperation.NAME);
 
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             defaultPipelineOperationContext.setEnvironmentValue(VerifySignedDocumentOperation.NAME, VerifySignedDocumentOperation.ENV_SIGNED_CONTENT, decryptedMsgBytes);
             defaultPipelineOperationContext.setEnvironmentValue(VerifySignedDocumentOperation.NAME, VerifySignedDocumentOperation.ENV_SIGNED_DATA_AS_BASE64, false);
 
@@ -370,7 +371,7 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
             //add signature report
             AddMailAttachmentOperation addMailAttachmentOperation = (AddMailAttachmentOperation) pipelineService.getOperation(AddMailAttachmentOperation.BUILTIN_VENDOR+"."+AddMailAttachmentOperation.NAME);
 
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             defaultPipelineOperationContext.setEnvironmentValue(AddMailAttachmentOperation.NAME, AddMailAttachmentOperation.ENV_ATTACHMENT, signReportFile);
             defaultPipelineOperationContext.setEnvironmentValue(AddMailAttachmentOperation.NAME, AddMailAttachmentOperation.ENV_CONTENT_TYPE, "application/pdf");
             defaultPipelineOperationContext.setEnvironmentValue(AddMailAttachmentOperation.NAME, AddMailAttachmentOperation.ENV_ATTACHMENT_NAME, "Signaturpruefbericht.pdf");
@@ -398,7 +399,7 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
             //add signature text
             AddMailTextOperation addMailTextOperation = (AddMailTextOperation) pipelineService.getOperation(AddMailTextOperation.BUILTIN_VENDOR+"."+AddMailTextOperation.NAME);
 
-            defaultPipelineOperationContext = new DefaultPipelineOperationContext();
+            defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             defaultPipelineOperationContext.setEnvironmentValue(AddMailTextOperation.NAME, AddMailTextOperation.ENV_TEXT, "----------------------------------\n!!!Die Signatur wurde erfolgreich geprueft!!!\n----------------------------------");
             defaultPipelineOperationContext.setEnvironmentValue(AddMailTextOperation.NAME, AddMailTextOperation.ENV_MSG, decryptedAndVerifiedMessage);
 
@@ -444,58 +445,65 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
                 //message = kasService.executeIncoming(((Pop3GatewaySession)session).getLogger(), message, (Pop3GatewaySession)session);
                 ((Pop3GatewaySession) session).setGatewayState(EnumPop3GatewayState.PROCESS);
 
-                byte[] pop3msg = decryptVerify(((Pop3GatewaySession) session).getLogger(), ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerUsername(), message);
-                if (!logger.getDefaultLoggerContext().getMailSignVerifyErrorContext().isEmpty()) {
-
-                    CreateDsnOperation createDsnOperation = (CreateDsnOperation) pipelineService.getOperation(CreateDsnOperation.BUILTIN_VENDOR+"."+CreateDsnOperation.NAME);
-
-                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
-                    defaultPipelineOperationContext.setEnvironmentValue(CreateDsnOperation.NAME, CreateDsnOperation.ENV_ORIGIN_MSG, message);
-                    defaultPipelineOperationContext.setEnvironmentValue(CreateDsnOperation.NAME, CreateDsnOperation.ENV_ERROR_CONTEXT, logger.getDefaultLoggerContext().getMailSignVerifyErrorContext());
-
-                    AtomicInteger failedCounter = new AtomicInteger();
-                    createDsnOperation.execute(
-                        defaultPipelineOperationContext,
-                        context -> {
-                            log.info("create dsn finished");
-                        },
-                        (context, e) -> {
-                            log.error("error on creating of dsn", e);
-                            failedCounter.incrementAndGet();
-                        }
-                    );
-
-                    if (failedCounter.get() == 0) {
-                        pop3msg = (byte[])defaultPipelineOperationContext.getEnvironmentValue(CreateDsnOperation.NAME, CreateDsnOperation.ENV_DSN_MSG_BYTES);
-                    }
-                    else {
-                        throw new IllegalStateException("error on creating dsn mail");
-                    }
+                byte[] pop3msg = null;
+                if (logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    message.writeTo(baos);
+                    pop3msg = baos.toByteArray();
+                    baos.reset();
+                    baos.close();
                 }
-                else if (!logger.getDefaultLoggerContext().getMailDecryptErrorContext().isEmpty()) {
-                    CreateEmbeddedMessageRfc822Operation createEmbeddedMessageRfc822Operation = (CreateEmbeddedMessageRfc822Operation) pipelineService.getOperation(CreateEmbeddedMessageRfc822Operation.BUILTIN_VENDOR+"."+CreateEmbeddedMessageRfc822Operation.NAME);
+                else {
+                    pop3msg = decryptVerify(((Pop3GatewaySession) session).getLogger(), ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerUsername(), message);
+                    if (!logger.getDefaultLoggerContext().getMailSignVerifyErrorContext().isEmpty()) {
 
-                    DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
-                    defaultPipelineOperationContext.setEnvironmentValue(CreateEmbeddedMessageRfc822Operation.NAME, CreateEmbeddedMessageRfc822Operation.ENV_ORIGIN_MSG, message);
-                    defaultPipelineOperationContext.setEnvironmentValue(CreateEmbeddedMessageRfc822Operation.NAME, CreateEmbeddedMessageRfc822Operation.ENV_ERROR_CONTEXT, logger.getDefaultLoggerContext().getMailDecryptErrorContext());
+                        CreateDsnOperation createDsnOperation = (CreateDsnOperation) pipelineService.getOperation(CreateDsnOperation.BUILTIN_VENDOR + "." + CreateDsnOperation.NAME);
 
-                    AtomicInteger failedCounter = new AtomicInteger();
-                    createEmbeddedMessageRfc822Operation.execute(
-                        defaultPipelineOperationContext,
-                        context -> {
-                            log.info("add embedded message finished");
-                        },
-                        (context, e) -> {
-                            log.error("error on embedding message", e);
-                            failedCounter.incrementAndGet();
+                        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
+                        defaultPipelineOperationContext.setEnvironmentValue(CreateDsnOperation.NAME, CreateDsnOperation.ENV_ORIGIN_MSG, message);
+                        defaultPipelineOperationContext.setEnvironmentValue(CreateDsnOperation.NAME, CreateDsnOperation.ENV_ERROR_CONTEXT, logger.getDefaultLoggerContext().getMailSignVerifyErrorContext());
+
+                        AtomicInteger failedCounter = new AtomicInteger();
+                        createDsnOperation.execute(
+                                defaultPipelineOperationContext,
+                                context -> {
+                                    log.info("create dsn finished");
+                                },
+                                (context, e) -> {
+                                    log.error("error on creating of dsn", e);
+                                    failedCounter.incrementAndGet();
+                                }
+                        );
+
+                        if (failedCounter.get() == 0) {
+                            pop3msg = (byte[]) defaultPipelineOperationContext.getEnvironmentValue(CreateDsnOperation.NAME, CreateDsnOperation.ENV_DSN_MSG_BYTES);
+                        } else {
+                            throw new IllegalStateException("error on creating dsn mail");
                         }
-                    );
+                    } else if (!logger.getDefaultLoggerContext().getMailDecryptErrorContext().isEmpty()) {
+                        CreateEmbeddedMessageRfc822Operation createEmbeddedMessageRfc822Operation = (CreateEmbeddedMessageRfc822Operation) pipelineService.getOperation(CreateEmbeddedMessageRfc822Operation.BUILTIN_VENDOR + "." + CreateEmbeddedMessageRfc822Operation.NAME);
 
-                    if (failedCounter.get() == 0) {
-                        pop3msg = (byte[])defaultPipelineOperationContext.getEnvironmentValue(CreateEmbeddedMessageRfc822Operation.NAME, CreateEmbeddedMessageRfc822Operation.ENV_RESULT_MSG_BYTES);
-                    }
-                    else {
-                        throw new IllegalStateException("error on embedding message");
+                        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
+                        defaultPipelineOperationContext.setEnvironmentValue(CreateEmbeddedMessageRfc822Operation.NAME, CreateEmbeddedMessageRfc822Operation.ENV_ORIGIN_MSG, message);
+                        defaultPipelineOperationContext.setEnvironmentValue(CreateEmbeddedMessageRfc822Operation.NAME, CreateEmbeddedMessageRfc822Operation.ENV_ERROR_CONTEXT, logger.getDefaultLoggerContext().getMailDecryptErrorContext());
+
+                        AtomicInteger failedCounter = new AtomicInteger();
+                        createEmbeddedMessageRfc822Operation.execute(
+                                defaultPipelineOperationContext,
+                                context -> {
+                                    log.info("add embedded message finished");
+                                },
+                                (context, e) -> {
+                                    log.error("error on embedding message", e);
+                                    failedCounter.incrementAndGet();
+                                }
+                        );
+
+                        if (failedCounter.get() == 0) {
+                            pop3msg = (byte[]) defaultPipelineOperationContext.getEnvironmentValue(CreateEmbeddedMessageRfc822Operation.NAME, CreateEmbeddedMessageRfc822Operation.ENV_RESULT_MSG_BYTES);
+                        } else {
+                            throw new IllegalStateException("error on embedding message");
+                        }
                     }
                 }
 

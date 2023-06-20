@@ -222,8 +222,7 @@ public class KonnektorService {
     private void checkNtp(Konnektor konnektor, DefaultLogger logger) {
         try {
             IPipelineOperation ntpPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ NtpRequestOperation.NAME);
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
-            defaultPipelineOperationContext.setLogger(logger);
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             ntpPipelineOperation.execute(
                 defaultPipelineOperationContext,
                 context -> {
@@ -251,8 +250,7 @@ public class KonnektorService {
             konnektorLoadAllCardsPipelineOperation.setReadCardCertificateOperation((ReadCardCertificateOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ ReadCardCertificateOperation.NAME));
             konnektorLoadAllCardsPipelineOperation.setGetPinStatusOperation((GetPinStatusOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetPinStatusOperation.NAME));
 
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
-            defaultPipelineOperationContext.setLogger(logger);
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             konnektorLoadAllCardsPipelineOperation.execute(
                 defaultPipelineOperationContext,
                 context -> {
@@ -275,8 +273,7 @@ public class KonnektorService {
             KonnektorConnectionInformationOperation konnektorConnectionInfoPipelineOperation = (KonnektorConnectionInformationOperation) pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ KonnektorConnectionInformationOperation.NAME);
             konnektorConnectionInfoPipelineOperation.setGetResourceInformationOperation((GetResourceInformationOperation) pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetResourceInformationOperation.NAME));
 
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext();
-            defaultPipelineOperationContext.setLogger(logger);
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             konnektorConnectionInfoPipelineOperation.execute(
                 defaultPipelineOperationContext,
                 context -> {

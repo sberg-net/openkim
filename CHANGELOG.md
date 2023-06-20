@@ -19,6 +19,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ```
 
+## [0.14.0]
+
+### Added
+```
+- OpenKIM im Modus keine TI getestet
+- SMTP/POP3 - Protokoll des Gateways getestet
+```
+
+### Changed
+```
+```
+
+### Fixed
+```
+```
+
 ## [0.13.1]
 
 ### Added

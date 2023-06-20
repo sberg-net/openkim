@@ -51,7 +51,9 @@ public class PipelineOperationScanner {
                 }
             }
         }
-        else if (!scanPackages.stream().filter(scanPackage -> finalFile.getAbsolutePath().contains(scanPackage)).collect(Collectors.toList()).isEmpty()) {
+        else if (!scanPackages.stream().filter(scanPackage -> {
+            return finalFile.getAbsolutePath().contains(scanPackage.replaceAll("\\.", Matcher.quoteReplacement(File.separator)));
+        }).collect(Collectors.toList()).isEmpty()) {
             try (FileInputStream in = new FileInputStream(f)) {
                 daoDescriptorClassVisitor.reset();
                 new ClassReader(in).accept(daoDescriptorClassVisitor, 0);

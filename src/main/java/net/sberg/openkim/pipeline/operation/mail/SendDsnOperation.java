@@ -214,6 +214,7 @@ public class SendDsnOperation implements IPipelineOperation  {
                 client = new AuthenticatingSMTPClient("TLS", konfiguration.getSmtpGatewayConnectionSec().equals(EnumMailConnectionSecurity.SSLTLS));
             }
             client.connect(logger.getDefaultLoggerContext().getMailServerHost(), Integer.parseInt(logger.getDefaultLoggerContext().getMailServerPort()));
+            client.login();
             boolean res = client.auth(
                     AuthenticatingSMTPClient.AUTH_METHOD.LOGIN,
                     logger.getDefaultLoggerContext().getMailServerUsername(),
@@ -227,6 +228,7 @@ public class SendDsnOperation implements IPipelineOperation  {
                 logger.logLine("dsn sending - smtp sent: " + res);
             }
 
+            client.quit();
             timeMetric.stopAndPublish();
             okConsumer.accept(defaultPipelineOperationContext);
         }

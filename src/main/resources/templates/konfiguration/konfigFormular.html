@@ -21,15 +21,15 @@
                               <label for="gatewayTIMode">OpenKIM-Gateway-TI-Mode</label>
                               <select class="form-control" id="gatewayTIMode"
                                       name="gatewayTIMode" required>
-                                <option value="NONE" th:if="${konfig.gatewayTIMode != null}"
+                                <option value="FULLSTACK" th:if="${konfig.gatewayTIMode != null}"
                                         th:attrappend="selected=${konfig.gatewayTIMode.name() == 'FULLSTACK'?'selected':''}">
                                   Konnektor + KIM-Fachdienste werden benutzt
                                 </option>
-                                <option value="STARTTLS" th:if="${konfig.gatewayTIMode != null}"
+                                <option value="KONNEKTOR" th:if="${konfig.gatewayTIMode != null}"
                                         th:attrappend="selected=${konfig.gatewayTIMode.name() == 'KONNEKTOR'?'selected':''}">
                                   Konnektor wird benutzt. Ansonsten kann wird mit Internet/Intranet-Mailservern gearbeitet
                                 </option>
-                                <option value="SSLTLS" th:if="${konfig.gatewayTIMode != null}"
+                                <option value="NO_TI" th:if="${konfig.gatewayTIMode != null}"
                                         th:attrappend="selected=${konfig.gatewayTIMode.name() == 'NO_TI'?'selected':''}">
                                   Konnektor wird NICHT benutzt und es wird mit Internet/Intranet-Mailservern gearbeitet
                                 </option>
