@@ -19,6 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ```
 
+## [0.13.1]
+
+### Added
+```
+```
+
+### Changed
+```
+```
+
+### Fixed
+```
+- Pipeline-Struktur
+```
+
 ## [0.13.0]
 
 ### Added
