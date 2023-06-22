@@ -1,0 +1,36 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <hr/>
+    <div class="col-12 p-0">
+        <div class="mt-2 mb-2 text-break font-weight-bold">
+            Holen einer JobNumber vom Konnektor
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="opForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;" enctype="multipart/form-data">
+            <input type="hidden" id="opId" name="opId" th:value="${opId}">
+            <div class="row">
+                <div class="col-12 col-lg-12">
+                    <div class="form-group needs-validation">
+                      <label for="konnektorId">Auswahl des Konnektors</label>
+                      <select class="form-control" id="konnektorId" name="konnektorId" required>
+                        <option th:each="konn : ${konnektoren}" th:value="${konn.uuid}" th:text="${konn.ip}"></option>
+                      </select>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid p-0 mb-2">
+              <div class="row justify-content-start">
+                <div class="col-12 col-md-6 col-lg-3">
+                  <button class="btn btn-primary btn-block" onclick="pipelineoperationtestOpAusfuehren()">Ausführen</button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 mb-2 text-break" role="alert" style="display:none" id="opFormResult">
+            </div>
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none" id="opFormError">
+            </div>
+        </form>
+    </div>
+</div>

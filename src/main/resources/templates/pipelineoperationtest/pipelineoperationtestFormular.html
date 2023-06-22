@@ -1,0 +1,27 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <div class="col-12 p-0">
+        <div class="mt-2 mb-2 text-break">
+            Hier können Sie die Operationen testen. Nach Auswahl einer Operation wird ein Formular mit den Eingabemöglichkeiten geladen.
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="pipelineoperationtestForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
+            <div class="row">
+                <div class="col-12 col-lg-12">
+                    <div class="form-group needs-validation">
+                      <label for="opId">Auswahl der Operation</label>
+                      <select class="form-control" id="opId" name="opId" required onchange="pipelineoperationtestOpLaden($(this).val())">
+                        <option value="unknown">---Bitte wählen Sie---</option>
+                        <option th:each="ops : ${ops}" th:value="${ops.id}" th:text="${ops.label}"></option>
+                      </select>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
+                 id="pipelineoperationtestFormError">
+            </div>
+        </form>
+    </div>
+</div>

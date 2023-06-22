@@ -14,19 +14,12 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.testtool;
+package net.sberg.openkim.pipeline.operation;
 
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
-public class SendReceiveResult {
+public class PipelineOperationLabel {
     private String id;
-    private String konnektorId;
-    private String username;
-    private String password;
-    private String mailFilename;
-    private List<String> receivedMails = new ArrayList<>();
+    private String label;
 }

@@ -18,6 +18,8 @@ package net.sberg.openkim.pipeline.operation;
 
 import net.sberg.openkim.pipeline.PipelineService;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -40,6 +42,10 @@ public interface IPipelineOperation {
     public default BiConsumer<DefaultPipelineOperationContext, Exception> getDefaultFailConsumer() {
         return (context, e) -> {
             context.setEnvironmentValue(getName(), ENV_EXCEPTION, e);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            context.getLogger().logLine(sw.toString());
         };
     }
     public default boolean hasError(DefaultPipelineOperationContext defaultPipelineOperationContext, String... prefixes) {
@@ -51,4 +57,16 @@ public interface IPipelineOperation {
         return false;
     }
     public default void initialize(PipelineService pipelineService) throws Exception {}
+    public default boolean isTestable() {
+        return false;
+    }
+    public default String getHrText() {
+        return getOperationKey();
+    }
+    public default PipelineOperationLabel createLabel() {
+        PipelineOperationLabel label = new PipelineOperationLabel();
+        label.setLabel(getHrText());
+        label.setId(getOperationKey());
+        return label;
+    }
 }

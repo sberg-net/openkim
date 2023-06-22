@@ -41,6 +41,16 @@ public class GetJobNumberOperation implements IPipelineOperation  {
     public static final String ENV_GET_JOB_NUMBER_RESPONSE = "getJobNumberResponse";
 
     @Override
+    public boolean isTestable() {
+        return true;
+    }
+
+    @Override
+    public String getHrText() {
+        return "Hole eine Jobnumber vom Konnektor";
+    }
+
+    @Override
     public String getName() {
         return NAME;
     }

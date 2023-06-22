@@ -7,7 +7,7 @@
     <meta name="author" content="sberg">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <title>Openkim - Testtool - Entschlüsseln und Verifizieren einer Mail</title>
+    <title>OpenKIM - Testen der Pipeline-Operationen</title>
     <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
     <script type="text/javascript" th:src="@{/js/script.js}"></script>
@@ -21,17 +21,19 @@
 <div th:replace="~{fragments/menue :: menue}"></div>
 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-        <h1 class="h2">Entschlüsseln und Verifizieren einer Mail</h1>
+        <h1 class="h2">Testen der Pipeline-Operationen</h1>
     </div>
     <div class="spinner-border" id="openkim-spinner" role="status" style="display: none">
         <span class="sr-only">Laden...</span>
     </div>
-    <div class="container-fluid" id="decryptverifyContainer" th:action="@{/}">
+    <div class="container-fluid" id="pipelineoperationtestContainer" th:action="@{/}">
+    </div>
+    <div class="container-fluid" id="pipelineoperationtestOpContainer" th:action="@{/}">
     </div>
 </main>
 <script>
     feather.replace();
-    decryptverifyLaden(false)
+    pipelineoperationtestLaden();
 </script>
 </body>
 </html>

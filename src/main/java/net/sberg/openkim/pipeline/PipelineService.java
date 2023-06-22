@@ -2,10 +2,12 @@ package net.sberg.openkim.pipeline;
 
 import jakarta.annotation.PostConstruct;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
+import net.sberg.openkim.pipeline.operation.PipelineOperationLabel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PipelineService {
@@ -36,12 +38,7 @@ public class PipelineService {
         throw new IllegalStateException("no operation available: "+key);
     }
 
-    public List<IPipelineOperation> getOperations(List<String> keys) throws Exception {
-        List<IPipelineOperation> operations = new ArrayList<>();
-        for (Iterator<String> iterator = keys.iterator(); iterator.hasNext(); ) {
-            String key = iterator.next();
-            operations.add(getOperation(key));
-        }
-        return operations;
+    public List<PipelineOperationLabel> getTestableOperations() throws Exception {
+        return operationMap.keySet().stream().filter(s -> operationMap.get(s).isTestable()).map(s -> operationMap.get(s).createLabel()).collect(Collectors.toList());
     }
 }

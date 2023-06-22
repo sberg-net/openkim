@@ -61,8 +61,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**",
                                 "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**",
                                 "/dashboard/**", "/konnvzd/**", "/konnwebservice/**", "/konnntp/**",
-                                "/mailanalyzer/**", "/signencrypt/**", "/decryptverify/**", "/sendreceive/**",
-                                "/user/**")
+                                "/pipelineoperationtest/**", "/user/**")
                         .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
                         .anyRequest().authenticated()
                 )

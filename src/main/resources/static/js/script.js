@@ -702,168 +702,93 @@ function ntpUebersicht(konnId) {
     });
 }
 
-function mailanalyzerLaden() {
-    const token = $("meta[name='_csrf']").attr("content");
-    const header = $("meta[name='_csrf_header']").attr("content");
-
-    let fData = new FormData();
-    if ($('#mailanalyzerForm').length > 0) {
-        const res = document.getElementById("mailanalyzerForm").checkValidity();
-        $('.needs-validation').addClass('was-validated');
-        if (!res) {
-            return;
-        }
-
-        $(".spinner-border").attr("style", "");
-        fData = $("#mailanalyzerForm").serializeFiles();
-    }
-
+function pipelineoperationtestLaden() {
     $.ajax({
-        type: "POST",
-        url: $("#mailanalyzerContainer").attr("action") + "mailanalyzer/execute",
-        data: fData,
-        cache: false,
-        contentType: false,
-        processData: false,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader(header, token);
-        },
+        type: "GET",
+        url: $("#pipelineoperationtestContainer").attr("action") + "pipelineoperationtest/uebersicht",
         success: function (data) {
             $(".spinner-border").attr("style", "display:none");
-            $("#mailanalyzerContainer").empty();
-            $("#mailanalyzerContainer").append(data);
+            $("#pipelineoperationtestContainer").empty();
+            $("#pipelineoperationtestContainer").append(data);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             $(".spinner-border").attr("style", "display:none");
-            $("#mailanalyzerFormError").attr("style", "");
-            $("#mailanalyzerFormError").empty();
-            $("#mailanalyzerFormError").append(JSON.parse(jqXHR.responseText).message);
+            $("#pipelineoperationtestContainer").empty();
+            $("#pipelineoperationtestContainer").append(JSON.parse(jqXHR.responseText).message);
         }
     });
 }
 
-function signencryptLaden(signEncryptExecute) {
-    const token = $("meta[name='_csrf']").attr("content");
-    const header = $("meta[name='_csrf_header']").attr("content");
-
-    let fData = new FormData();
-    if ($('#signencryptForm').length > 0) {
-        const res = document.getElementById("signencryptForm").checkValidity();
-        $('.needs-validation').addClass('was-validated');
-        if (!res) {
-            return;
-        }
-
-        $(".spinner-border").attr("style", "");
-        fData = $("#signencryptForm").serializeFiles();
-        fData.append("signEncryptExecute", signEncryptExecute);
-    }
-
+function pipelineoperationtestOpLaden(operationKey) {
+  if (operationKey === 'unknown') {
+    $("#pipelineoperationtestOpContainer").empty();
+  }
+  else {
     $.ajax({
-        type: "POST",
-        url: $("#signencryptContainer").attr("action") + "signencrypt/execute",
-        data: fData,
-        cache: false,
-        contentType: false,
-        processData: false,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader(header, token);
-        },
-        success: function (data) {
-            $(".spinner-border").attr("style", "display:none");
-            $("#signencryptContainer").empty();
-            $("#signencryptContainer").append(data);
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            $(".spinner-border").attr("style", "display:none");
-            $("#signencryptFormError").attr("style", "");
-            $("#signencryptFormError").empty();
-            $("#signencryptFormError").append(JSON.parse(jqXHR.responseText).message);
-        }
+      type: "GET",
+      url: $("#pipelineoperationtestOpContainer").attr("action") + "pipelineoperationtest/lade/"+operationKey,
+      success: function (data) {
+        $(".spinner-border").attr("style", "display:none");
+        $("#pipelineoperationtestOpContainer").empty();
+        $("#pipelineoperationtestOpContainer").append(data);
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        $(".spinner-border").attr("style", "display:none");
+        $("#pipelineoperationtestOpContainer").empty();
+        $("#pipelineoperationtestOpContainer").append(JSON.parse(jqXHR.responseText).message);
+      }
     });
+  }
 }
 
-function decryptverifyLaden(decryptVerifyExecute) {
-    const token = $("meta[name='_csrf']").attr("content");
-    const header = $("meta[name='_csrf_header']").attr("content");
+function pipelineoperationtestOpAusfuehren() {
+  const token = $("meta[name='_csrf']").attr("content");
+  const header = $("meta[name='_csrf_header']").attr("content");
 
-    let fData = new FormData();
-    if ($('#decryptverifyForm').length > 0) {
-        const res = document.getElementById("decryptverifyForm").checkValidity();
-        $('.needs-validation').addClass('was-validated');
-        if (!res) {
-            return;
-        }
-
-        $(".spinner-border").attr("style", "");
-        fData = $("#decryptverifyForm").serializeFiles();
-        fData.append("decryptVerifyExecute", decryptVerifyExecute);
+  let fData = new FormData();
+  if ($('#opForm').length > 0) {
+    const res = document.getElementById("opForm").checkValidity();
+    $('.needs-validation').addClass('was-validated');
+    if (!res) {
+      return;
     }
 
-    $.ajax({
-        type: "POST",
-        url: $("#decryptverifyContainer").attr("action") + "decryptverify/execute",
-        data: fData,
-        cache: false,
-        contentType: false,
-        processData: false,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader(header, token);
-        },
-        success: function (data) {
-            $(".spinner-border").attr("style", "display:none");
-            $("#decryptverifyContainer").empty();
-            $("#decryptverifyContainer").append(data);
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            $(".spinner-border").attr("style", "display:none");
-            $("#decryptverifyFormError").attr("style", "");
-            $("#decryptverifyFormError").empty();
-            $("#decryptverifyFormError").append(JSON.parse(jqXHR.responseText).message);
-        }
-    });
-}
+    $(".spinner-border").attr("style", "");
+    fData = $("#opForm").serializeFiles();
+  }
+  else {
+    return;
+  }
 
-function sendreceiveLaden(sendExecute, receiveExecute) {
-    const token = $("meta[name='_csrf']").attr("content");
-    const header = $("meta[name='_csrf_header']").attr("content");
+  $("#opFormResult").attr("style", "display:none");
+  $("#opFormResult").empty();
 
-    let fData = new FormData();
-    if ($('#sendreceiveForm').length > 0) {
-        const res = document.getElementById("sendreceiveForm").checkValidity();
-        $('.needs-validation').addClass('was-validated');
-        if (!res) {
-            return;
-        }
+  $("#opFormError").attr("style", "display:none");
+  $("#opFormError").empty();
 
-        $(".spinner-border").attr("style", "");
-        fData = $("#sendreceiveForm").serializeFiles();
-        fData.append("sendExecute", sendExecute);
-        fData.append("receiveExecute", receiveExecute);
+  $.ajax({
+    type: "POST",
+    url: $("#pipelineoperationtestOpContainer").attr("action") + "pipelineoperationtest/execute",
+    data: fData,
+    cache: false,
+    contentType: false,
+    processData: false,
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader(header, token);
+    },
+    success: function (data) {
+      $(".spinner-border").attr("style", "display:none");
+      $("#opFormResult").attr("style", "");
+      $("#opFormResult").empty();
+      $("#opFormResult").append(data);
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      $(".spinner-border").attr("style", "display:none");
+      $("#opFormError").attr("style", "");
+      $("#opFormError").empty();
+      $("#opFormError").append(JSON.parse(jqXHR.responseText).message);
     }
-
-    $.ajax({
-        type: "POST",
-        url: $("#sendreceiveContainer").attr("action") + "sendreceive/execute",
-        data: fData,
-        cache: false,
-        contentType: false,
-        processData: false,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader(header, token);
-        },
-        success: function (data) {
-            $(".spinner-border").attr("style", "display:none");
-            $("#sendreceiveContainer").empty();
-            $("#sendreceiveContainer").append(data);
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            $(".spinner-border").attr("style", "display:none");
-            $("#sendreceiveFormError").attr("style", "");
-            $("#sendreceiveFormError").empty();
-            $("#sendreceiveFormError").append(JSON.parse(jqXHR.responseText).message);
-        }
-    });
+  });
 }
 
 function changeUserPwd() {
