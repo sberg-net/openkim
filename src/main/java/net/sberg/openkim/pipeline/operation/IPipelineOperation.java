@@ -16,6 +16,8 @@
  */
 package net.sberg.openkim.pipeline.operation;
 
+import net.sberg.openkim.pipeline.PipelineService;
+
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -48,4 +50,5 @@ public interface IPipelineOperation {
         }
         return false;
     }
+    public default void initialize(PipelineService pipelineService) throws Exception {}
 }

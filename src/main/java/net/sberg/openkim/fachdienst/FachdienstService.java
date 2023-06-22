@@ -138,6 +138,7 @@ public class FachdienstService {
         DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
         defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, domain);
         defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
+
         dnsRequestOperation.execute(
             defaultPipelineOperationContext,
             context -> {
@@ -177,6 +178,7 @@ public class FachdienstService {
         DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
         defaultPipelineOperationContext.setEnvironmentValue(DnsFqdnRequestOperation.NAME, DnsFqdnRequestOperation.ENV_DOMAIN, domain);
         defaultPipelineOperationContext.setEnvironmentValue(DnsFqdnRequestOperation.NAME, DnsFqdnRequestOperation.ENV_PTR_DOMAIN_SUFFIX, fachdienst.getTyp().getDomainSuffix());
+
         dnsFqdnRequestOperation.execute(
             defaultPipelineOperationContext,
             context -> {

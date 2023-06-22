@@ -22,6 +22,7 @@ import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
+import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.mail.part.AnalyzeMailPartsOperation;
@@ -57,8 +58,9 @@ public class CheckEncryptedMailFormatOperation implements IPipelineOperation  {
 
     private AnalyzeMailPartsOperation analyzeMailPartsOperation;
 
-    public void setAnalyzeMailPartsOperation(AnalyzeMailPartsOperation analyzeMailPartsOperation) {
-        this.analyzeMailPartsOperation = analyzeMailPartsOperation;
+    @Override
+    public void initialize(PipelineService pipelineService) throws Exception {
+        analyzeMailPartsOperation = (AnalyzeMailPartsOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+AnalyzeMailPartsOperation.NAME);
     }
 
     @Override

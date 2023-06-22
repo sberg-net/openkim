@@ -24,6 +24,7 @@ import net.sberg.openkim.konnektor.KonnektorCard;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
+import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import org.apache.james.metrics.api.TimeMetric;
@@ -46,8 +47,9 @@ public class GetSignCardHandleOperation implements IPipelineOperation {
 
     private KonnektorLoadAllCardInformationOperation konnektorLoadAllCardInformationOperation;
 
-    public void setKonnektorLoadAllCardInformationOperation(KonnektorLoadAllCardInformationOperation konnektorLoadAllCardInformationOperation) {
-        this.konnektorLoadAllCardInformationOperation = konnektorLoadAllCardInformationOperation;
+    @Override
+    public void initialize(PipelineService pipelineService) throws Exception {
+        konnektorLoadAllCardInformationOperation = (KonnektorLoadAllCardInformationOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+KonnektorLoadAllCardInformationOperation.NAME);
     }
 
     @Override

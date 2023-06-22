@@ -373,15 +373,16 @@ public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implem
                     DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(((Pop3GatewaySession) session).getLogger());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
+
                     dnsRequestOperation.execute(
-                            defaultPipelineOperationContext,
-                            context -> {
-                                ((Pop3GatewaySession) session).log("dns request finished for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
-                            },
-                            (context, e) -> {
-                                log.error("dns request failed for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost(), e);
-                                failedCounter.incrementAndGet();
-                            }
+                        defaultPipelineOperationContext,
+                        context -> {
+                            ((Pop3GatewaySession) session).log("dns request finished for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
+                        },
+                        (context, e) -> {
+                            log.error("dns request failed for: " + ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost(), e);
+                            failedCounter.incrementAndGet();
+                        }
                     );
                     DnsResultContainer dnsResultContainer = (DnsResultContainer) defaultPipelineOperationContext.getEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DNS_RESULT);
                     if (failedCounter.get() > 0 || dnsResultContainer == null || dnsResultContainer.isError()) {

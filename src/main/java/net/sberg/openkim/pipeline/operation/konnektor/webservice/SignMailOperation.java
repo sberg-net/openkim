@@ -26,6 +26,7 @@ import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
+import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import oasis.names.tc.dss._1_0.core.schema.*;
@@ -54,8 +55,9 @@ public class SignMailOperation implements IPipelineOperation  {
 
     private GetJobNumberOperation getJobNumberOperation;
 
-    public void setGetJobNumberOperation(GetJobNumberOperation getJobNumberOperation) {
-        this.getJobNumberOperation = getJobNumberOperation;
+    @Override
+    public void initialize(PipelineService pipelineService) throws Exception {
+        getJobNumberOperation = (GetJobNumberOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetJobNumberOperation.NAME);
     }
 
     @Override

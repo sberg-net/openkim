@@ -30,10 +30,6 @@ import net.sberg.openkim.pipeline.operation.konnektor.KonnektorConnectionInforma
 import net.sberg.openkim.pipeline.operation.konnektor.KonnektorLoadAllCardInformationOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpRequestOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.ntp.NtpResult;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetCardsOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetPinStatusOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetResourceInformationOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.ReadCardCertificateOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,6 +219,7 @@ public class KonnektorService {
         try {
             IPipelineOperation ntpPipelineOperation = pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ NtpRequestOperation.NAME);
             DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
+
             ntpPipelineOperation.execute(
                 defaultPipelineOperationContext,
                 context -> {
@@ -246,11 +243,8 @@ public class KonnektorService {
             logger.logLine("load card infos for the konnektor: " + konnektor.getIp());
 
             KonnektorLoadAllCardInformationOperation konnektorLoadAllCardsPipelineOperation = (KonnektorLoadAllCardInformationOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ KonnektorLoadAllCardInformationOperation.NAME);
-            konnektorLoadAllCardsPipelineOperation.setGetCardsOperation((GetCardsOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetCardsOperation.NAME));
-            konnektorLoadAllCardsPipelineOperation.setReadCardCertificateOperation((ReadCardCertificateOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ ReadCardCertificateOperation.NAME));
-            konnektorLoadAllCardsPipelineOperation.setGetPinStatusOperation((GetPinStatusOperation)pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetPinStatusOperation.NAME));
-
             DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
+
             konnektorLoadAllCardsPipelineOperation.execute(
                 defaultPipelineOperationContext,
                 context -> {
@@ -271,7 +265,6 @@ public class KonnektorService {
             logger.logLine("load connectivity info for the konnektor: " + konnektor.getIp());
 
             KonnektorConnectionInformationOperation konnektorConnectionInfoPipelineOperation = (KonnektorConnectionInformationOperation) pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ KonnektorConnectionInformationOperation.NAME);
-            konnektorConnectionInfoPipelineOperation.setGetResourceInformationOperation((GetResourceInformationOperation) pipelineService.getOperation(IPipelineOperation.BUILTIN_VENDOR+"."+ GetResourceInformationOperation.NAME));
 
             DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             konnektorConnectionInfoPipelineOperation.execute(

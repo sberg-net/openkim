@@ -29,12 +29,10 @@ import net.sberg.openkim.common.x509.X509CertificateUtils;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
+import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetCardsOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetPinStatusOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.ReadCardCertificateOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.VerifyPinOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.*;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,16 +53,11 @@ public class KonnektorLoadAllCardInformationOperation implements IPipelineOperat
     private ReadCardCertificateOperation readCardCertificateOperation;
     private GetPinStatusOperation getPinStatusOperation;
 
-    public void setGetCardsOperation(GetCardsOperation getCardsOperation) {
-        this.getCardsOperation = getCardsOperation;
-    }
-
-    public void setGetPinStatusOperation(GetPinStatusOperation getPinStatusOperation) {
-        this.getPinStatusOperation = getPinStatusOperation;
-    }
-
-    public void setReadCardCertificateOperation(ReadCardCertificateOperation readCardCertificateOperation) {
-        this.readCardCertificateOperation = readCardCertificateOperation;
+    @Override
+    public void initialize(PipelineService pipelineService) throws Exception {
+        getCardsOperation = (GetCardsOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetCardsOperation.NAME);
+        readCardCertificateOperation = (ReadCardCertificateOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+ReadCardCertificateOperation.NAME);
+        getPinStatusOperation = (GetPinStatusOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetPinStatusOperation.NAME);
     }
 
     @Override

@@ -99,6 +99,7 @@ public class Pop3GatewayPassCmdHandler extends AbstractPOP3CommandHandler {
                     DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(((Pop3GatewaySession) session).getLogger());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_DOMAIN, ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerHost());
                     defaultPipelineOperationContext.setEnvironmentValue(DnsRequestOperation.NAME, DnsRequestOperation.ENV_RECORD_TYPE, Type.string(Type.A));
+
                     dnsRequestOperation.execute(
                             defaultPipelineOperationContext,
                             context -> {

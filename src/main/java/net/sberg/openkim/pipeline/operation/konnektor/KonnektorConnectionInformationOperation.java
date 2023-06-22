@@ -23,6 +23,7 @@ import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.konnektor.KonnektorWebserviceUtils;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
+import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetResourceInformationOperation;
@@ -41,8 +42,9 @@ public class KonnektorConnectionInformationOperation implements IPipelineOperati
 
     private GetResourceInformationOperation getResourceInformationOperation;
 
-    public void setGetResourceInformationOperation(GetResourceInformationOperation getResourceInformationOperation) {
-        this.getResourceInformationOperation = getResourceInformationOperation;
+    @Override
+    public void initialize(PipelineService pipelineService) throws Exception {
+        getResourceInformationOperation = (GetResourceInformationOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetResourceInformationOperation.NAME);
     }
 
     @Override

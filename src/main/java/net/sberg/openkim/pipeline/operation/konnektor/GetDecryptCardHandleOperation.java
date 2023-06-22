@@ -29,6 +29,7 @@ import net.sberg.openkim.konnektor.KonnektorWebserviceUtils;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
+import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.ReadCardCertificateOperation;
@@ -57,12 +58,10 @@ public class GetDecryptCardHandleOperation implements IPipelineOperation {
     private ReadCardCertificateOperation readCardCertificateOperation;
     private KonnektorLoadAllCardInformationOperation konnektorLoadAllCardInformationOperation;
 
-    public void setReadCardCertificateOperation(ReadCardCertificateOperation readCardCertificateOperation) {
-        this.readCardCertificateOperation = readCardCertificateOperation;
-    }
-
-    public void setKonnektorLoadAllCardInformationOperation(KonnektorLoadAllCardInformationOperation konnektorLoadAllCardInformationOperation) {
-        this.konnektorLoadAllCardInformationOperation = konnektorLoadAllCardInformationOperation;
+    @Override
+    public void initialize(PipelineService pipelineService) throws Exception {
+        readCardCertificateOperation = (ReadCardCertificateOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+ReadCardCertificateOperation.NAME);
+        konnektorLoadAllCardInformationOperation = (KonnektorLoadAllCardInformationOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+KonnektorLoadAllCardInformationOperation.NAME);
     }
 
     @Override
@@ -103,14 +102,14 @@ public class GetDecryptCardHandleOperation implements IPipelineOperation {
                 logger.logLine("load all cards - start");
 
                 konnektorLoadAllCardInformationOperation.execute(
-                        defaultPipelineOperationContext,
-                        context -> {
-                            log.info("load all cards - finished");
-                            logger.logLine("load all cards - finished");
-                        },
-                        (context, e) -> {
-                            defaultPipelineOperationContext.setEnvironmentValue(konnektorLoadAllCardInformationOperation.getName(), ENV_EXCEPTION, e);
-                        }
+                    defaultPipelineOperationContext,
+                    context -> {
+                        log.info("load all cards - finished");
+                        logger.logLine("load all cards - finished");
+                    },
+                    (context, e) -> {
+                        defaultPipelineOperationContext.setEnvironmentValue(konnektorLoadAllCardInformationOperation.getName(), ENV_EXCEPTION, e);
+                    }
                 );
 
                 List<KonnektorCard> cards = konnektor.getCards();
@@ -130,16 +129,16 @@ public class GetDecryptCardHandleOperation implements IPipelineOperation {
                                         ReadCardCertificateResponse readCardCertificateResponse = (ReadCardCertificateResponse) defaultPipelineOperationContext.getEnvironmentValue(readCardCertificateOperation.getName(), ReadCardCertificateOperation.ENV_READ_CARD_CERT_RESPONSE);
                                         if (!readCardCertificateResponse.getStatus().getResult().equals(KonnektorWebserviceUtils.STATUS_OK)) {
                                             defaultPipelineOperationContext.setEnvironmentValue(
-                                                    readCardCertificateOperation.getName(),
-                                                    ENV_EXCEPTION,
-                                                    new IllegalStateException(
-                                                            "request getCertificate status not OK for the konnektor: "
-                                                                    + konnektor.getIp()
-                                                                    + " and the cardHandle: "
-                                                                    + konnektorCard.getCardHandle()
-                                                                    + " and the certRef: "
-                                                                    + KonnektorWebserviceUtils.CERT_REF_ENC
-                                                    )
+                                                readCardCertificateOperation.getName(),
+                                                ENV_EXCEPTION,
+                                                new IllegalStateException(
+                                                    "request getCertificate status not OK for the konnektor: "
+                                                    + konnektor.getIp()
+                                                    + " and the cardHandle: "
+                                                    + konnektorCard.getCardHandle()
+                                                    + " and the certRef: "
+                                                    + KonnektorWebserviceUtils.CERT_REF_ENC
+                                                )
                                             );
                                         } else {
                                             for (Iterator<X509DataInfoListType.X509DataInfo> konnektorCardIterator = readCardCertificateResponse.getX509DataInfoList().getX509DataInfo().iterator(); konnektorCardIterator.hasNext(); ) {

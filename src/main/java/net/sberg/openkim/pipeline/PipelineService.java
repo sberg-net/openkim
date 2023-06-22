@@ -22,7 +22,9 @@ public class PipelineService {
 
     public IPipelineOperation getOperation(String key) throws Exception {
         if (operationMap.containsKey(key)) {
-            return operationMap.get(key).getClass().getDeclaredConstructor().newInstance();
+            IPipelineOperation pipelineOperation = operationMap.get(key).getClass().getDeclaredConstructor().newInstance();
+            pipelineOperation.initialize(this);
+            return pipelineOperation;
         }
         throw new IllegalStateException("no operation available: "+key);
     }
