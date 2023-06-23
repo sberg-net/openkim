@@ -23,7 +23,7 @@ jobs:
 
       - name: Set up api-telematik
         run: |
-          cd api/
+          mkdir api/ && cd api/
           git config --global user.email "no_reply@sberg.net"
           git config --global user.name "Release Bot"
           git clone https://github.com/gematik/api-telematik.git
