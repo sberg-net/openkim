@@ -16,9 +16,9 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor.webservice;
 
-import de.gematik.ws.conn.connectorcontext.ContextType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.VerifyDocument;
-import de.gematik.ws.conn.signatureservice.v7_5_5.VerifyDocumentResponse;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.signatureservice.v7.VerifyDocument;
+import de.gematik.ws.conn.signatureservice.v7.VerifyDocumentResponse;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
@@ -32,12 +32,14 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class VerifySignedDocumentOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(VerifySignedDocumentOperation.class);

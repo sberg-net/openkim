@@ -17,6 +17,7 @@
 package net.sberg.openkim.gateway.pop3.signreport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.xml.bind.JAXBElement;
 import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.Konnektor;
@@ -34,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.JAXBElement;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.security.cert.Certificate;

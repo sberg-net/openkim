@@ -22,7 +22,6 @@ import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.mail.part.AnalyzeMailPartsOperation;
@@ -35,6 +34,8 @@ import org.bouncycastle.asn1.cms.EnvelopedData;
 import org.bouncycastle.cms.CMSEnvelopedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimePart;
@@ -45,6 +46,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class CheckEncryptedMailFormatOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(CheckEncryptedMailFormatOperation.class);
@@ -56,12 +58,8 @@ public class CheckEncryptedMailFormatOperation implements IPipelineOperation  {
     public static final String ENV_ENCRYPTED_CONTENT_INFO = "encryptedContentInfo";
     public static final String ENV_ENCRYPTED_PART = "encryptedPart";
 
+    @Autowired
     private AnalyzeMailPartsOperation analyzeMailPartsOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        analyzeMailPartsOperation = (AnalyzeMailPartsOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+AnalyzeMailPartsOperation.NAME);
-    }
 
     @Override
     public String getName() {

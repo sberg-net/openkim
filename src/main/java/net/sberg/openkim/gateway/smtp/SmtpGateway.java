@@ -16,6 +16,8 @@
  */
 package net.sberg.openkim.gateway.smtp;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import net.sberg.openkim.gateway.GatewayNettyServer;
 import net.sberg.openkim.gateway.smtp.hook.SmtpGatewayMailHook;
 import net.sberg.openkim.gateway.smtp.hook.SmtpGatewayQuitHook;
@@ -32,8 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 

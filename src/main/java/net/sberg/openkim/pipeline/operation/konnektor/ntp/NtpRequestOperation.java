@@ -27,6 +27,7 @@ import org.apache.commons.net.ntp.TimeInfo;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.util.Date;
@@ -34,6 +35,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class NtpRequestOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(NtpRequestOperation.class);

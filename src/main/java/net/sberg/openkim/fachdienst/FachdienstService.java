@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.gematik.kim.kas.ApiClient;
 import de.gematik.kim.kas.api.AttachmentsApi;
+import jakarta.annotation.PostConstruct;
 import net.sberg.openkim.konfiguration.EnumTIEnvironment;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
@@ -38,7 +39,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.xbill.DNS.Type;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

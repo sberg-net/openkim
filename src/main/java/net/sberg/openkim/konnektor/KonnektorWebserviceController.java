@@ -103,7 +103,6 @@ public class KonnektorWebserviceController {
 
         Konfiguration konfiguration = konfigurationService.getKonfiguration();
 
-        KonnektorServiceBean konnektorServiceBean = konfigurationService.getKonnektorServiceBean((String)serviceBean.get(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID), (String)serviceBean.get(DefaultPipelineOperationContext.ENV_WEBSERVICE_ID), true);
         Konnektor konnektor = konfiguration.extractKonnektor((String)serviceBean.get(DefaultPipelineOperationContext.ENV_KONNEKTOR_ID), true);
 
         DefaultLoggerContext defaultLoggerContext = new DefaultLoggerContext();
@@ -120,9 +119,7 @@ public class KonnektorWebserviceController {
         operation.execute(
             defaultPipelineOperationContext,
             operation.getDefaultOkConsumer(),
-            (context, e) -> {
-
-            }
+            operation.getDefaultFailConsumer()
         );
         String result = logger.getLogContentAsStr();
         logService.removeLogger(logger.getId());

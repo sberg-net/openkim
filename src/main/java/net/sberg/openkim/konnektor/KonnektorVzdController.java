@@ -74,6 +74,7 @@ public class KonnektorVzdController {
 
             model.addAttribute("konnektor", dbKonnektor);
             model.addAttribute("fehler", false);
+            model.addAttribute("eintraege", new ArrayList<>());
 
             if (searchValue != null && !searchValue.trim().isEmpty()) {
 
@@ -96,14 +97,12 @@ public class KonnektorVzdController {
                     },
                     (context, e) -> {
                         log.error("error on searching vzd for the konnektor: " + dbKonnektor.getIp());
-                        model.addAttribute("eintraege", new ArrayList<>());
                         model.addAttribute("fehler", true);
                     }
                 );
             }
         } catch (Exception e) {
             model.addAttribute("fehler", true);
-            model.addAttribute("eintraege", new ArrayList<>());
         }
 
         model.addAttribute("logs", logger.getLogContentAsStr());

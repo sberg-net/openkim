@@ -14,12 +14,12 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.pipeline.operation.konnektor.webservice;
+package net.sberg.openkim.pipeline.operation.mail;
 
-import de.gematik.ws.conn.connectorcommon.DocumentType;
-import de.gematik.ws.conn.connectorcontext.ContextType;
-import de.gematik.ws.conn.encryptionservice.v6_1_1.EncryptDocument;
-import de.gematik.ws.conn.encryptionservice.v6_1_1.EncryptDocumentResponse;
+import de.gematik.ws.conn.connectorcommon.v5.DocumentType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.encryptionservice.v6.EncryptDocument;
+import de.gematik.ws.conn.encryptionservice.v6.EncryptDocumentResponse;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.CMSUtils;
 import net.sberg.openkim.common.x509.X509CertificateResult;
@@ -36,6 +36,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +44,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class EncryptMailOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(EncryptMailOperation.class);
@@ -134,7 +136,7 @@ public class EncryptMailOperation implements IPipelineOperation  {
                 //document type
                 Base64Data base64Data = new Base64Data();
                 base64Data.setValue((byte[])defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_MAIL));
-                de.gematik.ws.conn.connectorcommon.DocumentType documentType = new DocumentType();
+                de.gematik.ws.conn.connectorcommon.v5.DocumentType documentType = new DocumentType();
                 documentType.setBase64Data(base64Data);
 
                 encryptDocument.setDocument(documentType);

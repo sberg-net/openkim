@@ -17,6 +17,7 @@
 
 package net.sberg.openkim;
 
+import jakarta.annotation.PostConstruct;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import javax.annotation.PostConstruct;
 import java.security.Security;
 
 @Configuration

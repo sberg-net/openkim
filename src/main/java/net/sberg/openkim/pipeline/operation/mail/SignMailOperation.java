@@ -14,26 +14,28 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.pipeline.operation.konnektor.webservice;
+package net.sberg.openkim.pipeline.operation.mail;
 
-import de.gematik.ws.conn.connectorcontext.ContextType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest;
-import de.gematik.ws.conn.signatureservice.v7_5_5.*;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.signatureservice.v7.DocumentType;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest;
+import de.gematik.ws.conn.signatureservice.v7.*;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.CMSUtils;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetJobNumberOperation;
 import oasis.names.tc.dss._1_0.core.schema.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
@@ -43,6 +45,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class SignMailOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(SignMailOperation.class);
@@ -53,12 +56,8 @@ public class SignMailOperation implements IPipelineOperation  {
     public static final String ENV_VZD_CERTS = "vzdCerts";
     public static final String ENV_SIGN_DOCUMENT_RESPONSE = "signDocumentResponse";
 
+    @Autowired
     private GetJobNumberOperation getJobNumberOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        getJobNumberOperation = (GetJobNumberOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetJobNumberOperation.NAME);
-    }
 
     @Override
     public String getName() {
@@ -155,7 +154,7 @@ public class SignMailOperation implements IPipelineOperation  {
                 byteArrayOutputStream.close();
 
                 //document
-                de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentType = new DocumentType();
+                de.gematik.ws.conn.signatureservice.v7.DocumentType documentType = new DocumentType();
                 documentType.setBase64Data(base64Data);
 
                 //sign request

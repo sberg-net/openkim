@@ -16,9 +16,9 @@
  */
 package net.sberg.openkim.pipeline.operation.mail;
 
-import de.gematik.ws.conn.connectorcommon.DocumentType;
-import de.gematik.ws.conn.encryptionservice.v6_1_1.DecryptDocumentResponse;
-import de.gematik.ws.conn.signatureservice.v7_5_5.VerifyDocumentResponse;
+import de.gematik.ws.conn.connectorcommon.v5.DocumentType;
+import de.gematik.ws.conn.encryptionservice.v6.DecryptDocumentResponse;
+import de.gematik.ws.conn.signatureservice.v7.VerifyDocumentResponse;
 import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.CMSUtils;
@@ -27,7 +27,6 @@ import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.GetDecryptCardHandleOperation;
@@ -40,6 +39,8 @@ import org.apache.james.metrics.api.TimeMetric;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
@@ -57,6 +58,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class DecryptVerifyMailOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(DecryptVerifyMailOperation.class);
@@ -67,22 +69,18 @@ public class DecryptVerifyMailOperation implements IPipelineOperation  {
     public static final String ENV_SIGN_REPORT_SERVICE = "signResportService";
     public static final String ENV_RESULT_MSG_BYTES = "resultMsgBytes";
 
+    @Autowired
     private CheckEncryptedMailFormatOperation checkEncryptedMailFormatOperation;
+    @Autowired
     private GetDecryptCardHandleOperation getDecryptCardHandleOperation;
+    @Autowired
     private DecryptDocumentOperation decryptDocumentOperation;
+    @Autowired
     private VerifySignedDocumentOperation verifySignedDocumentOperation;
+    @Autowired
     private AddMailAttachmentOperation addMailAttachmentOperation;
+    @Autowired
     private AddMailTextOperation addMailTextOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        checkEncryptedMailFormatOperation = (CheckEncryptedMailFormatOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+CheckEncryptedMailFormatOperation.NAME);
-        getDecryptCardHandleOperation = (GetDecryptCardHandleOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetDecryptCardHandleOperation.NAME);
-        decryptDocumentOperation = (DecryptDocumentOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+DecryptDocumentOperation.NAME);
-        verifySignedDocumentOperation = (VerifySignedDocumentOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+VerifySignedDocumentOperation.NAME);
-        addMailAttachmentOperation = (AddMailAttachmentOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+AddMailAttachmentOperation.NAME);
-        addMailTextOperation = (AddMailTextOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+AddMailTextOperation.NAME);
-    }
 
     @Override
     public String getName() {

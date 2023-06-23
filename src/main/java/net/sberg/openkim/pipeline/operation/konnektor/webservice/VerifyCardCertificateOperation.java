@@ -16,9 +16,9 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor.webservice;
 
-import de.gematik.ws.conn.certificateservice.v6_0_1.VerifyCertificate;
-import de.gematik.ws.conn.certificateservice.v6_0_1.VerifyCertificateResponse;
-import de.gematik.ws.conn.connectorcontext.ContextType;
+import de.gematik.ws.conn.certificateservice.v6.VerifyCertificate;
+import de.gematik.ws.conn.certificateservice.v6.VerifyCertificateResponse;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
@@ -29,6 +29,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -38,6 +39,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class VerifyCardCertificateOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(VerifyCardCertificateOperation.class);

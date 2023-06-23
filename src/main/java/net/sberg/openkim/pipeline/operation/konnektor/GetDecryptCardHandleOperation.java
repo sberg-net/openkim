@@ -16,9 +16,9 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor;
 
-import de.gematik.ws.conn.cardservice.v8_1_2.PinStatusEnum;
+import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
-import de.gematik.ws.conn.certificateservice.v6_0_1.ReadCardCertificateResponse;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.CMSUtils;
@@ -29,7 +29,6 @@ import net.sberg.openkim.konnektor.KonnektorWebserviceUtils;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.ReadCardCertificateOperation;
@@ -37,6 +36,8 @@ import org.apache.james.metrics.api.TimeMetric;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +46,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class GetDecryptCardHandleOperation implements IPipelineOperation {
 
     private static final Logger log = LoggerFactory.getLogger(GetDecryptCardHandleOperation.class);
@@ -55,14 +57,10 @@ public class GetDecryptCardHandleOperation implements IPipelineOperation {
     public static final String ENV_RESULT_CARD_HANDLE = "resultCardHandle";
     public static final String ENV_RESULT_CARD_HANDLE_FOUND = "resultCardHandleFound";
 
+    @Autowired
     private ReadCardCertificateOperation readCardCertificateOperation;
+    @Autowired
     private KonnektorLoadAllCardInformationOperation konnektorLoadAllCardInformationOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        readCardCertificateOperation = (ReadCardCertificateOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+ReadCardCertificateOperation.NAME);
-        konnektorLoadAllCardInformationOperation = (KonnektorLoadAllCardInformationOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+KonnektorLoadAllCardInformationOperation.NAME);
-    }
 
     @Override
     public String getName() {

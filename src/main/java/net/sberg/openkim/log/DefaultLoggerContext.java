@@ -16,7 +16,6 @@
  */
 package net.sberg.openkim.log;
 
-import de.gematik.kim.al.model.AccountLimit;
 import net.sberg.openkim.fachdienst.Fachdienst;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
@@ -44,7 +43,7 @@ public class DefaultLoggerContext {
     private String mailServerPort;
     private String mailServerUsername;
     private String mailServerPassword;
-    private de.gematik.kim.al.model.AccountLimit accountLimit = new AccountLimit();
+    private de.gematik.kim.al.model.AccountLimit accountLimit = new de.gematik.kim.al.model.AccountLimit();
 
     private final MailaddressCertErrorContext mailaddressCertErrorContext = new MailaddressCertErrorContext();
     private final MailaddressKimVersionErrorContext mailaddressKimVersionErrorContext = new MailaddressKimVersionErrorContext();
@@ -105,7 +104,7 @@ public class DefaultLoggerContext {
         this.fachdienst = fachdienst;
     }
 
-    public void setAccountLimit(AccountLimit accountLimit) {
+    public void setAccountLimit(de.gematik.kim.al.model.AccountLimit accountLimit) {
         this.accountLimit = accountLimit;
     }
     //********************************************************
@@ -241,7 +240,7 @@ public class DefaultLoggerContext {
         return mailServerPassword;
     }
 
-    public AccountLimit getAccountLimit() {
+    public de.gematik.kim.al.model.AccountLimit getAccountLimit() {
         return accountLimit;
     }
 

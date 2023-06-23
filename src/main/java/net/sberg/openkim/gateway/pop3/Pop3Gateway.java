@@ -16,11 +16,13 @@
  */
 package net.sberg.openkim.gateway.pop3;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import net.sberg.openkim.gateway.GatewayNettyServer;
+import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
 import net.sberg.openkim.log.LogService;
-import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
 import net.sberg.openkim.pipeline.PipelineService;
 import org.apache.james.protocols.api.Encryption;
 import org.apache.james.protocols.api.Protocol;
@@ -31,8 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.net.InetSocketAddress;
 
 @Service

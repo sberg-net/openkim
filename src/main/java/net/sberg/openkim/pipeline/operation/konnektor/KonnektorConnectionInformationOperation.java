@@ -16,36 +16,34 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor;
 
-import de.gematik.ws.conn.connectorcommon.Connector;
-import de.gematik.ws.conn.eventservice.v7_2_0.GetResourceInformationResponse;
+import de.gematik.ws.conn.connectorcommon.v5.Connector;
+import de.gematik.ws.conn.eventservice.v7.GetResourceInformationResponse;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.konnektor.KonnektorWebserviceUtils;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetResourceInformationOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class KonnektorConnectionInformationOperation implements IPipelineOperation {
 
     private static final Logger log = LoggerFactory.getLogger(KonnektorConnectionInformationOperation.class);
     public static final String NAME = "KonnektorConnectionInformation";
 
+    @Autowired
     private GetResourceInformationOperation getResourceInformationOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        getResourceInformationOperation = (GetResourceInformationOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetResourceInformationOperation.NAME);
-    }
 
     @Override
     public String getName() {

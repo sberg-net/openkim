@@ -20,12 +20,13 @@ import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.mail.Multipart;
 import javax.mail.internet.ContentType;
@@ -38,6 +39,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class AddMailAttachmentOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(AddMailAttachmentOperation.class);
@@ -49,12 +51,8 @@ public class AddMailAttachmentOperation implements IPipelineOperation  {
     public static final String ENV_CONTENT_TYPE = "contentType";
     public static final String ENV_RESULT_MSG = "resultMsg";
 
+    @Autowired
     private AnalyzeMailPartsOperation analyzeMailPartsOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        analyzeMailPartsOperation = (AnalyzeMailPartsOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+AnalyzeMailPartsOperation.NAME);
-    }
 
     @Override
     public String getName() {

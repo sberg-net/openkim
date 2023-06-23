@@ -107,7 +107,7 @@ public class KonnektorService {
             parseServiceBean(xpath, konnektor, doc, EnumKonnektorServiceBeanType.CertificateService, null);
             parseServiceBean(xpath, konnektor, doc, EnumKonnektorServiceBeanType.EventService, null);
 
-            konnektor.setKonnektorServiceBeansLoaded(true);
+            konnektor.setKonnektorServiceBeansLoaded(konnektor.getKonnektorServiceBeans().size() > 0);
             logger.logLine("konnektor service beans loaded: " + konnektor.getIp());
         } catch (Exception e) {
             log.error("error on loading the service beans for the konnektor: " + konnektor.getIp(), e);

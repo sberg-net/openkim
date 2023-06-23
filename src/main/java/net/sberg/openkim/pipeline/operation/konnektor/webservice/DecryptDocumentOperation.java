@@ -16,11 +16,11 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor.webservice;
 
-import de.gematik.ws.conn.connectorcommon.DocumentType;
-import de.gematik.ws.conn.connectorcontext.ContextType;
-import de.gematik.ws.conn.encryptionservice.v6_1_1.DecryptDocument;
-import de.gematik.ws.conn.encryptionservice.v6_1_1.DecryptDocumentResponse;
-import de.gematik.ws.conn.encryptionservice.v6_1_1.KeyOnCardType;
+import de.gematik.ws.conn.connectorcommon.v5.DocumentType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.encryptionservice.v6.DecryptDocument;
+import de.gematik.ws.conn.encryptionservice.v6.DecryptDocumentResponse;
+import de.gematik.ws.conn.encryptionservice.v6.KeyOnCardType;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
@@ -31,11 +31,13 @@ import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class DecryptDocumentOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(DecryptDocumentOperation.class);

@@ -29,6 +29,7 @@ import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
@@ -38,6 +39,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class CreateDsnOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(CreateDsnOperation.class);

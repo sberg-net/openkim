@@ -16,11 +16,11 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor.webservice;
 
-import de.gematik.ws.conn.certificateservice.v6_0_1.ReadCardCertificate;
-import de.gematik.ws.conn.certificateservice.v6_0_1.ReadCardCertificateResponse;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
 import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
-import de.gematik.ws.conn.connectorcontext.ContextType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
@@ -31,6 +31,7 @@ import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
@@ -44,6 +45,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class ReadCardCertificateOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(ReadCardCertificateOperation.class);

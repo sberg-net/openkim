@@ -17,15 +17,16 @@
 package net.sberg.openkim.konfiguration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.FileUtils;
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.StringUtils;
-import net.sberg.openkim.common.EnumMailConnectionSecurity;
+import net.sberg.openkim.konfiguration.minimal.MinimalKonfiguration;
 import net.sberg.openkim.konnektor.EnumKonnektorAuthMethod;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.konnektor.KonnektorService;
 import net.sberg.openkim.konnektor.KonnektorServiceBean;
-import net.sberg.openkim.konfiguration.minimal.MinimalKonfiguration;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
@@ -35,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,8 +43,10 @@ import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.List;
 
 @Service
 public class KonfigurationService {
@@ -193,9 +195,18 @@ public class KonfigurationService {
             str = StringUtils.xor(str, encryptionKeys.split(","));
         }
         catch (Exception e) {}
-        konfiguration = new ObjectMapper().readValue(str, Konfiguration.class);
+
+        Konfiguration konfiguration = new ObjectMapper().readValue(str, Konfiguration.class);
         if (encryptPasswords) {
             konfiguration.decryptPwds(encryptionKeys);
+        }
+        List<Konnektor> konnektorList = new ArrayList<>();
+        if (this.konfiguration != null) {
+            konnektorList.addAll(this.konfiguration.getKonnektoren());
+        }
+        this.konfiguration = konfiguration;
+        if (konnektorList.size() > 0) {
+            this.konfiguration.setKonnektoren(konnektorList);
         }
     }
 
@@ -359,6 +370,7 @@ public class KonfigurationService {
             } else {
                 konfiguration.getKonnektoren().add(konnektor);
             }
+
             write();
             read();
             return "ok";

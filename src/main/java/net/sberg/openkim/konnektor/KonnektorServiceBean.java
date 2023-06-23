@@ -28,7 +28,7 @@ public class KonnektorServiceBean {
     private boolean alive;
 
     public String createClassPackageName() {
-        return enumKonnektorServiceBeanType.getPackageName() + ".v" + version.replaceAll("\\.", "_");
+        return enumKonnektorServiceBeanType.getPackageName();
     }
 
     public String createSoapAction(String operation) {

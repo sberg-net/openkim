@@ -17,9 +17,9 @@
 package net.sberg.openkim.pipeline.operation.konnektor.webservice;
 
 import de.gematik.ws.conn.cardterminalinfo.v8.CardTerminalInfoType;
-import de.gematik.ws.conn.connectorcontext.ContextType;
-import de.gematik.ws.conn.eventservice.v7_2_0.GetCardTerminals;
-import de.gematik.ws.conn.eventservice.v7_2_0.GetCardTerminalsResponse;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCardTerminals;
+import de.gematik.ws.conn.eventservice.v7.GetCardTerminalsResponse;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
@@ -29,12 +29,14 @@ import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class GetCardTerminalsOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(GetCardTerminalsOperation.class);

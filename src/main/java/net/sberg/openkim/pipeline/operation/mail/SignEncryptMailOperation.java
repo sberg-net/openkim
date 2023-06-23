@@ -16,26 +16,25 @@
  */
 package net.sberg.openkim.pipeline.operation.mail;
 
-import de.gematik.ws.conn.connectorcommon.DocumentType;
-import de.gematik.ws.conn.encryptionservice.v6_1_1.EncryptDocumentResponse;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignDocumentResponse;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
+import de.gematik.ws.conn.connectorcommon.v5.DocumentType;
+import de.gematik.ws.conn.encryptionservice.v6.EncryptDocumentResponse;
+import de.gematik.ws.conn.signatureservice.v7.SignDocumentResponse;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.CMSUtils;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.GetSignCardHandleOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.EncryptMailOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.SignMailOperation;
 import oasis.names.tc.dss._1_0.core.schema.SignatureObject;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.mail.BodyPart;
 import javax.mail.internet.MimeBodyPart;
@@ -50,6 +49,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class SignEncryptMailOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(SignEncryptMailOperation.class);
@@ -60,20 +60,16 @@ public class SignEncryptMailOperation implements IPipelineOperation  {
     public static final String ENV_FROM_SENDER_CERTS = "fromSenderCerts";
     public static final String ENV_RESULT_MSG_BYTES = "resultMsgBytes";
 
+    @Autowired
     private CheckEncryptedMailFormatOperation checkEncryptedMailFormatOperation;
+    @Autowired
     private GetSignCardHandleOperation getSignCardHandleOperation;
+    @Autowired
     private SignMailOperation signMailOperation;
+    @Autowired
     private EncryptMailOperation encryptMailOperation;
+    @Autowired
     private ComposeEncryptedMailOperation composeEncryptedMailOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        checkEncryptedMailFormatOperation = (CheckEncryptedMailFormatOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+CheckEncryptedMailFormatOperation.NAME);
-        getSignCardHandleOperation = (GetSignCardHandleOperation) pipelineService.getOperation(BUILTIN_VENDOR + "." + GetSignCardHandleOperation.NAME);
-        signMailOperation = (SignMailOperation) pipelineService.getOperation(BUILTIN_VENDOR + "." + SignMailOperation.NAME);
-        encryptMailOperation = (EncryptMailOperation) pipelineService.getOperation(BUILTIN_VENDOR + "." + EncryptMailOperation.NAME);
-        composeEncryptedMailOperation = (ComposeEncryptedMailOperation) pipelineService.getOperation(BUILTIN_VENDOR + "." + ComposeEncryptedMailOperation.NAME);
-    }
 
     @Override
     public String getName() {

@@ -17,13 +17,13 @@
 package net.sberg.openkim.konnektor;
 
 public enum EnumKonnektorServiceBeanType {
-    EncryptionService("de.gematik.ws.conn.encryptionservice", "http://ws.gematik.de/conn/EncryptionService/"),
-    SignatureService("de.gematik.ws.conn.signatureservice", "http://ws.gematik.de/conn/SignatureService/"),
-    CardService("de.gematik.ws.conn.cardservice", "http://ws.gematik.de/conn/CardService/"),
-    CardTerminalService("de.gematik.ws.conn.cardterminalservice", "http://ws.gematik.de/conn/CardTerminalService/"),
+    EncryptionService("de.gematik.ws.conn.encryptionservice.v6", "http://ws.gematik.de/conn/EncryptionService/"),
+    SignatureService("de.gematik.ws.conn.signatureservice.v7", "http://ws.gematik.de/conn/SignatureService/"),
+    CardService("de.gematik.ws.conn.cardservice.v8", "http://ws.gematik.de/conn/CardService/"),
+    CardTerminalService("de.gematik.ws.conn.cardterminalservice.v1", "http://ws.gematik.de/conn/CardTerminalService/"),
     AuthSignatureService("de.gematik.ws.conn.authsignatureservice", "http://ws.gematik.de/conn/SignatureService/"),
-    CertificateService("de.gematik.ws.conn.certificateservice", "http://ws.gematik.de/conn/CertificateService/"),
-    EventService("de.gematik.ws.conn.eventservice", "http://ws.gematik.de/conn/EventService/");
+    CertificateService("de.gematik.ws.conn.certificateservice.v6", "http://ws.gematik.de/conn/CertificateService/"),
+    EventService("de.gematik.ws.conn.eventservice.v7", "http://ws.gematik.de/conn/EventService/");
 
     private final String packageName;
     private final String soapActionPrefix;

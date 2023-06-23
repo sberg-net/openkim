@@ -17,10 +17,10 @@
 package net.sberg.openkim.pipeline.operation.konnektor;
 
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
-import de.gematik.ws.conn.cardservice.v8_1_2.GetPinStatusResponse;
-import de.gematik.ws.conn.certificateservice.v6_0_1.ReadCardCertificateResponse;
+import de.gematik.ws.conn.cardservice.v8.GetPinStatusResponse;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
-import de.gematik.ws.conn.eventservice.v7_2_0.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.common.x509.EnumX509ErrorCode;
@@ -29,13 +29,17 @@ import net.sberg.openkim.common.x509.X509CertificateUtils;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.webservice.*;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetCardsOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.GetPinStatusOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.ReadCardCertificateOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.webservice.VerifyPinOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,21 +48,18 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class KonnektorLoadAllCardInformationOperation implements IPipelineOperation {
 
     private static final Logger log = LoggerFactory.getLogger(KonnektorLoadAllCardInformationOperation.class);
     public static final String NAME = "KonnektorLoadAllCardInformation";
 
+    @Autowired
     private GetCardsOperation getCardsOperation;
+    @Autowired
     private ReadCardCertificateOperation readCardCertificateOperation;
+    @Autowired
     private GetPinStatusOperation getPinStatusOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        getCardsOperation = (GetCardsOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetCardsOperation.NAME);
-        readCardCertificateOperation = (ReadCardCertificateOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+ReadCardCertificateOperation.NAME);
-        getPinStatusOperation = (GetPinStatusOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+GetPinStatusOperation.NAME);
-    }
 
     @Override
     public String getName() {

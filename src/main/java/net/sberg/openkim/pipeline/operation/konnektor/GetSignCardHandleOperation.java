@@ -16,7 +16,7 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor;
 
-import de.gematik.ws.conn.cardservice.v8_1_2.PinStatusEnum;
+import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.Konnektor;
@@ -24,12 +24,13 @@ import net.sberg.openkim.konnektor.KonnektorCard;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
-import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class GetSignCardHandleOperation implements IPipelineOperation {
 
     private static final Logger log = LoggerFactory.getLogger(GetSignCardHandleOperation.class);
@@ -45,12 +47,8 @@ public class GetSignCardHandleOperation implements IPipelineOperation {
     public static final String ENV_RESULT_CARD_HANDLE = "resultCardHandle";
     public static final String ENV_RESULT_CARD_HANDLE_FOUND = "resultCardHandleFound";
 
+    @Autowired
     private KonnektorLoadAllCardInformationOperation konnektorLoadAllCardInformationOperation;
-
-    @Override
-    public void initialize(PipelineService pipelineService) throws Exception {
-        konnektorLoadAllCardInformationOperation = (KonnektorLoadAllCardInformationOperation) pipelineService.getOperation(BUILTIN_VENDOR+"."+KonnektorLoadAllCardInformationOperation.NAME);
-    }
 
     @Override
     public String getName() {

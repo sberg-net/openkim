@@ -16,9 +16,9 @@
  */
 package net.sberg.openkim.pipeline.operation.konnektor.webservice;
 
-import de.gematik.ws.conn.cardservice.v8_1_2.GetPinStatus;
-import de.gematik.ws.conn.cardservice.v8_1_2.GetPinStatusResponse;
-import de.gematik.ws.conn.connectorcontext.ContextType;
+import de.gematik.ws.conn.cardservice.v8.GetPinStatus;
+import de.gematik.ws.conn.cardservice.v8.GetPinStatusResponse;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konnektor.*;
 import net.sberg.openkim.log.DefaultLogger;
@@ -28,11 +28,13 @@ import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @PipelineOperation
+@Component
 public class GetPinStatusOperation implements IPipelineOperation  {
 
     private static final Logger log = LoggerFactory.getLogger(GetPinStatusOperation.class);

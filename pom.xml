@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.sberg</groupId>
     <artifactId>openkim</artifactId>
-    <version>0.15.0</version>
+    <version>0.15.1</version>
     <name>openkim</name>
     <description>Open KIM Client Modul</description>
 
@@ -46,6 +46,10 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
             <version>3.1.1.RELEASE</version>
@@ -69,16 +73,7 @@
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-text</artifactId>
                 </exclusion>
-                <!--exclusion>
-                    <groupId>com.sun.mail</groupId>
-                    <artifactId>javax.mail</artifactId>
-                </exclusion-->
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.james</groupId>
@@ -94,10 +89,6 @@
                     <groupId>org.apache.james</groupId>
                     <artifactId>james-server-jwt</artifactId>
                 </exclusion>
-                <!--exclusion>
-                    <groupId>com.sun.mail</groupId>
-                    <artifactId>javax.mail</artifactId>
-                </exclusion-->
             </exclusions>
         </dependency>
         <dependency>
@@ -146,16 +137,6 @@
             <version>4.5.14</version>
         </dependency>
         <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.4</version>
-        </dependency>
-        <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
             <version>3.9.0</version>
@@ -164,11 +145,6 @@
             <groupId>javax.jws</groupId>
             <artifactId>javax.jws-api</artifactId>
             <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.0</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
@@ -200,24 +176,12 @@
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
             <version>4.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-ri</artifactId>
-            <version>4.0.0</version>
-            <type>pom</type>
             <exclusions>
                 <exclusion>
-                    <groupId>jakarta.mail</groupId>
-                    <artifactId>jakarta.mail-api</artifactId>
+                    <groupId>org.webjars</groupId>
+                    <artifactId>jquery</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-ri</artifactId>
-            <version>4.0.1</version>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -240,26 +204,16 @@
             <version>1.18.24</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
             <version>2.3.1</version>
-        </dependency>
+        </dependency-->
     </dependencies>
 
     <build>
@@ -292,7 +246,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>4.0.2</version>
                 <executions>
                     <execution>
                         <id>encryption-service</id>
@@ -303,126 +257,42 @@
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/api/api-telematik/conn/EventService.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-eventservice_v7_2_0.xjb</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/api/api-telematik/conn/CertificateService.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-certificateservice_v6_0_0.xjb</bindingFile>
-                                    </bindingFiles>
                                     <extraargs>
                                         <extraarg>-verbose</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/api/api-telematik/conn/CertificateService_v6_0_1.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-certificateservice_v6_0_1.xjb</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/api/api-telematik/conn/AuthSignatureService.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-authsignatureservice_v7_4_0.xjb</bindingFile>
-                                    </bindingFiles>
                                     <extraargs>
                                         <extraarg>-verbose</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/api/api-telematik/conn/AuthSignatureService_v7_4_1.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-authsignatureservice_v7_4_1.xjb</bindingFile>
-                                    </bindingFiles>
                                     <extraargs>
                                         <extraarg>-verbose</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/api/api-telematik/conn/CardTerminalService.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-cardterminalservice_v1_1_0.xjb</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/api/api-telematik/conn/CardService.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-cardservice_v8_1_0.xjb</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/api/api-telematik/conn/CardService_v8_1_1.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-cardservice_v8_1_1.xjb</bindingFile>
-                                    </bindingFiles>
                                     <extraargs>
                                         <extraarg>-verbose</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/api/api-telematik/conn/CardService_v8_1_2.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-cardservice_v8_1_2.xjb</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/api/api-telematik/conn/EncryptionService.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-encryptionservice_v6_1_0.xjb</bindingFile>
-                                    </bindingFiles>
                                     <extraargs>
                                         <extraarg>-verbose</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/api/api-telematik/conn/EncryptionService_v6_1_1.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-encryptionservice_v6_1_1.xjb</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/api/api-telematik/conn/SignatureService.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-signatureservice_v7_4_0.xjb</bindingFile>
-                                    </bindingFiles>
-                                    <extraargs>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/api/api-telematik/conn/SignatureService_V7_4_2.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-signatureservice_v7_4_2.xjb</bindingFile>
-                                    </bindingFiles>
                                     <extraargs>
                                         <extraarg>-verbose</extraarg>
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/api/api-telematik/conn/SignatureService_V7_5_5.wsdl</wsdl>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/api/api-telematik-signatureservice_v7_5_5.xjb</bindingFile>
-                                    </bindingFiles>
                                     <extraargs>
                                         <extraarg>-verbose</extraarg>
                                     </extraargs>
@@ -438,7 +308,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>5.4.0</version>
+                <version>6.6.0</version>
                 <executions>
                     <execution>
                         <id>KAS</id>
@@ -455,8 +325,9 @@
                             <library>resttemplate</library>
                             <configOptions>
                                 <dateLibrary>java8</dateLibrary>
-                                <sourceFolder>src/generated/java</sourceFolder>
+                                <sourceFolder>/</sourceFolder>
                                 <interfaceOnly>true</interfaceOnly>
+                                <useJakartaEe>true</useJakartaEe>
                             </configOptions>
                         </configuration>
                     </execution>
@@ -475,8 +346,9 @@
                             <library>resttemplate</library>
                             <configOptions>
                                 <dateLibrary>java8</dateLibrary>
-                                <sourceFolder>src/generated/java</sourceFolder>
+                                <sourceFolder>/</sourceFolder>
                                 <interfaceOnly>true</interfaceOnly>
+                                <useJakartaEe>true</useJakartaEe>
                             </configOptions>
                         </configuration>
                     </execution>
@@ -495,8 +367,9 @@
                             <library>resttemplate</library>
                             <configOptions>
                                 <dateLibrary>java8</dateLibrary>
-                                <sourceFolder>src/generated/java</sourceFolder>
+                                <sourceFolder>/</sourceFolder>
                                 <interfaceOnly>true</interfaceOnly>
+                                <useJakartaEe>true</useJakartaEe>
                             </configOptions>
                         </configuration>
                     </execution>
