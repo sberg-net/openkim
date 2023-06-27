@@ -119,7 +119,7 @@ public class GetDecryptCardHandleOperation implements IPipelineOperation {
                     //Verschlüsselungs-Zertifikate laden für die Karte
                     if (KonnektorWebserviceUtils.interestingCardTypes.contains(konnektorCard.getCardType())) {
                         defaultPipelineOperationContext.setEnvironmentValue(readCardCertificateOperation.getName(), ReadCardCertificateOperation.ENV_CARDHANDLE, konnektorCard.getCardHandle());
-                        defaultPipelineOperationContext.setEnvironmentValue(readCardCertificateOperation.getName(), ReadCardCertificateOperation.ENV_CERT_REFS, List.of(KonnektorWebserviceUtils.CERT_REF_ENC));
+                        defaultPipelineOperationContext.setEnvironmentValue(readCardCertificateOperation.getName(), ReadCardCertificateOperation.ENV_CERT_REFS, KonnektorWebserviceUtils.CERT_REF_ENC);
                         readCardCertificateOperation.execute(
                                 defaultPipelineOperationContext,
                                 context1 -> {

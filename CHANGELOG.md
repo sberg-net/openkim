@@ -19,6 +19,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ```
 
+## [0.16.0]
+
+### Added
+```
+- Integration von KAS
+- Fehlerbehebungen
+```
+
+### Changed
+```
+```
+
+### Fixed
+```
+```
+
 ## [0.15.1]
 
 ### Added
@@ -31,7 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 ```
-
 ```
 
 ## [0.15.0]

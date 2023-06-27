@@ -25,6 +25,7 @@ import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
+import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.log.error.IErrorContext;
 import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
@@ -32,6 +33,8 @@ import net.sberg.openkim.pipeline.operation.konnektor.vzd.LoadVzdCertsOperation;
 import net.sberg.openkim.pipeline.operation.mail.CheckSendingMailOperation;
 import net.sberg.openkim.pipeline.operation.mail.SendDsnOperation;
 import net.sberg.openkim.pipeline.operation.mail.SignEncryptMailOperation;
+import net.sberg.openkim.pipeline.operation.mail.kas.KasOutgoingMailOperation;
+import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.james.protocols.smtp.MailEnvelope;
@@ -50,10 +53,9 @@ import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class SmtpGatewayMailHook implements MessageHook {
 
@@ -68,15 +70,44 @@ public class SmtpGatewayMailHook implements MessageHook {
         this.pipelineService = pipelineService;
     }
 
-    private HookResult sendDsn(SmtpGatewaySession smtpGatewaySession, IErrorContext errorContext, MimeMessage originMessage, boolean senderContext) {
+    private boolean checkMailAddresses(SmtpGatewaySession smtpGatewaySession, Map<String, X509CertificateResult> certMap, List<String> mailAddresses, boolean senderAddresses, boolean rcptAddresses) {
         try {
-            Konfiguration konfiguration = smtpGatewaySession.getLogger().getDefaultLoggerContext().getKonfiguration();
+            LoadVzdCertsOperation loadVzdCertsOperation = (LoadVzdCertsOperation) pipelineService.getOperation(LoadVzdCertsOperation.BUILTIN_VENDOR+"."+LoadVzdCertsOperation.NAME);
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(smtpGatewaySession.getLogger());
+            defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_ADDRESSES, mailAddresses);
+            defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_SEARCH_BASE, smtpGatewaySession.getLogger().getDefaultLoggerContext().getKonnektor().getVzdSearchBase());
+            defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_SENDER_ADRESSES, senderAddresses);
+            defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_RCPT_ADRESSES, rcptAddresses);
+
+            loadVzdCertsOperation.execute(
+                defaultPipelineOperationContext,
+                context -> {
+                    log.info("loading certs for mailAddresses finished: "+mailAddresses.stream().collect(Collectors.joining(",")));
+                },
+                (context, e) -> {
+                    log.error("error on loading certs for mailAddresses: "+mailAddresses.stream().collect(Collectors.joining(",")), e);
+                }
+            );
+
+            List<X509CertificateResult> certs = (List)defaultPipelineOperationContext.getEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_CERTS);
+            certs.stream().forEach(o -> certMap.put(o.getMailAddress(), o));
+
+            return true;
+        } catch (Exception e) {
+            log.error("error on loading certs for: " + smtpGatewaySession.getSessionID() + " - " + mailAddresses.stream().collect(Collectors.joining(",")), e);
+            smtpGatewaySession.log("error on loading certs for: " + smtpGatewaySession.getSessionID() + " - " + mailAddresses.stream().collect(Collectors.joining(",")));
+            return false;
+        }
+    }
+
+    private HookResult sendDsn(DefaultLogger logger, List<IErrorContext> errorContexts, MimeMessage originMessage, boolean senderContext) {
+        try {
+            Konfiguration konfiguration = logger.getDefaultLoggerContext().getKonfiguration();
             SendDsnOperation sendDsnOperation = (SendDsnOperation) pipelineService.getOperation(SendDsnOperation.BUILTIN_VENDOR+"."+SendDsnOperation.NAME);
 
-            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(smtpGatewaySession.getLogger());
-            defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_ERROR_CONTEXT, errorContext);
+            DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
+            defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_ERROR_CONTEXTS, errorContexts);
             defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_ORIGIN_MSG, originMessage);
-            defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_SMTP_GATEWAY_SESSION, smtpGatewaySession);
             defaultPipelineOperationContext.setEnvironmentValue(SendDsnOperation.NAME, SendDsnOperation.ENV_SENDER_CTX, senderContext);
 
             if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
@@ -117,20 +148,13 @@ public class SmtpGatewayMailHook implements MessageHook {
         }
     }
 
-    private byte[] signEncrypt(
-        DefaultLogger logger,
-        MimeMessage originMimeMessage,
-        List<X509CertificateResult> recipientCerts,
-        List<X509CertificateResult> fromSenderCerts
-    ) throws Exception {
+    private byte[] signEncrypt(DefaultLogger logger, MimeMessage originMimeMessage) throws Exception {
         Konnektor konnektor = logger.getDefaultLoggerContext().getKonnektor();
         try {
             SignEncryptMailOperation signEncryptMailOperation = (SignEncryptMailOperation) pipelineService.getOperation(SignEncryptMailOperation.BUILTIN_VENDOR+"."+SignEncryptMailOperation.NAME);
 
             DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             defaultPipelineOperationContext.setEnvironmentValue(SignEncryptMailOperation.NAME, SignEncryptMailOperation.ENV_ORIGIN_MIMEMESSAGE, originMimeMessage);
-            defaultPipelineOperationContext.setEnvironmentValue(SignEncryptMailOperation.NAME, SignEncryptMailOperation.ENV_RECIPIENT_CERTS, recipientCerts);
-            defaultPipelineOperationContext.setEnvironmentValue(SignEncryptMailOperation.NAME, SignEncryptMailOperation.ENV_FROM_SENDER_CERTS, fromSenderCerts);
 
             AtomicInteger failedCounter = new AtomicInteger();
             signEncryptMailOperation.execute(
@@ -169,74 +193,130 @@ public class SmtpGatewayMailHook implements MessageHook {
             MimeMessage message = new MimeMessage(Session.getInstance(new Properties()), new FileInputStream(tempMailFile));
             tempMailFile.delete();
 
-            String fromAddressStr = smtpGatewaySession.getFromAddressStr().toLowerCase();
             String msgContent = null;
             if (!logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
 
-                if (smtpGatewaySession.extractNoFailureCertRcpts().isEmpty() || !smtpGatewaySession.extractFailureCertRcpts().isEmpty()) {
+                //check sender
+                List<String> senderAddresses = List.of(logger.getDefaultLoggerContext().getSenderAddress());
+                if (!checkMailAddresses(smtpGatewaySession, logger.getDefaultLoggerContext().getSenderCerts(), senderAddresses, true, false)) {
                     smtpGatewaySession.getSmtpClient().rset();
-                    return sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressCertErrorContext(), message, false);
+                    smtpGatewaySession.log("mail hook ends - error");
+                    return HookResult.DENY;
+                }
+                if (logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isError(logger.getDefaultLoggerContext().getSenderAddress())) {
+                    smtpGatewaySession.getSmtpClient().rset();
+                    return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressCertErrorContext()), message, true);
+                }
+                if (logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isError(logger.getDefaultLoggerContext().getSenderAddress())) {
+                    smtpGatewaySession.getSmtpClient().rset();
+                    return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext()), message, true);
                 }
 
-                //add sender certs -> check kim version
-                List<X509CertificateResult> fromSenderCerts = new ArrayList<>();
-                try {
-                    //cert check 4 from address
-                    List<String> fromSenderAddress = new ArrayList<>();
-                    fromSenderAddress.add(fromAddressStr);
+                //check recipients
+                boolean senderInRecipients = logger.getDefaultLoggerContext().getRecipientAddresses().contains(logger.getDefaultLoggerContext().getSenderAddress());
+                if (senderInRecipients) {
+                    logger.getDefaultLoggerContext().getRecipientAddresses().remove(logger.getDefaultLoggerContext().getSenderAddress());
+                }
+                if (!checkMailAddresses(smtpGatewaySession, logger.getDefaultLoggerContext().getRecipientCerts(), logger.getDefaultLoggerContext().getRecipientAddresses(), false, true)) {
+                    smtpGatewaySession.getSmtpClient().rset();
+                    smtpGatewaySession.log("mail hook ends - error");
+                    return HookResult.DENY;
+                }
 
-                    smtpGatewaySession.log("load certs for from: " + fromAddressStr);
+                //check errors
+                if (logger.getDefaultLoggerContext().extractNoFailureCertRcpts().isEmpty() && !logger.getDefaultLoggerContext().extractFailureCertRcpts().isEmpty()) {
+                    smtpGatewaySession.getSmtpClient().rset();
+                    return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressCertErrorContext()), message, false);
+                }
+                if (logger.getDefaultLoggerContext().extractNoFailureKimVersionRcpts().isEmpty() && !logger.getDefaultLoggerContext().extractFailureKimVersionRcpts().isEmpty()) {
+                    smtpGatewaySession.getSmtpClient().rset();
+                    return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext()), message, false);
+                }
+                if (senderInRecipients) {
+                    logger.getDefaultLoggerContext().getRecipientCerts().put(logger.getDefaultLoggerContext().getSenderAddress(), logger.getDefaultLoggerContext().getSenderCerts().get(logger.getDefaultLoggerContext().getSenderAddress()));
+                }
 
-                    LoadVzdCertsOperation loadVzdCertsOperation = (LoadVzdCertsOperation) pipelineService.getOperation(LoadVzdCertsOperation.BUILTIN_VENDOR+"."+LoadVzdCertsOperation.NAME);
+                List<IErrorContext> errorContexts = new ArrayList();
+                if (!logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isEmpty()) {
+                    errorContexts.add(logger.getDefaultLoggerContext().getMailaddressCertErrorContext());
+                }
+                if (!logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isEmpty()) {
+                    errorContexts.add(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext());
+                }
+
+                //send rcpt to
+                boolean successfulRcptTo = false;
+                for (Iterator<String> iterator = logger.getDefaultLoggerContext().getRecipientCerts().keySet().iterator(); iterator.hasNext(); ) {
+                    String rcptAddress = iterator.next();
+                    if (logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isError(rcptAddress)) {
+                        continue;
+                    }
+                    if (logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isError(rcptAddress)) {
+                        continue;
+                    }
+                    int res = ((SmtpGatewaySession) session).getSmtpClient().rcpt("<" + rcptAddress + ">");
+                    if (!SMTPReply.isPositiveCompletion(res)) {
+                        logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext().add(rcptAddress, EnumErrorCode.CODE_X024);
+                    }
+                    else {
+                        successfulRcptTo = true;
+                    }
+                }
+
+                if (!successfulRcptTo) {
+                    errorContexts.add(logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext());
+                    smtpGatewaySession.getSmtpClient().rset();
+                    return sendDsn(logger, errorContexts, message, false);
+                }
+
+                if (!logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext().isEmpty()) {
+                    errorContexts.add(logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext());
+                }
+
+                //kas handling
+                if (logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
+                    KasOutgoingMailOperation kasOutgoingMailOperation = (KasOutgoingMailOperation) pipelineService.getOperation(KasOutgoingMailOperation.BUILTIN_VENDOR+"."+KasOutgoingMailOperation.NAME);
                     DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
-                    defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_ADDRESSES, fromSenderAddress);
-                    defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_SEARCH_BASE, logger.getDefaultLoggerContext().getKonnektor().getVzdSearchBase());
-                    defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_SENDER_ADRESSES, true);
-                    defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_RCPT_ADRESSES, false);
+                    defaultPipelineOperationContext.setEnvironmentValue(KasOutgoingMailOperation.NAME, KasOutgoingMailOperation.ENV_MSG, message);
+                    defaultPipelineOperationContext.setEnvironmentValue(KasOutgoingMailOperation.NAME, KasOutgoingMailOperation.ENV_SMTP_GATEWAY_SESSION, smtpGatewaySession);
 
-                    loadVzdCertsOperation.execute(
+                    kasOutgoingMailOperation.execute(
                         defaultPipelineOperationContext,
                         context -> {
-                            log.info("loading certs for from-address finished");
+                            log.info("handle kas finished");
                         },
                         (context, e) -> {
-                            log.error("error on loading certs for from-address", e);
+                            log.error("error on handling of kas", e);
                         }
                     );
-                    smtpGatewaySession.log("load certs ending for sender: " + fromAddressStr);
-
-                    if (logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isError(fromAddressStr)) {
-                        return sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressCertErrorContext(), message, true);
+                    if (logger.getDefaultLoggerContext().extractNoFailureKimVersionRcpts().isEmpty() && !logger.getDefaultLoggerContext().extractFailureKimVersionRcpts().isEmpty()) {
+                        smtpGatewaySession.getSmtpClient().rset();
+                        return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext()), message, false);
                     }
-                    if (logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isError(fromAddressStr)) {
-                        return sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext(), message, true);
-                    }
-
-                    List certs = (List)defaultPipelineOperationContext.getEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_CERTS);
-                    fromSenderCerts.addAll(certs);
-
-                } catch (Exception e) {
-                    log.error("error on loading sender cert for: " + session.getSessionID() + " - " + fromAddressStr, e);
-                    smtpGatewaySession.log("error on loading sender cert for: " + session.getSessionID() + " - " + fromAddressStr);
-
-                    smtpGatewaySession.getSmtpClient().rset();
-
-                    if (logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isError(fromAddressStr)) {
-                        sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressCertErrorContext(), message, true);
-                    }
-                    if (logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isError(fromAddressStr)) {
-                        sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext(), message, true);
+                    if (!logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isEmpty() && !errorContexts.contains(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext())) {
+                        errorContexts.add(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext());
                     }
 
-                    return HookResult.DENYSOFT;
+                    boolean valid = (boolean)defaultPipelineOperationContext.getEnvironmentValue(KasOutgoingMailOperation.NAME, KasOutgoingMailOperation.ENV_VALID_RESULT);
+                    if (!valid) {
+                        smtpGatewaySession.getSmtpClient().rset();
+                        throw new IllegalStateException("error on handling of kas: "+smtpGatewaySession.getSessionID());
+                    }
+                    message = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(KasOutgoingMailOperation.NAME, KasOutgoingMailOperation.ENV_RESULT_MSG);
+                }
+
+                //send dsn for errors
+                if (!errorContexts.isEmpty()) {
+                    HookResult hookResult = sendDsn(logger, errorContexts, message, false);
+                    if (hookResult.equals(HookResult.DENY)) {
+                        return hookResult;
+                    }
                 }
 
                 //check origin message
                 CheckSendingMailOperation checkSendingMailOperation = (CheckSendingMailOperation) pipelineService.getOperation(CheckSendingMailOperation.BUILTIN_VENDOR+"."+CheckSendingMailOperation.NAME);
                 DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
                 defaultPipelineOperationContext.setEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_MSG, message);
-                defaultPipelineOperationContext.setEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_RECIPIENT_CERTS, smtpGatewaySession.getRecipientCerts());
-                defaultPipelineOperationContext.setEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_SENDER_ADDRESS, fromAddressStr);
 
                 checkSendingMailOperation.execute(
                     defaultPipelineOperationContext,
@@ -251,28 +331,18 @@ public class SmtpGatewayMailHook implements MessageHook {
                 boolean valid = (boolean)defaultPipelineOperationContext.getEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_VALID_RESULT);
                 if (!valid || !logger.getDefaultLoggerContext().getMailSignEncryptErrorContext().isEmpty()) {
                     smtpGatewaySession.getSmtpClient().rset();
-                    return sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailSignEncryptErrorContext(), message, false);
+                    return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailSignEncryptErrorContext()), message, false);
                 }
+                message = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(CheckSendingMailOperation.NAME, CheckSendingMailOperation.ENV_RESULT_MSG);
 
-                /*
-                -> will be implemented later
-                message = kasService.executeOutgoing(logger, message, smtpGatewaySession);
-                if (smtpGatewaySession.extractNoFailureKimVersionRcpts().isEmpty()) {
-                    smtpGatewaySession.getSmtpClient().rset();
-                    mailService.sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext(), false, message);
-                    return HookResult.DENYSOFT;
-                }
-                */
-
+                //sign and encrpyt
                 byte[] msgBytes = signEncrypt(
                     logger,
-                    message,
-                    smtpGatewaySession.getRecipientCerts(),
-                    fromSenderCerts
+                    message
                 );
                 if (!logger.getDefaultLoggerContext().getMailSignEncryptErrorContext().isEmpty()) {
                     smtpGatewaySession.getSmtpClient().rset();
-                    return sendDsn(smtpGatewaySession, logger.getDefaultLoggerContext().getMailSignEncryptErrorContext(), message, false);
+                    return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailSignEncryptErrorContext()), message, false);
                 }
 
                 msgContent = new String(msgBytes);

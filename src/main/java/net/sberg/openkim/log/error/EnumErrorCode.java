@@ -67,7 +67,8 @@ public enum EnumErrorCode {
     CODE_X020("X020", "Beim Überprüfen des Encrypt-Formats der Mail ist ein unbekannter Fehler aufgetreten"),
     CODE_X021("X021", "Die Karte für das Entschlüsseln konnte nicht gefunden werden"),
     CODE_X022("X022", "CertIssuerAndSerialNumber in ContentInfo konnte für die Empfänger-Adresse nicht gefunden werden"),
-    CODE_X023("X023", "Verschlüsselte Mail konnte nicht extrahiert werden und der signed Inhalt nicht geparst werden");
+    CODE_X023("X023", "Verschlüsselte Mail konnte nicht extrahiert werden und der signed Inhalt nicht geparst werden"),
+    CODE_X024("X024", "Der SMTP-Befehl RCPT-TO für den Empfänger ist fehlgeschlagen");
 
     private final String hrText;
     private String id;

@@ -14,21 +14,23 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.kas;
+package net.sberg.openkim.pipeline.operation.mail.kas;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public class KasServiceException extends Exception {
 
-@Data
-@NoArgsConstructor(force = true, access = AccessLevel.PUBLIC)
-@AllArgsConstructor
-public class KasMetaObj {
-    private String name;
-    private String link;
-    private String k;
-    private String hash;
-    private int size;
-    private String type;
+    private final EnumKasServiceErrorCode code;
+
+    protected KasServiceException(EnumKasServiceErrorCode code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    protected KasServiceException(EnumKasServiceErrorCode code, String message, Throwable cause) {
+        super(message, cause);
+        this.code = code;
+    }
+
+    public EnumKasServiceErrorCode getCode() {
+        return this.code;
+    }
 }

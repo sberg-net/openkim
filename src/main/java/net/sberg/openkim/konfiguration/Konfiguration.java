@@ -22,6 +22,7 @@ import lombok.Data;
 import net.sberg.openkim.common.StringUtils;
 import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.konnektor.Konnektor;
+import net.sberg.openkim.pipeline.operation.konnektor.vzd.EnumKomLeVersion;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class Konfiguration {
 
     private String xkimCmVersion = "OpenKIM_0.15.1";
     private String xkimPtVersion = "1.5.0-2";
-    private String xkimPtShortVersion = "1.5";
+    private EnumKomLeVersion xkimPtShortVersion = EnumKomLeVersion.V1_5plus;
 
     private List<Konnektor> konnektoren = new ArrayList<>();
 

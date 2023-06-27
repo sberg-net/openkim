@@ -22,13 +22,9 @@ import com.google.common.collect.ImmutableSet;
 import net.sberg.openkim.gateway.smtp.AbstractGatewayHookableCmdHandler;
 import net.sberg.openkim.gateway.smtp.EnumSmtpGatewayState;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
-import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.pipeline.PipelineService;
-import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
-import net.sberg.openkim.pipeline.operation.konnektor.vzd.LoadVzdCertsOperation;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.core.MailAddress;
 import org.apache.james.core.MaybeSender;
 import org.apache.james.protocols.api.ProtocolSession;
@@ -99,50 +95,11 @@ public class SmtpGatewayRcptCmdHandler extends AbstractGatewayHookableCmdHandler
                 response.append(DSNStatus.getStatus(5, "7.0")).append(" Authentication required");
                 ((SmtpGatewaySession) session).log("rcpt ends - error");
                 return new SMTPResponse("530", response);
-            } else {
-
+            }
+            else {
                 DefaultLoggerContext loggerContext = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext();
-
-                if (!loggerContext.getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
-                    try {
-                        ((SmtpGatewaySession) session).log("load certs for rcpt");
-
-                        LoadVzdCertsOperation loadVzdCertsOperation = (LoadVzdCertsOperation) pipelineService.getOperation(LoadVzdCertsOperation.BUILTIN_VENDOR+"."+LoadVzdCertsOperation.NAME);
-                        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(((SmtpGatewaySession) session).getLogger());
-                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_ADDRESSES, new ArrayList<>(List.of(recipientAddress.asString().toLowerCase())));
-                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_SEARCH_BASE, loggerContext.getKonnektor().getVzdSearchBase());
-                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_SENDER_ADRESSES, false);
-                        defaultPipelineOperationContext.setEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_LOAD_RCPT_ADRESSES, true);
-
-                        loadVzdCertsOperation.execute(
-                            defaultPipelineOperationContext,
-                            context -> {
-                                List rcptCerts = (List)defaultPipelineOperationContext.getEnvironmentValue(LoadVzdCertsOperation.NAME, LoadVzdCertsOperation.ENV_VZD_CERTS);
-                                ((SmtpGatewaySession) session).getRecipientCerts().addAll(rcptCerts);
-                                ((SmtpGatewaySession) session).log("load certs ending for rcpt");
-                            },
-                            (context, e) -> {
-                                log.error("error on loading rcpt-address: "+recipientAddress.asString().toLowerCase(), e);
-                            }
-                        );
-
-                        if (loadVzdCertsOperation.hasError(defaultPipelineOperationContext, LoadVzdCertsOperation.NAME) || loggerContext.getMailaddressCertErrorContext().isError(recipientAddress.asString().toLowerCase())) {
-                            return MAILBOX_PERM_UNAVAILABLE;
-                        }
-                    } catch (Exception e) {
-                        ((SmtpGatewaySession) session).log("rcpt certs not available");
-                        return MAILBOX_PERM_UNAVAILABLE;
-                    }
-                }
-
-                int res = ((SmtpGatewaySession) session).getSmtpClient().rcpt("<" + recipientAddress.asString().toLowerCase() + ">");
-                if (!SMTPReply.isPositiveCompletion(res)) {
-                    response.append(" Recipient <")
-                        .append(recipientAddress)
-                        .append("> ")
-                        .append(((SmtpGatewaySession) session).getSmtpClient().getReplyString());
-                    ((SmtpGatewaySession) session).log("rcpt ends - error");
-                    return new SMTPResponse(String.valueOf(res), response);
+                if (!loggerContext.getRecipientAddresses().contains(recipientAddress.asString().toLowerCase())) {
+                    loggerContext.getRecipientAddresses().add(recipientAddress.asString().toLowerCase());
                 }
             }
         } catch (Exception e) {

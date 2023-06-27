@@ -114,7 +114,7 @@ public class KonnektorLoadAllCardInformationOperation implements IPipelineOperat
                                 //request telematikid
                                 if (KonnektorWebserviceUtils.interestingCardTypes.contains(cardInfoType.getCardType().value())) {
                                     defaultPipelineOperationContext.setEnvironmentValue(ReadCardCertificateOperation.NAME, ReadCardCertificateOperation.ENV_CARDHANDLE, cardInfoType.getCardHandle());
-                                    defaultPipelineOperationContext.setEnvironmentValue(ReadCardCertificateOperation.NAME, ReadCardCertificateOperation.ENV_CERT_REFS, List.of(KonnektorWebserviceUtils.CERT_REF_ENC));
+                                    defaultPipelineOperationContext.setEnvironmentValue(ReadCardCertificateOperation.NAME, ReadCardCertificateOperation.ENV_CERT_REFS, KonnektorWebserviceUtils.CERT_REF_ENC);
                                     readCardCertificateOperation.execute(
                                         defaultPipelineOperationContext,
                                         readCardCertificateOperationContext -> {

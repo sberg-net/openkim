@@ -132,7 +132,7 @@ public class MailPartContent {
     }
 
     public List<MailPartContent> collectAllXKasParts(List<MailPartContent> result) throws Exception {
-        if (mimePartDispositionType.equals(EnumMailPartDispositionType.Xkas)) {
+        if (mimePartDispositionType.equals(EnumMailPartDispositionType.Xkas) && mimePartContentType.equals(EnumMailPartContentType.Text)) {
             result.add(this);
         }
         for (Iterator<MailPartContent> iterator = children.iterator(); iterator.hasNext(); ) {

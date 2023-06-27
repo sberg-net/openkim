@@ -14,13 +14,14 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.kas;
+package net.sberg.openkim.pipeline.operation.mail.kas;
 
 public enum EnumKasServiceErrorCode {
     technical("Technischer Fehler"),
     notAttachmentSizeExceded("Größe der Mail ohne Attachments zu groß"),
+    attachmentIncorrectTypeAndDisposition("Mail enthält Attachments mit Content-Type: text/plain;charset=utf-8 sowie ein Content-Disposition: x-kas"),
     kasQuotaReached("Quota-Überschreitung auf dem Kas-Server für den Account"),
-    readAttachmentFromMail("Fehler beim Lesen des Attachments von der Mail"),
+    readBinariesFromMail("Fehler beim Lesen der Binaries von der Mail"),
     encryptAttachment("Fehler beim Verschlüsseln des Anhangs"),
     sendAttachment("Fehler beim Senden des Anhangs"),
     sendAttachmentBadRequest("Fehler beim Senden des Anhangs - BAD_REQUEST"),
@@ -35,7 +36,7 @@ public enum EnumKasServiceErrorCode {
     readAttachmentNotFound("Fehler beim Herunterladen des Anhangs - NOT_FOUND"),
     readAttachmentTooManyRequests("Fehler beim Herunterladen des Anhangs - TOO_MANY_REQUESTS"),
     readAttachmentInternalServerError("Fehler beim Herunterladen des Anhangs - INTERNAL_SERVER_ERROR"),
-    creatingOriginalMimebodypart("Fehler beim Erstellen des originalen MimeBodyParts"),
+    creatingOriginalMimemessage("Fehler beim Erstellen der originalen Mail"),
     decryptAttachment("Fehler beim Entschlüsseln des Anhangs"),
     checkHashPlainAttachment("Fehler beim Checken und Vergleichen des Hashwertes des Plain-Anhangs"),
     unknown("unbekannt");

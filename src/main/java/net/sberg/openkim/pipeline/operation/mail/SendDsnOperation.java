@@ -18,7 +18,6 @@ package net.sberg.openkim.pipeline.operation.mail;
 
 import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
-import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
@@ -49,10 +48,9 @@ public class SendDsnOperation implements IPipelineOperation  {
     private static final Logger log = LoggerFactory.getLogger(SendDsnOperation.class);
     public static final String NAME = "SendDsn";
 
-    public static final String ENV_ERROR_CONTEXT = "errorContext";
+    public static final String ENV_ERROR_CONTEXTS = "errorContexts";
     public static final String ENV_ORIGIN_MSG = "originMessage";
     public static final String ENV_SENDER_CTX = "senderContext";
-    public static final String ENV_SMTP_GATEWAY_SESSION = "smtpGatewaySession";
     public static final String ENV_SSL_CONTEXT = "sslContext";
 
     @Override
@@ -80,128 +78,117 @@ public class SendDsnOperation implements IPipelineOperation  {
 
             MimeMessage mimeMessage = null;
 
-            IErrorContext errorContext = (IErrorContext) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ERROR_CONTEXT);
+            List<IErrorContext> errorContexts = (List<IErrorContext>) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ERROR_CONTEXTS);
             MimeMessage originMessage = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ORIGIN_MSG);
-            SmtpGatewaySession smtpGatewaySession = (SmtpGatewaySession) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SMTP_GATEWAY_SESSION);
             boolean senderContext = (boolean) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SENDER_CTX);
             SSLContext sslContext = (SSLContext) defaultPipelineOperationContext.getEnvironmentValue(SendDsnOperation.NAME, ENV_SSL_CONTEXT);
 
-            if (errorContext instanceof MailSignEncryptErrorContext) {
+            StringBuilder contentBuilder = new StringBuilder();
+            List<EnumErrorCode> errorCodes = new ArrayList<>();
 
-                List<EnumErrorCode> codes = ((MailSignEncryptErrorContext) errorContext).getErrorCodes();
+            for (Iterator<IErrorContext> iterator = errorContexts.iterator(); iterator.hasNext(); ) {
+                IErrorContext errorContext = iterator.next();
 
-                StringBuilder contentBuilder = new StringBuilder();
-                contentBuilder.append("Es sind Fehler beim Signieren und Verschlüsseln der Mail aufgetreten.\r\n");
-                for (Iterator<EnumErrorCode> iterator = codes.iterator(); iterator.hasNext(); ) {
-                    EnumErrorCode code = iterator.next();
-                    contentBuilder.append(code.getId()).append(" - ").append(code.getHrText()).append("\r\n");
+                if (errorContext instanceof MailSignEncryptErrorContext) {
+                    List<EnumErrorCode> codes = ((MailSignEncryptErrorContext) errorContext).getErrorCodes();
+                    contentBuilder.append("Es sind Fehler beim Signieren und Verschlüsseln der Mail aufgetreten.\r\n");
+                    for (Iterator<EnumErrorCode> iterator2 = codes.iterator(); iterator2.hasNext(); ) {
+                        EnumErrorCode code = iterator2.next();
+                        contentBuilder.append(code.getId()).append(" - ").append(code.getHrText()).append("\r\n");
+                        errorCodes.add(code);
+                    }
                 }
-                mimeMessage = DsnHelper.createMessage(
-                        originMessage,
-                        smtpGatewaySession.getFromAddressStr(),
-                        contentBuilder.toString(),
-                        "",
-                        "",
-                        "failed",
-                        originMessage.getSubject(),
-                        konfiguration.getXkimCmVersion(),
-                        konfiguration.getXkimCmVersion()
-                );
-                for (Iterator<EnumErrorCode> iterator = codes.iterator(); iterator.hasNext(); ) {
-                    EnumErrorCode code = iterator.next();
-                    mimeMessage.addHeader(MailUtils.X_KIM_FEHLERMELDUNG, code.getId());
+                else if (errorContext instanceof MailaddressRcptToErrorContext) {
+                    Map<String, EnumErrorCode> codes = ((MailaddressRcptToErrorContext) errorContext).getAddressErrors();
+                    contentBuilder.append("Es sind Fehler beim Absenden des RCPT TO SMTP-Befehls aufgetreten.\r\n");
+                    for (Iterator<String> iterator2 = codes.keySet().iterator(); iterator2.hasNext(); ) {
+                        String rcptAddress = iterator2.next();
+                        EnumErrorCode code = codes.get(rcptAddress);
+                        contentBuilder.append(rcptAddress).append(" - ").append(code.getId()).append(" - ").append(code.getHrText()).append("\r\n");
+                        errorCodes.add(code);
+                    }
                 }
-            }
-            else if (senderContext) {
+                else if (senderContext) {
 
-                String senderAddress = null;
-                List<EnumErrorCode> codes = null;
+                    String senderAddress = null;
+                    List<EnumErrorCode> codes = null;
 
-                if (errorContext instanceof MailaddressCertErrorContext) {
-                    senderAddress = ((MailaddressCertErrorContext) errorContext).getFromSenderAddresses().get(0);
-                    codes = ((MailaddressCertErrorContext) errorContext).getAddressErrors().get(senderAddress);
-                } else if (errorContext instanceof MailaddressKimVersionErrorContext) {
-                    senderAddress = ((MailaddressCertErrorContext) errorContext).getFromSenderAddresses().get(0);
-                    codes = ((MailaddressCertErrorContext) errorContext).getAddressErrors().get(senderAddress);
-                }
+                    if (errorContext instanceof MailaddressCertErrorContext) {
+                        senderAddress = ((MailaddressCertErrorContext) errorContext).getFromSenderAddresses().get(0);
+                        codes = ((MailaddressCertErrorContext) errorContext).getAddressErrors().get(senderAddress);
+                    }
+                    else if (errorContext instanceof MailaddressKimVersionErrorContext) {
+                        senderAddress = ((MailaddressCertErrorContext) errorContext).getFromSenderAddresses().get(0);
+                        codes = ((MailaddressCertErrorContext) errorContext).getAddressErrors().get(senderAddress);
+                    }
 
-                StringBuilder contentBuilder = new StringBuilder();
-                contentBuilder
+                    contentBuilder
                         .append("Die Mail konnte nicht versandt werden. Für den Sender ")
                         .append(senderAddress)
                         .append(" wurden beim Versand Probleme festgestellt.\r\n");
-                for (Iterator<EnumErrorCode> iterator = codes.iterator(); iterator.hasNext(); ) {
-                    EnumErrorCode code = iterator.next();
-                    contentBuilder.append(code.getId()).append(" - ").append(code.getHrText()).append("\r\n");
-                }
-                mimeMessage = DsnHelper.createMessage(
-                        originMessage,
-                        smtpGatewaySession.getFromAddressStr(),
-                        contentBuilder.toString(),
-                        "",
-                        "",
-                        "failed",
-                        originMessage.getSubject(),
-                        konfiguration.getXkimCmVersion(),
-                        konfiguration.getXkimCmVersion()
-                );
-                for (Iterator<EnumErrorCode> iterator = codes.iterator(); iterator.hasNext(); ) {
-                    EnumErrorCode code = iterator.next();
-                    mimeMessage.addHeader(MailUtils.X_KIM_FEHLERMELDUNG, code.getId());
-                }
-            } else {
 
-                List<String> rcptAddresses = null;
-                Map<String, List<EnumErrorCode>> addressErrors = null;
-
-                if (errorContext instanceof MailaddressCertErrorContext) {
-                    rcptAddresses = ((MailaddressCertErrorContext) errorContext).getRcptAddresses();
-                    addressErrors = ((MailaddressCertErrorContext) errorContext).getAddressErrors();
-                } else if (errorContext instanceof MailaddressKimVersionErrorContext) {
-                    rcptAddresses = ((MailaddressKimVersionErrorContext) errorContext).getRcptAddresses();
-                    addressErrors = ((MailaddressKimVersionErrorContext) errorContext).getAddressErrors();
-                }
-
-                StringBuilder contentBuilder = new StringBuilder();
-                if (smtpGatewaySession.extractNoFailureCertRcpts().isEmpty() && !smtpGatewaySession.extractFailureCertRcpts().isEmpty()) {
-                    contentBuilder.append("Die Mail konnte nicht versandt werden. Für alle Empfänger wurden beim Versand Probleme festgestellt:\r\n");
-                }
-                if (!smtpGatewaySession.extractNoFailureCertRcpts().isEmpty() && !smtpGatewaySession.extractFailureCertRcpts().isEmpty()) {
-                    contentBuilder.append("Die Mail konnte versandt werden. Für einige Empfänger wurden beim Versand Probleme festgestellt:\r\n");
-                }
-                contentBuilder.append(String.join(",", rcptAddresses));
-                contentBuilder.append("\r\n");
-
-                List<EnumErrorCode> codes = new ArrayList<>();
-                for (Iterator<String> iterator = rcptAddresses.iterator(); iterator.hasNext(); ) {
-                    String address = iterator.next();
-                    List<EnumErrorCode> addressCodes = addressErrors.get(address);
-                    for (Iterator<EnumErrorCode> enumErrorCodeIterator = addressCodes.iterator(); enumErrorCodeIterator.hasNext(); ) {
-                        EnumErrorCode code = enumErrorCodeIterator.next();
-                        if (!codes.contains(code)) {
-                            codes.add(code);
-                        }
+                    for (Iterator<EnumErrorCode> iterator2 = codes.iterator(); iterator2.hasNext(); ) {
+                        EnumErrorCode code = iterator2.next();
+                        contentBuilder.append(code.getId()).append(" - ").append(code.getHrText()).append("\r\n");
+                        errorCodes.add(code);
                     }
                 }
-                for (Iterator<EnumErrorCode> iterator = codes.iterator(); iterator.hasNext(); ) {
-                    EnumErrorCode code = iterator.next();
-                    contentBuilder.append(code.getId()).append(" - ").append(code.getHrText()).append("\r\n");
+                else {
+
+                    List<String> rcptAddresses = null;
+                    Map<String, List<EnumErrorCode>> addressErrors = null;
+
+                    if (errorContext instanceof MailaddressCertErrorContext) {
+                        rcptAddresses = ((MailaddressCertErrorContext) errorContext).getRcptAddresses();
+                        addressErrors = ((MailaddressCertErrorContext) errorContext).getAddressErrors();
+                    }
+                    else if (errorContext instanceof MailaddressKimVersionErrorContext) {
+                        rcptAddresses = ((MailaddressKimVersionErrorContext) errorContext).getRcptAddresses();
+                        addressErrors = ((MailaddressKimVersionErrorContext) errorContext).getAddressErrors();
+                    }
+
+                    if (logger.getDefaultLoggerContext().extractNoFailureCertRcpts().isEmpty() && !logger.getDefaultLoggerContext().extractFailureCertRcpts().isEmpty()) {
+                        contentBuilder.append("Die Mail konnte nicht versandt werden. Für alle Empfänger wurden beim Versand Probleme festgestellt:\r\n");
+                    }
+                    if (!logger.getDefaultLoggerContext().extractNoFailureCertRcpts().isEmpty() && !logger.getDefaultLoggerContext().extractFailureCertRcpts().isEmpty()) {
+                        contentBuilder.append("Die Mail konnte versandt werden. Für einige Empfänger wurden beim Versand Probleme festgestellt:\r\n");
+                    }
+                    contentBuilder.append(String.join(",", rcptAddresses));
+                    contentBuilder.append("\r\n");
+
+                    List<EnumErrorCode> codes = new ArrayList<>();
+                    for (Iterator<String> iterator2 = rcptAddresses.iterator(); iterator2.hasNext(); ) {
+                        String address = iterator2.next();
+                        List<EnumErrorCode> addressCodes = addressErrors.get(address);
+                        for (Iterator<EnumErrorCode> enumErrorCodeIterator = addressCodes.iterator(); enumErrorCodeIterator.hasNext(); ) {
+                            EnumErrorCode code = enumErrorCodeIterator.next();
+                            if (!codes.contains(code)) {
+                                codes.add(code);
+                            }
+                        }
+                    }
+                    for (Iterator<EnumErrorCode> iterator2 = codes.iterator(); iterator2.hasNext(); ) {
+                        EnumErrorCode code = iterator2.next();
+                        contentBuilder.append(code.getId()).append(" - ").append(code.getHrText()).append("\r\n");
+                        errorCodes.add(code);
+                    }
                 }
-                mimeMessage = DsnHelper.createMessage(
-                        originMessage,
-                        smtpGatewaySession.getFromAddressStr(),
-                        contentBuilder.toString(),
-                        "",
-                        "",
-                        "failed",
-                        originMessage.getSubject(),
-                        konfiguration.getXkimCmVersion(),
-                        konfiguration.getXkimCmVersion()
-                );
-                for (Iterator<EnumErrorCode> iterator = codes.iterator(); iterator.hasNext(); ) {
-                    EnumErrorCode code = iterator.next();
-                    mimeMessage.addHeader(MailUtils.X_KIM_FEHLERMELDUNG, code.getId());
-                }
+            }
+
+            mimeMessage = DsnHelper.createMessage(
+                originMessage,
+                logger.getDefaultLoggerContext().getSenderAddress(),
+                contentBuilder.toString(),
+                "",
+                "",
+                "failed",
+                originMessage.getSubject(),
+                konfiguration.getXkimCmVersion(),
+                konfiguration.getXkimCmVersion()
+            );
+            for (Iterator<EnumErrorCode> iterator = errorCodes.iterator(); iterator.hasNext(); ) {
+                EnumErrorCode code = iterator.next();
+                mimeMessage.addHeader(MailUtils.X_KIM_FEHLERMELDUNG, code.getId());
             }
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -225,8 +212,8 @@ public class SendDsnOperation implements IPipelineOperation  {
             logger.logLine("dsn sending - smtp auth: " + res);
             if (res) {
                 String content = byteArrayOutputStream.toString();
-                String[] recs = new String[]{smtpGatewaySession.getFromAddressStr()};
-                res = client.sendSimpleMessage(smtpGatewaySession.getFromAddressStr(), recs, content);
+                String[] recs = new String[]{logger.getDefaultLoggerContext().getSenderAddress()};
+                res = client.sendSimpleMessage(logger.getDefaultLoggerContext().getSenderAddress(), recs, content);
                 logger.logLine("dsn sending - smtp sent: " + res);
             }
 

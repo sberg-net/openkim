@@ -80,7 +80,7 @@
     </div>
 </div>
 <!-- verifyPin -->
-<div class="row">
+<div class="row border-dark border-top">
     <div class="col-12 p-0">
         <form id="verifyPinForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
 
@@ -95,16 +95,16 @@
                             <h5 class="card-title">Verifizieren einer PIN</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="cardHandle">Karten-Handle</label>
-                                <input type="text" class="form-control" name="cardHandle" required>
+                                <label for="VerifyPin.cardHandle">Karten-Handle</label>
+                                <input type="text" class="form-control" name="VerifyPin.cardHandle" id="VerifyPin.cardHandle" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>
                             </div>
 
                             <div class="form-group needs-validation">
-                                <label for="pinTyp">PIN-Typ</label>
-                                <input type="text" class="form-control" name="pinTyp" required>
+                                <label for="VerifyPin.pinTyp">PIN-Typ</label>
+                                <input type="text" class="form-control" name="VerifyPin.pinTyp" id="VerifyPin.pinTyp" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>

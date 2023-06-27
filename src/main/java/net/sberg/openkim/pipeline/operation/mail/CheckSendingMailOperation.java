@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -45,8 +46,6 @@ public class CheckSendingMailOperation implements IPipelineOperation  {
 
     public static final String ENV_MSG = "msg";
     public static final String ENV_VALID_RESULT = "validResult";
-    public static final String ENV_RECIPIENT_CERTS = "recipientCerts";
-    public static final String ENV_SENDER_ADDRESS = "senderAddress";
     public static final String ENV_RESULT_MSG = "resultMsg";
 
     @Override
@@ -72,20 +71,21 @@ public class CheckSendingMailOperation implements IPipelineOperation  {
             timeMetric = metricFactory.timer(NAME);
 
             MimeMessage message = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MSG);
-            List<X509CertificateResult> recipientCerts = (List<X509CertificateResult>) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_RECIPIENT_CERTS);
-            String senderAddress = (String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SENDER_ADDRESS);
+            List<X509CertificateResult> recipientCerts = new ArrayList<>(logger.getDefaultLoggerContext().getRecipientCerts().values());
+            String senderAddress = logger.getDefaultLoggerContext().getSenderAddress();
 
             if (message.getFrom() == null || message.getFrom().length == 0) {
                 logger.logLine("no from header available for senderAddress: " + senderAddress);
                 defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_EXCEPTION, new IllegalStateException("no from header available for senderAddress: " + senderAddress));
-            } else if (message.getFrom().length > 1) {
+            }
+            else if (message.getFrom().length > 1) {
                 logger.logLine("more than one from header available for senderAddress: " + senderAddress);
                 defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_EXCEPTION, new IllegalStateException("more than one from header available for senderAddress: " + senderAddress));
             }
 
             InternetAddress from = (message.getFrom() != null && message.getFrom().length > 0)
-                    ? (InternetAddress) message.getFrom()[0]
-                    : null;
+                ? (InternetAddress) message.getFrom()[0]
+                : null;
 
             //reply to handling
             InternetAddress replyTo = null;
@@ -125,8 +125,8 @@ public class CheckSendingMailOperation implements IPipelineOperation  {
             timeMetric.stopAndPublish();
 
             if (hasError(defaultPipelineOperationContext, new String[] {NAME})) {
-                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException("failed state"));
                 defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_VALID_RESULT, false);
+                failConsumer.accept(defaultPipelineOperationContext, new IllegalStateException("failed state"));
             }
             else {
                 defaultPipelineOperationContext.setEnvironmentValue(NAME, ENV_VALID_RESULT, true);

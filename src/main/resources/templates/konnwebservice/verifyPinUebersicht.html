@@ -31,18 +31,18 @@
                             <h5 class="card-title">Verifizieren einer PIN</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="cardHandle">Karten-Handle</label>
+                                <label for="VerifyPin.cardHandle">Karten-Handle</label>
                                 <input type="text" th:value="${serviceBean['cardHandle']}" class="form-control"
-                                       id="cardHandle" name="cardHandle" required>
+                                       id="VerifyPin.cardHandle" name="VerifyPin.cardHandle" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>
                             </div>
 
                             <div class="form-group needs-validation">
-                                <label for="pinTyp">PIN-Typ</label>
+                                <label for="VerifyPin.pinTyp">PIN-Typ</label>
                                 <input type="text" th:value="${serviceBean['pinTyp']}" class="form-control"
-                                       id="pinTyp" name="pinTyp" required>
+                                       id="VerifyPin.pinTyp" name="VerifyPin.pinTyp" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>

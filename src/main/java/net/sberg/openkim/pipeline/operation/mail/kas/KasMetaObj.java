@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.kas;
+package net.sberg.openkim.pipeline.operation.mail.kas;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,8 +24,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor(force = true, access = AccessLevel.PUBLIC)
 @AllArgsConstructor
-public class KasMetaObjError {
-    private String name;
-    private int size;
-    private String type;
+public class KasMetaObj {
+    private String link;
+    private String k;
+    private String hash;
+    private double size;
 }

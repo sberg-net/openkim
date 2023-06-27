@@ -56,8 +56,6 @@ public class SignEncryptMailOperation implements IPipelineOperation  {
     public static final String NAME = "SignEncryptMail";
 
     public static final String ENV_ORIGIN_MIMEMESSAGE = "originMimeMessage";
-    public static final String ENV_RECIPIENT_CERTS = "recipientCerts";
-    public static final String ENV_FROM_SENDER_CERTS = "fromSenderCerts";
     public static final String ENV_RESULT_MSG_BYTES = "resultMsgBytes";
 
     @Autowired
@@ -93,8 +91,8 @@ public class SignEncryptMailOperation implements IPipelineOperation  {
             timeMetric = metricFactory.timer(NAME);
 
             MimeMessage originMimeMessage = (MimeMessage)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ORIGIN_MIMEMESSAGE);
-            List<X509CertificateResult> recipientCerts = (List<X509CertificateResult>)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_RECIPIENT_CERTS);
-            List<X509CertificateResult> fromSenderCerts = (List<X509CertificateResult>)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_FROM_SENDER_CERTS);
+            List<X509CertificateResult> recipientCerts = new ArrayList<>(logger.getDefaultLoggerContext().getRecipientCerts().values());
+            List<X509CertificateResult> fromSenderCerts = new ArrayList<>(logger.getDefaultLoggerContext().getSenderCerts().values());
 
             //is a mimebodypart encrypted?
             boolean encrypted = false;

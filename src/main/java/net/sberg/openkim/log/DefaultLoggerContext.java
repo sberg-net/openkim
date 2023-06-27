@@ -16,10 +16,13 @@
  */
 package net.sberg.openkim.log;
 
+import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.fachdienst.Fachdienst;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.error.*;
+
+import java.util.*;
 
 public class DefaultLoggerContext {
 
@@ -44,9 +47,14 @@ public class DefaultLoggerContext {
     private String mailServerUsername;
     private String mailServerPassword;
     private de.gematik.kim.al.model.AccountLimit accountLimit = new de.gematik.kim.al.model.AccountLimit();
+    private String senderAddress;
+    private Map<String, X509CertificateResult> senderCerts = new HashMap<>();
+    private List<String> recipientAddresses = new ArrayList<>();
+    private Map<String, X509CertificateResult> recipientCerts = new HashMap<>();
 
     private final MailaddressCertErrorContext mailaddressCertErrorContext = new MailaddressCertErrorContext();
     private final MailaddressKimVersionErrorContext mailaddressKimVersionErrorContext = new MailaddressKimVersionErrorContext();
+    private final MailaddressRcptToErrorContext mailaddressRcptToErrorContext = new MailaddressRcptToErrorContext();
     private final MailSignEncryptErrorContext mailSignEncryptErrorContext = new MailSignEncryptErrorContext();
     private final MailEncryptFormatErrorContext mailEncryptFormatErrorContext = new MailEncryptFormatErrorContext();
     private final MailDecryptErrorContext mailDecryptErrorContext = new MailDecryptErrorContext();
@@ -102,6 +110,10 @@ public class DefaultLoggerContext {
 
     public void setFachdienst(Fachdienst fachdienst) {
         this.fachdienst = fachdienst;
+    }
+
+    public void setSenderAddress(String senderAddress) {
+        this.senderAddress = senderAddress;
     }
 
     public void setAccountLimit(de.gematik.kim.al.model.AccountLimit accountLimit) {
@@ -240,6 +252,16 @@ public class DefaultLoggerContext {
         return mailServerPassword;
     }
 
+    public List<String> getRecipientAddresses() { return recipientAddresses; }
+
+    public Map<String, X509CertificateResult> getRecipientCerts() { return recipientCerts; }
+
+    public String getSenderAddress() {
+        return senderAddress;
+    }
+
+    public Map<String, X509CertificateResult> getSenderCerts() { return senderCerts; }
+
     public de.gematik.kim.al.model.AccountLimit getAccountLimit() {
         return accountLimit;
     }
@@ -247,26 +269,57 @@ public class DefaultLoggerContext {
     public MailaddressCertErrorContext getMailaddressCertErrorContext() {
         return mailaddressCertErrorContext;
     }
-
-    public MailaddressKimVersionErrorContext getMailaddressKimVersionErrorContext() {
-        return mailaddressKimVersionErrorContext;
-    }
-
+    public MailaddressKimVersionErrorContext getMailaddressKimVersionErrorContext() { return mailaddressKimVersionErrorContext; }
+    public MailaddressRcptToErrorContext getMailaddressRcptToErrorContext() { return mailaddressRcptToErrorContext; }
     public MailSignEncryptErrorContext getMailSignEncryptErrorContext() {
         return mailSignEncryptErrorContext;
     }
-
     public MailEncryptFormatErrorContext getMailEncryptFormatErrorContext() {
         return mailEncryptFormatErrorContext;
     }
-
     public MailDecryptErrorContext getMailDecryptErrorContext() {
         return mailDecryptErrorContext;
     }
-
     public MailSignVerifyErrorContext getMailSignVerifyErrorContext() {
         return mailSignVerifyErrorContext;
     }
     //************************************************************************
 
+    public List<String> extractFailureCertRcpts() {
+        MailaddressCertErrorContext mailaddressCertErrorContext = getMailaddressCertErrorContext();
+        return new ArrayList<>(mailaddressCertErrorContext.getRcptAddresses());
+    }
+
+    public List<X509CertificateResult> extractNoFailureCertRcpts() {
+        List<X509CertificateResult> res = new ArrayList<>();
+        List<String> failureRcpts = extractFailureCertRcpts();
+
+        for (Iterator<String> iterator = recipientCerts.keySet().iterator(); iterator.hasNext(); ) {
+            String rcptAddress = iterator.next();
+            X509CertificateResult x509CertificateResult = recipientCerts.get(rcptAddress);
+            if (!failureRcpts.contains(x509CertificateResult.getMailAddress())) {
+                res.add(x509CertificateResult);
+            }
+        }
+        return res;
+    }
+
+    public List<String> extractFailureKimVersionRcpts() {
+        MailaddressKimVersionErrorContext mailaddressKimVersionErrorContext = getMailaddressKimVersionErrorContext();
+        return new ArrayList<>(mailaddressKimVersionErrorContext.getRcptAddresses());
+    }
+
+    public List<X509CertificateResult> extractNoFailureKimVersionRcpts() {
+        List<X509CertificateResult> res = new ArrayList<>();
+        List<String> failureRcpts = extractFailureKimVersionRcpts();
+
+        for (Iterator<String> iterator = recipientCerts.keySet().iterator(); iterator.hasNext(); ) {
+            String rcptAddress = iterator.next();
+            X509CertificateResult x509CertificateResult = recipientCerts.get(rcptAddress);
+            if (!failureRcpts.contains(x509CertificateResult.getMailAddress())) {
+                res.add(x509CertificateResult);
+            }
+        }
+        return res;
+    }
 }

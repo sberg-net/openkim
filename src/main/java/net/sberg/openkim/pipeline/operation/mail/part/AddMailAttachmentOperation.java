@@ -81,6 +81,7 @@ public class AddMailAttachmentOperation implements IPipelineOperation  {
             String contentType = (String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_CONTENT_TYPE);
             File attachment = (File) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ATTACHMENT);
 
+            defaultPipelineOperationContext.setEnvironmentValue(AnalyzeMailPartsOperation.NAME, AnalyzeMailPartsOperation.ENV_MSG, mimeMessage);
             analyzeMailPartsOperation.execute(
                 defaultPipelineOperationContext,
                 context -> {

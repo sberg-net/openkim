@@ -29,6 +29,7 @@ import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.mail.CreateDsnOperation;
 import net.sberg.openkim.pipeline.operation.mail.CreateEmbeddedMessageRfc822Operation;
 import net.sberg.openkim.pipeline.operation.mail.DecryptVerifyMailOperation;
+import net.sberg.openkim.pipeline.operation.mail.kas.KasIncomingMailOperation;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.pop3.POP3Response;
@@ -106,14 +107,14 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
 
     private Response doRetr(POP3Session session, Request request) {
 
-        ((Pop3GatewaySession) session).log("retr begins");
-        DefaultLogger logger = ((Pop3GatewaySession) session).getLogger();
+        Pop3GatewaySession pop3GatewaySession = (Pop3GatewaySession) session;
+        pop3GatewaySession.log("retr begins");
+        DefaultLogger logger = pop3GatewaySession.getLogger();
 
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             try {
-                MimeMessage message = (MimeMessage) ((Pop3GatewaySession) session).getPop3ClientFolder().getMessage(Integer.parseInt(request.getArgument()));
-                //message = kasService.executeIncoming(((Pop3GatewaySession)session).getLogger(), message, (Pop3GatewaySession)session);
-                ((Pop3GatewaySession) session).setGatewayState(EnumPop3GatewayState.PROCESS);
+                MimeMessage message = (MimeMessage) pop3GatewaySession.getPop3ClientFolder().getMessage(Integer.parseInt(request.getArgument()));
+                pop3GatewaySession.setGatewayState(EnumPop3GatewayState.PROCESS);
 
                 byte[] pop3msg = null;
                 if (logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
@@ -124,7 +125,30 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
                     baos.close();
                 }
                 else {
-                    pop3msg = decryptVerify(((Pop3GatewaySession) session).getLogger(), ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerUsername(), message);
+                    if (logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
+                        KasIncomingMailOperation kasIncomingMailOperation = (KasIncomingMailOperation) pipelineService.getOperation(KasIncomingMailOperation.BUILTIN_VENDOR+"."+KasIncomingMailOperation.NAME);
+                        DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
+                        defaultPipelineOperationContext.setEnvironmentValue(KasIncomingMailOperation.NAME, KasIncomingMailOperation.ENV_MSG, message);
+                        defaultPipelineOperationContext.setEnvironmentValue(KasIncomingMailOperation.NAME, KasIncomingMailOperation.ENV_POP3_GATEWAY_SESSION, pop3GatewaySession);
+
+                        kasIncomingMailOperation.execute(
+                            defaultPipelineOperationContext,
+                            context -> {
+                                log.info("handle kas finished");
+                            },
+                            (context, e) -> {
+                                log.error("error on handling of kas", e);
+                            }
+                        );
+                        boolean valid = (boolean)defaultPipelineOperationContext.getEnvironmentValue(KasIncomingMailOperation.NAME, KasIncomingMailOperation.ENV_VALID_RESULT);
+                        if (!valid) {
+                            //embedded message
+                            throw new IllegalStateException("error on handling of kas: "+pop3GatewaySession.getSessionID());
+                        }
+                        message = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(KasIncomingMailOperation.NAME, KasIncomingMailOperation.ENV_RESULT_MSG);
+                    }
+
+                    pop3msg = decryptVerify(pop3GatewaySession.getLogger(), pop3GatewaySession.getLogger().getDefaultLoggerContext().getMailServerUsername(), message);
                     if (!logger.getDefaultLoggerContext().getMailSignVerifyErrorContext().isEmpty()) {
 
                         CreateDsnOperation createDsnOperation = (CreateDsnOperation) pipelineService.getOperation(CreateDsnOperation.BUILTIN_VENDOR + "." + CreateDsnOperation.NAME);
@@ -135,14 +159,14 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
 
                         AtomicInteger failedCounter = new AtomicInteger();
                         createDsnOperation.execute(
-                                defaultPipelineOperationContext,
-                                context -> {
-                                    log.info("create dsn finished");
-                                },
-                                (context, e) -> {
-                                    log.error("error on creating of dsn", e);
-                                    failedCounter.incrementAndGet();
-                                }
+                            defaultPipelineOperationContext,
+                            context -> {
+                                log.info("create dsn finished");
+                            },
+                            (context, e) -> {
+                                log.error("error on creating of dsn", e);
+                                failedCounter.incrementAndGet();
+                            }
                         );
 
                         if (failedCounter.get() == 0) {
@@ -150,7 +174,8 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
                         } else {
                             throw new IllegalStateException("error on creating dsn mail");
                         }
-                    } else if (!logger.getDefaultLoggerContext().getMailDecryptErrorContext().isEmpty()) {
+                    }
+                    else if (!logger.getDefaultLoggerContext().getMailDecryptErrorContext().isEmpty()) {
                         CreateEmbeddedMessageRfc822Operation createEmbeddedMessageRfc822Operation = (CreateEmbeddedMessageRfc822Operation) pipelineService.getOperation(CreateEmbeddedMessageRfc822Operation.BUILTIN_VENDOR + "." + CreateEmbeddedMessageRfc822Operation.NAME);
 
                         DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
@@ -159,14 +184,14 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
 
                         AtomicInteger failedCounter = new AtomicInteger();
                         createEmbeddedMessageRfc822Operation.execute(
-                                defaultPipelineOperationContext,
-                                context -> {
-                                    log.info("add embedded message finished");
-                                },
-                                (context, e) -> {
-                                    log.error("error on embedding message", e);
-                                    failedCounter.incrementAndGet();
-                                }
+                            defaultPipelineOperationContext,
+                            context -> {
+                                log.info("add embedded message finished");
+                            },
+                            (context, e) -> {
+                                log.error("error on embedding message", e);
+                                failedCounter.incrementAndGet();
+                            }
                         );
 
                         if (failedCounter.get() == 0) {
@@ -184,11 +209,11 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
                 return response;
             } catch (Exception e) {
                 log.error("error on process retr command", e);
-                ((Pop3GatewaySession) session).log("retr ends - error");
+                pop3GatewaySession.log("retr ends - error");
                 return new POP3Response(POP3Response.ERR_RESPONSE, "Technical error").immutable();
             }
         } else {
-            ((Pop3GatewaySession) session).log("retr ends - error");
+            pop3GatewaySession.log("retr ends - error");
             return POP3Response.ERR;
         }
     }

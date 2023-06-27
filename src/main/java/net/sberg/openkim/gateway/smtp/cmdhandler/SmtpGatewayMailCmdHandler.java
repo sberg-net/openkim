@@ -91,7 +91,7 @@ public class SmtpGatewayMailCmdHandler extends AbstractGatewayHookableCmdHandler
 
         try {
             String senderAddress = sender.asString().toLowerCase();
-            ((SmtpGatewaySession) session).setFromAddressStr(senderAddress);
+            ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext().setSenderAddress(senderAddress);
             ((SmtpGatewaySession) session).getSmtpClient().mail("<" + senderAddress + ">");
         } catch (Exception e) {
             log.error("error on mail cmd - " + session.getSessionID(), e);

@@ -130,7 +130,7 @@ public class ComposeEncryptedMailOperation implements IPipelineOperation  {
             resultMsg = MailUtils.setRecipients(logger, recipientCerts, originMimeMessage, resultMsg, Message.RecipientType.TO);
             resultMsg = MailUtils.setRecipients(logger, recipientCerts, originMimeMessage, resultMsg, Message.RecipientType.CC);
             resultMsg = MailUtils.setRecipients(logger, recipientCerts, originMimeMessage, resultMsg, Message.RecipientType.BCC);
-            resultMsg.addHeader(MailUtils.X_KOM_LE_VERSION, konfiguration.getXkimPtShortVersion());
+            resultMsg.addHeader(MailUtils.X_KOM_LE_VERSION, konfiguration.getXkimPtShortVersion().getOfficalVersion());
 
             resultMsg.setSubject(MailUtils.SUBJECT_KOM_LE_NACHRICHT);
             resultMsg.saveChanges();

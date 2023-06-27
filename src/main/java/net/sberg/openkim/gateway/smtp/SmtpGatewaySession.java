@@ -17,15 +17,12 @@
 package net.sberg.openkim.gateway.smtp;
 
 import net.sberg.openkim.common.ICommonConstants;
-import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.DefaultLoggerContext;
 import net.sberg.openkim.log.LogService;
-import net.sberg.openkim.log.error.MailaddressCertErrorContext;
-import net.sberg.openkim.log.error.MailaddressKimVersionErrorContext;
 import org.apache.commons.net.smtp.AuthenticatingSMTPClient;
 import org.apache.james.protocols.api.ProtocolTransport;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
@@ -35,9 +32,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.UUID;
 
 public class SmtpGatewaySession extends SMTPSessionImpl {
@@ -49,9 +43,6 @@ public class SmtpGatewaySession extends SMTPSessionImpl {
 
     private final DefaultLogger logger;
     private String id;
-
-    private String fromAddressStr;
-    private final List<X509CertificateResult> recipientCerts = new ArrayList<>();
 
     public SmtpGatewaySession(ProtocolTransport transport, SMTPConfiguration config) {
         super(transport, config);
@@ -81,9 +72,6 @@ public class SmtpGatewaySession extends SMTPSessionImpl {
     }
 
     /* **********************+ getter, setter **********************************************/
-    public List<X509CertificateResult> getRecipientCerts() {
-        return recipientCerts;
-    }
 
     @Override
     public String getSessionID() {
@@ -117,52 +105,7 @@ public class SmtpGatewaySession extends SMTPSessionImpl {
         this.gatewayState = gatewayState;
     }
 
-    public void setFromAddressStr(String fromAddressStr) {
-        this.fromAddressStr = fromAddressStr;
-    }
-
-    public String getFromAddressStr() {
-        return fromAddressStr;
-    }
     /* **********************+ getter, setter **********************************************/
-
-    /* ******************************************* extract methods ***********************/
-    public List<String> extractFailureCertRcpts() {
-        MailaddressCertErrorContext mailaddressCertErrorContext = logger.getDefaultLoggerContext().getMailaddressCertErrorContext();
-        return new ArrayList<>(mailaddressCertErrorContext.getRcptAddresses());
-    }
-
-    public List<X509CertificateResult> extractNoFailureCertRcpts() {
-        List<X509CertificateResult> res = new ArrayList<>();
-        List<String> failureRcpts = extractFailureCertRcpts();
-
-        for (Iterator<X509CertificateResult> iterator = getRecipientCerts().iterator(); iterator.hasNext(); ) {
-            X509CertificateResult x509CertificateResult = iterator.next();
-            if (!failureRcpts.contains(x509CertificateResult.getMailAddress())) {
-                res.add(x509CertificateResult);
-            }
-        }
-        return res;
-    }
-
-    public List<String> extractFailureKimVersionRcpts() {
-        MailaddressKimVersionErrorContext mailaddressKimVersionErrorContext = logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext();
-        return new ArrayList<>(mailaddressKimVersionErrorContext.getRcptAddresses());
-    }
-
-    public List<X509CertificateResult> extractNoFailureKimVersionRcpts() {
-        List<X509CertificateResult> res = new ArrayList<>();
-        List<String> failureRcpts = extractFailureKimVersionRcpts();
-
-        for (Iterator<X509CertificateResult> iterator = getRecipientCerts().iterator(); iterator.hasNext(); ) {
-            X509CertificateResult x509CertificateResult = iterator.next();
-            if (!failureRcpts.contains(x509CertificateResult.getMailAddress())) {
-                res.add(x509CertificateResult);
-            }
-        }
-        return res;
-    }
-    /* ******************************************* extract methods ***********************/
 
     public void log(String content) {
         StringBuilder logContent = new StringBuilder();

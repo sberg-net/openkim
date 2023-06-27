@@ -34,18 +34,18 @@
                             <h5 class="card-title">Lesen von Karteninformationen</h5>
 
                             <div class="form-group">
-                                <label for="ctId">Kartenterminal</label>
-                                <input type="text" class="form-control" id="ctId" name="ctId">
+                                <label for="GetCards.cardTerminalId">Kartenterminal</label>
+                                <input type="text" class="form-control" id="GetCards.cardTerminalId" name="GetCards.cardTerminalId">
                             </div>
 
                             <div class="form-group">
-                                <label for="slotId">Slot</label>
-                                <input type="number" class="form-control" id="slotId" name="slotId">
+                                <label for="GetCards.slotId">Slot</label>
+                                <input type="number" class="form-control" id="GetCards.slotId" name="GetCards.slotId">
                             </div>
 
                             <div class="form-group">
-                                <label for="cardType">Kartentyp (Typen sind oben genannt)</label>
-                                <input type="text" class="form-control" id="cardType" name="cardType">
+                                <label for="GetCards.cardType">Kartentyp (Typen sind oben genannt)</label>
+                                <input type="text" class="form-control" id="GetCards.cardType" name="GetCards.cardType">
                             </div>
 
                         </div>
@@ -82,7 +82,7 @@
     </div>
 </div>
 <!-- getCardTerminalsForm -->
-<div class="row">
+<div class="row border-dark border-top">
     <div class="col-12 p-0">
         <form id="getCardTerminalsForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
 
@@ -130,7 +130,7 @@
     </div>
 </div>
 <!-- getResourceInformationForm -->
-<div class="row">
+<div class="row border-dark border-top">
     <div class="col-12 p-0">
         <form id="getResourceInformationForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
 
@@ -146,23 +146,23 @@
                             <span style="font-weight: bold">Wenn keine Eingaben vorgenommen werden, werden die Informationen des Konnektors zurückgegeben</span>
 
                             <div class="form-group">
-                                <label for="ctId">Kartenterminal</label>
-                                <input type="text" class="form-control" name="ctId">
+                                <label for="GetResourceInformation.cardTerminalId">Kartenterminal</label>
+                                <input type="text" class="form-control" name="GetResourceInformation.cardTerminalId" id="GetResourceInformation.cardTerminalId">
                             </div>
 
                             <div class="form-group">
-                                <label for="ctId">Slot</label>
-                                <input type="text" class="form-control" name="ctId">
+                                <label for="GetResourceInformation.slotId">Slot</label>
+                                <input type="text" class="form-control" name="GetResourceInformation.slotId" id="GetResourceInformation.slotId">
                             </div>
 
                             <div class="form-group">
-                                <label for="iccsn">Karten-ICCSN</label>
-                                <input type="text" class="form-control" id="iccsn" name="iccsn">
+                                <label for="GetResourceInformation.iccsn">Karten-ICCSN</label>
+                                <input type="text" class="form-control" id="GetResourceInformation.iccsn" name="GetResourceInformation.iccsn">
                             </div>
 
                             <div class="form-group">
-                                <label for="cardHandle">Kartenhandle</label>
-                                <input type="text" class="form-control" id="cardHandle" name="cardHandle">
+                                <label for="GetResourceInformation.cardHandle">Kartenhandle</label>
+                                <input type="text" class="form-control" id="GetResourceInformation.cardHandle" name="GetResourceInformation.cardHandle">
                             </div>
 
                         </div>

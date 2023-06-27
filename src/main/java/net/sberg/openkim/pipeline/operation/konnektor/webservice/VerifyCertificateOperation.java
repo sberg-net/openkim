@@ -40,9 +40,9 @@ import java.util.function.Consumer;
 
 @PipelineOperation
 @Component
-public class VerifyCardCertificateOperation implements IPipelineOperation  {
+public class VerifyCertificateOperation implements IPipelineOperation  {
 
-    private static final Logger log = LoggerFactory.getLogger(VerifyCardCertificateOperation.class);
+    private static final Logger log = LoggerFactory.getLogger(VerifyCertificateOperation.class);
     public static final String NAME = "VerifyCertificate";
 
     public static final String ENV_CERTCONTENT = "certContent";

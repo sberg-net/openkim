@@ -14,30 +14,17 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.kas;
+package net.sberg.openkim.pipeline.operation.konnektor.vzd;
 
-public class KasServiceException extends Exception {
+import lombok.Data;
 
-    private final EnumKasServiceErrorCode code;
-    private final String file;
+@Data
+public class VzdMailResult {
+    private String mailAddress;
+    private EnumKomLeVersion version;
 
-    protected KasServiceException(EnumKasServiceErrorCode code, String file, String message) {
-        super(message);
-        this.code = code;
-        this.file = file;
-    }
-
-    protected KasServiceException(EnumKasServiceErrorCode code, String file, String message, Throwable cause) {
-        super(message, cause);
-        this.code = code;
-        this.file = file;
-    }
-
-    public EnumKasServiceErrorCode getCode() {
-        return this.code;
-    }
-
-    public String getFile() {
-        return file;
+    @Override
+    public String toString() {
+        return version.getOfficalVersion()+","+mailAddress;
     }
 }

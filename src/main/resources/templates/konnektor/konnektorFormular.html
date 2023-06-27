@@ -321,7 +321,7 @@
                     <td><span th:text="${n.version}">Version</span></td>
                     <td><span th:text="${n.endpoint}">Endpunkt</span></td>
                     <td><span th:text="${n.endpointTls}">TLS-Endpunkt</span></td>
-                    <td th:if="${contextInfoAvailable}"><span style="cursor:pointer;color:blue"
+                    <td th:if="${contextInfoAvailable}"><span th:if="${n.isTestable()}" style="cursor:pointer;color:blue"
                                                               th:attrappend="data-konnid=${konnektor.uuid}, data-wsid=${n.id}"
                                                               onclick="konnWebserviceUebersicht($(this).attr('data-konnid'),$(this).attr('data-wsid'))">Testen</span>
                     </td>

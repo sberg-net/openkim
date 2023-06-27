@@ -74,6 +74,7 @@ public class AddMailTextOperation implements IPipelineOperation  {
             MimeMessage mimeMessage = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MSG);
             String text = (String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_TEXT);
 
+            defaultPipelineOperationContext.setEnvironmentValue(AnalyzeMailPartsOperation.NAME, AnalyzeMailPartsOperation.ENV_MSG, mimeMessage);
             analyzeMailPartsOperation.execute(
                 defaultPipelineOperationContext,
                 context -> {

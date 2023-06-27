@@ -47,6 +47,7 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -58,8 +59,8 @@ public class VzdUtils {
     private static final String LDAP_SN_ATTR = "sn";
     private static final String LDAP_DISPLAYNAME_ATTR = "displayName";
     private static final String LDAP_MAIL_ATTR = "mail";
+    private static final String LDAP_KOMLEDATA_ATTR = "komLeData";
     private static final String LDAP_GIVENNAME_ATTR = "givenName";
-    private static final String LDAP_KOMLEVERSION_ATTR = "KOM-LE-Version";
     private static final String LDAP_UID_ATTR = "uid";
     private static final String LDAP_PERSONALENTRY_ATTR = "personalEntry";
     private static final String LDAP_CHANGEDATETIME_ATTR = "changeDateTime";
@@ -85,9 +86,20 @@ public class VzdUtils {
     private static final VzdResult set(VzdResult vzdResult, String property, Entry entry, CertificateFactory factory) throws Exception {
         if (entry.get(property) != null) {
             DefaultAttribute attribute = (DefaultAttribute) entry.get(property);
-            if (property.equals(LDAP_KOMLEVERSION_ATTR) && attribute.get().getString() != null && !attribute.get().getString().trim().isEmpty()) {
-                vzdResult.setKomleVersion(attribute.get().getString());
-            } else if (property.equals(LDAP_CERT_ATTR)) {
+            if (property.equals(LDAP_KOMLEDATA_ATTR)) {
+                vzdResult.setMailResults(new HashMap<>());
+                for (Iterator<org.apache.directory.api.ldap.model.entry.Value> iterator = attribute.iterator(); iterator.hasNext(); ) {
+                    org.apache.directory.api.ldap.model.entry.Value val = iterator.next();
+                    String valStr = val.getString();
+                    //1.5+,Hansekrone@akquinet.kim.telematik
+                    String[] arr = valStr.split(",");
+                    VzdMailResult mailResult = new VzdMailResult();
+                    mailResult.setMailAddress(arr[1].toLowerCase());
+                    mailResult.setVersion(EnumKomLeVersion.get(arr[0]));
+                    vzdResult.getMailResults().put(mailResult.getMailAddress(), mailResult);
+                }
+            }
+            else if (property.equals(LDAP_CERT_ATTR)) {
                 StringBuilder contentBuilder = new StringBuilder();
                 for (Iterator<Value> iterator = attribute.iterator(); iterator.hasNext(); ) {
                     org.apache.directory.api.ldap.model.entry.Value val = iterator.next();
@@ -104,20 +116,15 @@ public class VzdUtils {
                     vzdResult.getCertBytes().add(certBytes);
                 }
                 vzdResult.setCertSummary(contentBuilder.toString());
-            } else if (property.equals(LDAP_MAIL_ATTR)) {
-                vzdResult.setMails(new ArrayList<>());
-                for (Iterator<org.apache.directory.api.ldap.model.entry.Value> iterator = attribute.iterator(); iterator.hasNext(); ) {
-                    org.apache.directory.api.ldap.model.entry.Value val = iterator.next();
-                    vzdResult.getMails().add(val.getString());
-                }
             } else {
                 PropertyUtils.setProperty(vzdResult, property, attribute.get().getString());
             }
         } else {
-            if (property.equals(LDAP_KOMLEVERSION_ATTR)) {
-                vzdResult.setKomleVersion("");
-            } else if (property.equals(LDAP_MAIL_ATTR)) {
-                vzdResult.setMails(new ArrayList<>());
+            if (property.equals(LDAP_KOMLEDATA_ATTR)) {
+                vzdResult.setMailResults(new HashMap<>());
+            } else if (property.equals(LDAP_CERT_ATTR)) {
+                vzdResult.setCertBytes(new ArrayList<>());
+                vzdResult.setCertSummary("");
             } else {
                 PropertyUtils.setProperty(vzdResult, property, "");
             }
@@ -193,9 +200,8 @@ public class VzdUtils {
                     vzdResult = set(vzdResult, LDAP_DOMAINID_ATTR, entry, factory);
                     vzdResult = set(vzdResult, LDAP_ENTRYTYPE_ATTR, entry, factory);
                     vzdResult = set(vzdResult, LDAP_GIVENNAME_ATTR, entry, factory);
-                    vzdResult = set(vzdResult, LDAP_KOMLEVERSION_ATTR, entry, factory);
+                    vzdResult = set(vzdResult, LDAP_KOMLEDATA_ATTR, entry, factory);
                     vzdResult = set(vzdResult, LDAP_l_ATTR, entry, factory);
-                    vzdResult = set(vzdResult, LDAP_MAIL_ATTR, entry, factory);
                     vzdResult = set(vzdResult, LDAP_ORGANIZATION_ATTR, entry, factory);
                     vzdResult = set(vzdResult, LDAP_OTHERNAME_ATTR, entry, factory);
                     vzdResult = set(vzdResult, LDAP_PERSONALENTRY_ATTR, entry, factory);

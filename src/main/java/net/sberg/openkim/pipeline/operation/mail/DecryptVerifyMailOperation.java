@@ -30,6 +30,7 @@ import net.sberg.openkim.pipeline.PipelineOperation;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.GetDecryptCardHandleOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.vzd.EnumKomLeVersion;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.DecryptDocumentOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.VerifySignedDocumentOperation;
 import net.sberg.openkim.pipeline.operation.mail.part.AddMailAttachmentOperation;
@@ -131,7 +132,7 @@ public class DecryptVerifyMailOperation implements IPipelineOperation  {
 
                 //unterstützte version kleiner als die version der mail
                 String komLeVersion = komLeVersionHeader[0];
-                if (StringUtils.isNewVersionHigher(logger.getDefaultLoggerContext().getKonfiguration().getXkimPtShortVersion(), komLeVersion)) {
+                if (StringUtils.isNewVersionHigher(logger.getDefaultLoggerContext().getKonfiguration().getXkimPtShortVersion().getInnerVersion(), EnumKomLeVersion.get(komLeVersion).getInnerVersion())) {
                     logger.getDefaultLoggerContext().getMailDecryptErrorContext().getErrorCodes().add(EnumErrorCode.CODE_4008);
                     logger.logLine("Fehler: " + EnumErrorCode.CODE_4008 + " - " + EnumErrorCode.CODE_4008.getHrText());
                     throw new IllegalStateException("kim version is wrong: < kim version in mail");

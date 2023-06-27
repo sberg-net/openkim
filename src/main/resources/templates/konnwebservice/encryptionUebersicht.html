@@ -20,22 +20,16 @@
                             <h5 class="card-title">Entschlüsseln von einem Dokument</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="cardHandle">Kartenhandle</label>
-                                <input type="text" class="form-control" id="cardHandle" name="cardHandle" required>
+                                <label for="DecryptDocument.cardHandle">Kartenhandle</label>
+                                <input type="text" class="form-control" id="DecryptDocument.cardHandle" name="DecryptDocument.cardHandle" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="originDocument">Originaldokument</label>
-                                <textarea type="text" class="form-control" id="originDocument" name="originDocument"
-                                          rows="4"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="base64Document">Dokument im Base64-Format</label>
-                                <textarea type="text" class="form-control" id="base64Document" name="base64Document"
+                                <label for="DecryptDocument.document">Dokument im Base64-Format</label>
+                                <textarea type="text" class="form-control" id="DecryptDocument.document" name="DecryptDocument.document"
                                           rows="4"></textarea>
                             </div>
 
@@ -73,7 +67,7 @@
     </div>
 </div>
 <!-- encryptDocumentForm -->
-<div class="row">
+<div class="row border-dark border-top">
     <div class="col-12 p-0">
         <form id="encryptDocumentForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
 
@@ -88,16 +82,16 @@
                             <h5 class="card-title">Verschlüsseln von einem Dokument</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="cardHandle">Kartenhandle</label>
-                                <input type="text" class="form-control" name="cardHandle" required>
+                                <label for="EncryptDocument.cardHandle">Kartenhandle</label>
+                                <input type="text" class="form-control" name="EncryptDocument.cardHandle" id="EncryptDocument.cardHandle" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="document">Dokument</label>
-                                <textarea type="text" class="form-control" id="document" name="document"
+                                <label for="EncryptDocument.document">Dokument</label>
+                                <textarea type="text" class="form-control" id="EncryptDocument.document" name="EncryptDocument.document"
                                           rows="4"></textarea>
                             </div>
 
@@ -130,68 +124,6 @@
             </div>
 
             <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="encryptDocumentFormResult">
-            </div>
-        </form>
-    </div>
-</div>
-<!-- encryptMailForm -->
-<div class="row">
-    <div class="col-12 p-0">
-        <form id="encryptMailForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
-
-            <input type="hidden" name="konnId" th:value="${konnId}">
-            <input type="hidden" name="wsId" th:value="${wsId}">
-            <input type="hidden" name="opId" value="OpenKIM.EncryptMail">
-
-            <div class="row">
-                <div class="col-12 col-lg-6">
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <h5 class="card-title">Verschlüsseln von einer signierten Mail</h5>
-
-                            <div class="form-group needs-validation">
-                                <label for="to">Empfänger-Mail-Adresse</label>
-                                <input type="text" class="form-control" id="to" name="to" required>
-                                <div class="invalid-feedback">
-                                    Bitte angeben!
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="signedMail">Signierte Mail</label>
-                                <textarea type="text" class="form-control" id="signedMail" name="signedMail"
-                                          rows="4"></textarea>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="container-fluid p-0 mb-2">
-                <div class="row justify-content-start">
-                    <div class="col-12 col-md-6 col-lg-6 pb-1">
-                        <button class="btn btn-secondary btn-block" th:attr="data-konnid=${konnId}"
-                                onclick="konnektorLaden($(this).attr('data-konnid'));">Zurück zu den
-                            Konnektoreinstellungen
-                        </button>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-2">
-                        <button class="btn btn-primary btn-block" onclick="konnWebserviceAusfuehren('encryptMailForm')">
-                            Ausführen
-                        </button>
-                        <div class="spinner-border" role="status" style="display: none">
-                            <span class="sr-only">Laden...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none"
-                 id="encryptMailFormError">
-            </div>
-
-            <div class="mt-2 mb-2 text-break font-weight-bold" style="display:none" id="encryptMailFormResult">
             </div>
         </form>
     </div>

@@ -17,14 +17,15 @@
 package net.sberg.openkim.pipeline.operation.mail;
 
 import com.sun.mail.util.MailSSLSocketFactory;
+import net.sberg.openkim.common.EnumMailAuthMethod;
+import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
 import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.log.error.MailaddressCertErrorContext;
 import net.sberg.openkim.log.error.MailaddressKimVersionErrorContext;
-import net.sberg.openkim.common.EnumMailAuthMethod;
-import net.sberg.openkim.common.EnumMailConnectionSecurity;
+import net.sberg.openkim.log.error.MailaddressRcptToErrorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +35,7 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.net.ssl.KeyManagerFactory;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -44,9 +44,8 @@ public class MailUtils {
 
     private static final Logger log = LoggerFactory.getLogger(MailUtils.class);
 
-    public static final String X_KIM_TESTNACHRICHT = "X-KIM-Testnachricht";
-    public static final String X_KIM_TESTID = "X-KIM-Testid";
     public static final String X_KIM_DIENSTKENNUNG = "X-KIM-Dienstkennung";
+    public static final String X_KIM_KAS_SIZE = "X-KIM-KAS-Size";
     public static final String X_KOM_LE_VERSION = "X-KOM-LE-Version";
     public static final String X_KIM_DIENSTKENNUNG_KIM_MAIL = "KIM-Mail;Default;V1.5";
     public static final String DATE = "Date";
@@ -66,7 +65,7 @@ public class MailUtils {
     public static final String X_KIM_INTEGRITY_CHECK_RESULT = "X-KIM-IntegrityCheckResult";
     public static final String EXPIRES = "Expires";
     public static final String SUBJECT_KOM_LE_NACHRICHT = "KOM-LE-Nachricht";
-    public static final List VALID_KIM_VERSIONS = Arrays.asList("1.0", "1.5");
+    public static final List VALID_KIM_VERSIONS = Arrays.asList("1.0", "1.5", "1.5+");
 
     public static final DateTimeFormatter RFC822_DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", Locale.GERMAN);
 
@@ -81,12 +80,35 @@ public class MailUtils {
         }
     }
 
+    public static final String sanitizeMailFilename(String name) {
+        return name.replaceAll("[:\\\\/*?|<> \"]", "_");
+    }
+
+    public static final File writeToFileDirectory(Message msg, String prefix, String messageId, String storageFolder) throws Exception {
+        File f = new File(storageFolder);
+        if (!f.exists()) {
+            f.mkdirs();
+        }
+        String whereToSave = f.getAbsolutePath() + File.separator + prefix + sanitizeMailFilename(messageId) + ".eml";
+        f = new File(whereToSave);
+        if (!f.exists()) {
+            OutputStream out = new FileOutputStream(new File(whereToSave));
+            msg.writeTo(out);
+            out.flush();
+            out.close();
+        }
+        else {
+            throw new IllegalStateException("error on writing the mail: "+messageId+" - file exists: "+f);
+        }
+        return f;
+    }
+
     public static final MimeMessage setRecipients(
-            DefaultLogger logger,
-            List<X509CertificateResult> recipientCerts,
-            MimeMessage originMessage,
-            MimeMessage resultMessage,
-            Message.RecipientType type
+        DefaultLogger logger,
+        List<X509CertificateResult> recipientCerts,
+        MimeMessage originMessage,
+        MimeMessage resultMessage,
+        Message.RecipientType type
     ) throws Exception {
         if (originMessage.getRecipients(type) == null || originMessage.getRecipients(type).length == 0) {
             return resultMessage;
@@ -180,12 +202,18 @@ public class MailUtils {
 
         MailaddressCertErrorContext mailaddressCertErrorContext = logger.getDefaultLoggerContext().getMailaddressCertErrorContext();
         MailaddressKimVersionErrorContext mailaddressKimVersionErrorContext = logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext();
+        MailaddressRcptToErrorContext mailaddressRcptToErrorContext = logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext();
 
         List<InternetAddress> res = new ArrayList<>();
         for (int i = 0; i < originMessage.getRecipients(type).length; i++) {
             InternetAddress rec = (InternetAddress) originMessage.getRecipients(type)[i];
 
-            if (mailaddressCertErrorContext.isError(rec.getAddress().toLowerCase()) || mailaddressKimVersionErrorContext.isError(rec.getAddress().toLowerCase())) {
+            if (mailaddressCertErrorContext.isError(rec.getAddress().toLowerCase())
+                ||
+                mailaddressKimVersionErrorContext.isError(rec.getAddress().toLowerCase())
+                ||
+                mailaddressRcptToErrorContext.isError(rec.getAddress().toLowerCase())
+            ) {
                 logger.logLine("Mailadresse: " + rec.getAddress().toLowerCase() + " entfernt, da Fehler aufgetreten sind");
                 continue;
             }

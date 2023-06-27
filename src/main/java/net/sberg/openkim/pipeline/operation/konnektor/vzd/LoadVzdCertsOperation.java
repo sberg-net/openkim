@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @PipelineOperation
 @Component
@@ -72,6 +73,8 @@ public class LoadVzdCertsOperation implements IPipelineOperation  {
         try {
 
             List<String> addresses = (List<String>) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ADDRESSES);
+            addresses = addresses.stream().distinct().collect(Collectors.toList());
+
             String searchBase = (String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_VZD_SEARCH_BASE);
             boolean loadSenderAddresses = (boolean) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_LOAD_SENDER_ADRESSES);
             boolean loadRcptAddresses = (boolean) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_LOAD_RCPT_ADRESSES);
@@ -91,7 +94,7 @@ public class LoadVzdCertsOperation implements IPipelineOperation  {
                 for (Iterator<String> iterator = addresses.iterator(); iterator.hasNext(); ) {
                     String address = iterator.next();
                     X509CertificateResult x509CertificateResult = new X509CertificateResult();
-                    x509CertificateResult.setMailAddress(address);
+                    x509CertificateResult.setMailAddress(address.toLowerCase());
                     try {
                         List<VzdResult> vzdResults = VzdUtils.search(logger, searchBase, address, true, true);
                         x509CertificateResult.setVzdResults(vzdResults);
@@ -116,7 +119,7 @@ public class LoadVzdCertsOperation implements IPipelineOperation  {
                                 }
                                 certs.addAll(vzdResult.getCertBytes());
 
-                                if (loadSenderAddresses && StringUtils.isNewVersionHigher(konfiguration.getXkimPtShortVersion(), vzdResult.getKomleVersion())) {
+                                if (loadSenderAddresses && StringUtils.isNewVersionHigher(konfiguration.getXkimPtShortVersion().getInnerVersion(), vzdResult.getMailResults().get(address).getVersion().getInnerVersion())) {
                                     mailaddressKimVersionErrorContext.add(x509CertificateResult, EnumErrorCode.CODE_X008, true);
                                 }
                             }
@@ -148,7 +151,7 @@ public class LoadVzdCertsOperation implements IPipelineOperation  {
                     } catch (Exception e) {
                         log.error("error on vzd searching for: " + address + " - konnektor: " + konnektor.getIp(), e);
                         x509CertificateResult.setErrorCode(EnumX509ErrorCode.OTHER);
-                        x509CertificateResult.setMailAddress(address);
+                        x509CertificateResult.setMailAddress(address.toLowerCase());
                         mailaddressCertErrorContext.add(address, EnumErrorCode.CODE_X004, loadSenderAddresses);
                     }
                     result.add(x509CertificateResult);

@@ -26,6 +26,14 @@ public class KonnektorServiceBean {
     private String endpointTls;
     private EnumKonnektorServiceBeanType enumKonnektorServiceBeanType;
     private boolean alive;
+    private boolean testable = true;
+
+    public boolean isTestable() {
+        if (enumKonnektorServiceBeanType.equals(EnumKonnektorServiceBeanType.SignatureService)) {
+            return false;
+        }
+        return testable;
+    }
 
     public String createClassPackageName() {
         return enumKonnektorServiceBeanType.getPackageName();

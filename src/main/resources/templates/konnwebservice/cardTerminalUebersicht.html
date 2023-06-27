@@ -11,7 +11,7 @@
 
             <input type="hidden" id="konnId" name="konnId" th:value="${konnId}">
             <input type="hidden" id="wsId" name="wsId" th:value="${wsId}">
-          <input type="hidden" id="opId" name="opId" value="OpenKIM.RequestCard">
+            <input type="hidden" id="opId" name="opId" value="OpenKIM.RequestCard">
 
             <div class="row">
                 <div class="col-12 col-lg-6">
@@ -20,16 +20,16 @@
                             <h5 class="card-title">Terminalinformationen</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="cardTerminalId">Kartenterminal-ID</label>
-                                <input type="text" class="form-control" id="cardTerminalId" name="cardTerminalId" required>
+                                <label for="RequestCard.cardTerminalId">Kartenterminal-ID</label>
+                                <input type="text" class="form-control" id="RequestCard.cardTerminalId" name="RequestCard.cardTerminalId" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>
                             </div>
 
                             <div class="form-group needs-validation">
-                                <label for="slotId">Slot-ID</label>
-                                <input type="number" class="form-control" id="slotId" name="slotId" required>
+                                <label for="RequestCard.slotId">Slot-ID</label>
+                                <input type="number" class="form-control" id="RequestCard.slotId" name="RequestCard.slotId" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>

@@ -28,17 +28,17 @@
                             <h5 class="card-title">Lesen von Kartenzertifikaten</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="cardHandle">Karten-Handle</label>
-                                <input type="text" class="form-control" id="cardHandle" name="cardHandle" required>
+                                <label for="ReadCardCertificate.cardHandle">Karten-Handle</label>
+                                <input type="text" class="form-control" id="ReadCardCertificate.cardHandle" name="ReadCardCertificate.cardHandle" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>
                             </div>
 
                             <div class="form-group needs-validation">
-                                <label for="certRefList">Zertifikatstypen (C.AUT,C.ENC,C.SIG,C.QES) (Mehrfachnennung
+                                <label for="ReadCardCertificate.certRefs">Zertifikatstypen (C.AUT,C.ENC,C.SIG,C.QES) (Mehrfachnennung
                                     möglich, bitte mit Komma trennen)</label>
-                                <input type="text" class="form-control" id="certRefList" name="certRefList" required>
+                                <input type="text" class="form-control" id="ReadCardCertificate.certRefs" name="ReadCardCertificate.certRefs" required>
                                 <div class="invalid-feedback">
                                     Bitte angeben!
                                 </div>
@@ -78,7 +78,7 @@
     </div>
 </div>
 <!-- verifyCertficateForm -->
-<div class="row">
+<div class="row border-dark border-top">
     <div class="col-12 p-0">
         <form id="verifyCertficateForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;">
 
@@ -93,8 +93,8 @@
                             <h5 class="card-title">Verifizieren von Zertifikatsinhalt</h5>
 
                             <div class="form-group needs-validation">
-                                <label for="certContent">Zertifikatsinhalt</label>
-                                <textarea type="text" class="form-control" id="certContent" name="certContent" required
+                                <label for="VerifyCertificate.certContent">Zertifikatsinhalt</label>
+                                <textarea type="text" class="form-control" id="VerifyCertificate.certContent" name="VerifyCertificate.certContent" required
                                           rows="4"></textarea>
                                 <div class="invalid-feedback">
                                     Bitte angeben!

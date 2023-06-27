@@ -20,7 +20,10 @@ import lombok.Data;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Data
 public class VzdResult {
@@ -29,8 +32,7 @@ public class VzdResult {
     private String sn;
     private String displayName;
     private String givenName;
-    private List<String> mails = new ArrayList<>();
-    private String komleVersion = "1.0";
+    private Map<String, VzdMailResult> mailResults = new HashMap<>();
     private String personalEntry;
     private String changeDateTime;
     private String countryCode;
@@ -53,6 +55,9 @@ public class VzdResult {
     private EnumVzdErrorCode errorCode = EnumVzdErrorCode.OK;
 
     public String createMailStr() {
-        return String.join(",", mails);
+        if (mailResults.isEmpty()) {
+            return "";
+        }
+        return mailResults.keySet().stream().map(s -> mailResults.get(s).toString()).collect(Collectors.joining(";"));
     }
 }

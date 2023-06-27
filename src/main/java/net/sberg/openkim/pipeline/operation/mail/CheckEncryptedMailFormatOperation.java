@@ -106,33 +106,34 @@ public class CheckEncryptedMailFormatOperation implements IPipelineOperation  {
 
             if (valid) {
                 AtomicInteger errorCounter = new AtomicInteger();
+                defaultPipelineOperationContext.setEnvironmentValue(AnalyzeMailPartsOperation.NAME, AnalyzeMailPartsOperation.ENV_MSG, encryptedMsg);
                 analyzeMailPartsOperation.execute(
-                        defaultPipelineOperationContext,
-                        context -> {
-                            try {
-                                MailPartContent encryptMailPartContent = (MailPartContent) defaultPipelineOperationContext.getEnvironmentValue(AnalyzeMailPartsOperation.NAME, AnalyzeMailPartsOperation.ENV_RESULT);
-                                if (!encryptMailPartContent.getContentTypeHeader().toLowerCase().startsWith("content-type: application/pkcs7-mime")
-                                    ||
-                                    encryptMailPartContent.getChildren().size() != 0
-                                    ||
-                                    !(encryptMailPartContent.getContentPart() instanceof MimePart)
-                                    ||
-                                    !encryptMailPartContent.isAttachment()
-                                    ||
-                                    encryptMailPartContent.isAttachmentInline()
-                                    ||
-                                    encryptMailPartContent.getAttachementSize() == 0) {
-                                    logger.getDefaultLoggerContext().getMailEncryptFormatErrorContext().getErrorCodes().add(EnumErrorCode.CODE_X016);
-                                    logger.logLine("Fehler: " + EnumErrorCode.CODE_X016 + " - " + EnumErrorCode.CODE_X016.getHrText());
-                                    errorCounter.incrementAndGet();
-                                }
-                            } catch (Exception e) {
+                    defaultPipelineOperationContext,
+                    context -> {
+                        try {
+                            MailPartContent encryptMailPartContent = (MailPartContent) defaultPipelineOperationContext.getEnvironmentValue(AnalyzeMailPartsOperation.NAME, AnalyzeMailPartsOperation.ENV_RESULT);
+                            if (!encryptMailPartContent.getContentTypeHeader().toLowerCase().startsWith("content-type: application/pkcs7-mime")
+                                ||
+                                encryptMailPartContent.getChildren().size() != 0
+                                ||
+                                !(encryptMailPartContent.getContentPart() instanceof MimePart)
+                                ||
+                                !encryptMailPartContent.isAttachment()
+                                ||
+                                encryptMailPartContent.isAttachmentInline()
+                                ||
+                                encryptMailPartContent.getAttachementSize() == 0) {
+                                logger.getDefaultLoggerContext().getMailEncryptFormatErrorContext().getErrorCodes().add(EnumErrorCode.CODE_X016);
+                                logger.logLine("Fehler: " + EnumErrorCode.CODE_X016 + " - " + EnumErrorCode.CODE_X016.getHrText());
                                 errorCounter.incrementAndGet();
                             }
-                        },
-                        (context, e) -> {
+                        } catch (Exception e) {
                             errorCounter.incrementAndGet();
                         }
+                    },
+                    (context, e) -> {
+                        errorCounter.incrementAndGet();
+                    }
                 );
                 if (errorCounter.get() > 0) {
                     valid = false;
