@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableSet;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.EnumPop3GatewayState;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
-import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
 import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.DefaultLogger;
@@ -54,11 +53,9 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
     private static final Logger log = LoggerFactory.getLogger(Pop3GatewayRetrCmdHandler.class);
 
     private PipelineService pipelineService;
-    private SignReportService signReportService;
 
-    public Pop3GatewayRetrCmdHandler(PipelineService pipelineService, SignReportService signReportService) {
+    public Pop3GatewayRetrCmdHandler(PipelineService pipelineService) {
         this.pipelineService = pipelineService;
-        this.signReportService = signReportService;
     }
 
     @Override
@@ -79,7 +76,6 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
             DefaultPipelineOperationContext defaultPipelineOperationContext = new DefaultPipelineOperationContext(logger);
             defaultPipelineOperationContext.setEnvironmentValue(DecryptVerifyMailOperation.NAME, DecryptVerifyMailOperation.ENV_ENCRYPTED_MSG, encryptedMsg);
             defaultPipelineOperationContext.setEnvironmentValue(DecryptVerifyMailOperation.NAME, DecryptVerifyMailOperation.ENV_USER_MAIL_ADDRESS, userMailAddress);
-            defaultPipelineOperationContext.setEnvironmentValue(DecryptVerifyMailOperation.NAME, DecryptVerifyMailOperation.ENV_SIGN_REPORT_SERVICE, signReportService);
 
             AtomicInteger failedCounter = new AtomicInteger();
             decryptVerifyMailOperation.execute(

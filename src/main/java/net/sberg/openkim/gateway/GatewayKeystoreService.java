@@ -77,7 +77,7 @@ public class GatewayKeystoreService {
             .replaceAll(System.lineSeparator(), "")
             .replace(END_KEY, "");
 
-        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM.getBytes("UTF-8"));
 
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded);
         KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -116,7 +116,7 @@ public class GatewayKeystoreService {
         String privateKey = eldixSmtpKeystoreData.getPrivateKey().replace(BEGIN_RSA_KEY, "");
         privateKey = privateKey.replace(END_RSA_KEY, "");
         privateKey = privateKey.replaceAll("\\s+", "");
-        byte[] pkcs8EncodedBytes = Base64.getDecoder().decode(privateKey);
+        byte[] pkcs8EncodedBytes = Base64.getDecoder().decode(privateKey.getBytes("UTF-8"));
 
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(pkcs8EncodedBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");

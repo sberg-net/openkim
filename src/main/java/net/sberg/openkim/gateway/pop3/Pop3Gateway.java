@@ -19,7 +19,6 @@ package net.sberg.openkim.gateway.pop3;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import net.sberg.openkim.gateway.GatewayNettyServer;
-import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
 import net.sberg.openkim.log.LogService;
@@ -47,8 +46,6 @@ public class Pop3Gateway {
     private LogService logService;
     @Autowired
     private PipelineService pipelineService;
-    @Autowired
-    private SignReportService signReportService;
     @Autowired
     private KonfigurationService konfigurationService;
 
@@ -115,7 +112,7 @@ public class Pop3Gateway {
     }
 
     protected Protocol createProtocol(Konfiguration konfiguration) throws WiringException {
-        Pop3GatewayProtocolHandlerChain chain = new Pop3GatewayProtocolHandlerChain(pipelineService, signReportService);
+        Pop3GatewayProtocolHandlerChain chain = new Pop3GatewayProtocolHandlerChain(pipelineService);
         chain.wireExtensibleHandlers();
         return new Pop3GatewayProtocol(chain, new Pop3GatewayConfiguration(konfiguration, logService));
     }

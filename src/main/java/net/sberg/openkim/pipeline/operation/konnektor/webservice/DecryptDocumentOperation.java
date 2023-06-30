@@ -28,6 +28,7 @@ import net.sberg.openkim.pipeline.PipelineOperation;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.james.metrics.api.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,8 @@ public class DecryptDocumentOperation implements IPipelineOperation  {
     private static final Logger log = LoggerFactory.getLogger(DecryptDocumentOperation.class);
     public static final String NAME = "DecryptDocument";
 
-    public static final String ENV_DOCUMENT = "document";
+    public static final String ENV_DOCUMENT_BYTES = "documentBytes";
+    public static final String ENV_DOCUMENT_TEXT = "documentText";
     public static final String ENV_CARDHANDLE = "cardHandle";
     public static final String ENV_DECRYPT_DOCUMENT_RESPONSE = "decryptDocumentResponse";
 
@@ -57,7 +59,7 @@ public class DecryptDocumentOperation implements IPipelineOperation  {
         return context -> {
             DecryptDocumentResponse decryptDocumentResponse = (DecryptDocumentResponse) context.getEnvironmentValue(NAME, ENV_DECRYPT_DOCUMENT_RESPONSE);
             context.getLogger().logLine("Status = " + decryptDocumentResponse.getStatus().getResult());
-            context.getLogger().logLine("Dokument = " + new String(decryptDocumentResponse.getDocument().getBase64Data().getValue()));
+            context.getLogger().logLine("Dokument = " + new String(Base64.decodeBase64(decryptDocumentResponse.getDocument().getBase64Data().getValue())));
         };
     }
 
@@ -81,14 +83,20 @@ public class DecryptDocumentOperation implements IPipelineOperation  {
             DefaultMetricFactory metricFactory = new DefaultMetricFactory(logger);
 
             WebserviceConnector webserviceConnector = KonnektorWebserviceUtils.createConnector(
-                    konnektor,
-                    packageName,
-                    konnektorServiceBean,
-                    konnektorServiceBean.createSoapAction(NAME),
-                    logger
+                konnektor,
+                packageName,
+                konnektorServiceBean,
+                konnektorServiceBean.createSoapAction(NAME),
+                logger
             );
 
-            byte[] document = (byte[])defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_DOCUMENT);
+            byte[] document = null;
+            if (defaultPipelineOperationContext.hasEnvironmentValue(NAME, ENV_DOCUMENT_BYTES)) {
+                document = (byte[])defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_DOCUMENT_BYTES);
+            }
+            else {
+                document = Base64.decodeBase64((String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_DOCUMENT_TEXT));
+            }
 
             DecryptDocument decryptDocument = new DecryptDocument();
             decryptDocument.setContext(contextType);

@@ -81,7 +81,7 @@ public class ComposeEncryptedMailOperation implements IPipelineOperation  {
             DefaultMetricFactory metricFactory = new DefaultMetricFactory(logger);
             timeMetric = metricFactory.timer(NAME);
 
-            MimeMessage encryptedMsg = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ENCRYPTED_MSG);
+            byte[] encryptedMsg = (byte[]) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ENCRYPTED_MSG);
             MimeMessage originMimeMessage = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ORIGIN_MSG);
             List<X509CertificateResult> recipientCerts = (List<X509CertificateResult>) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_RECIPIENT_CERTS);
 
@@ -126,6 +126,15 @@ public class ComposeEncryptedMailOperation implements IPipelineOperation  {
                 logger.logLine("set reply-to: " + replyTo.getAddress());
                 resultMsg.setReplyTo(new Address[]{replyTo});
             }
+
+            //check on openkim test message
+            String openkimTestId = (originMimeMessage.getHeader(MailUtils.X_OPENKIM_TEST_ID) != null && originMimeMessage.getHeader(MailUtils.X_OPENKIM_TEST_ID).length > 0)
+                    ? originMimeMessage.getHeader(MailUtils.X_OPENKIM_TEST_ID)[0]
+                    : null;
+            if (openkimTestId != null) {
+                resultMsg.addHeader(MailUtils.X_OPENKIM_TEST_ID, openkimTestId);
+            }
+
             resultMsg.addHeader(MailUtils.X_KIM_DIENSTKENNUNG, dienstkennung);
             resultMsg = MailUtils.setRecipients(logger, recipientCerts, originMimeMessage, resultMsg, Message.RecipientType.TO);
             resultMsg = MailUtils.setRecipients(logger, recipientCerts, originMimeMessage, resultMsg, Message.RecipientType.CC);

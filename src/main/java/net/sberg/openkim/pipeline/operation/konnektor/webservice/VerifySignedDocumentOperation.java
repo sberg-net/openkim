@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -106,7 +105,7 @@ public class VerifySignedDocumentOperation implements IPipelineOperation  {
                 verifyDocument.setContext(contextType);
 
                 boolean signedDataAsBase64 = (boolean) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_DATA_AS_BASE64);
-                byte[] signedData = ((String) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_CONTENT)).getBytes(StandardCharsets.UTF_8);
+                byte[] signedData = (byte[]) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGNED_CONTENT);
 
                 SignatureObject signatureObject = new SignatureObject();
                 Base64Signature base64Signature = new Base64Signature();

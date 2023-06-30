@@ -1,0 +1,72 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <hr/>
+    <div class="col-12 p-0">
+        <div class="mt-2 mb-2 text-break font-weight-bold">
+            Mit dieser Operation können Sie eine Mail über einen Konnektor signieren und verschlüsseln
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="opForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;" enctype="multipart/form-data">
+            <input type="hidden" id="opId" name="opId" th:value="${opId}">
+
+            <div class="form-group needs-validation">
+              <label for="konnektorId">Auswahl des Konnektors</label>
+              <select class="form-control" id="konnektorId" name="konnektorId" required>
+                <option th:each="konn : ${konnektoren}" th:value="${konn.uuid}" th:text="${konn.ip}"></option>
+              </select>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="from">Bitte geben Sie den Absender ein:</label>
+              <input type="text" id="from" name="from" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="to">Bitte geben Sie den/die Empfänger ein (wenn mehrere, dann mit Kommas getrennt):</label>
+              <input type="text" id="to" name="to" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="cc">Bitte geben Sie den/die Kopie-Empfänger ein (wenn mehrere, dann mit Kommas getrennt) - Kein Pflichtfeld:</label>
+              <input type="text" id="cc" name="cc" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="bcc">Bitte geben Sie den/die Blind-Kopie-Empfänger ein (wenn mehrere, dann mit Kommas getrennt) - Kein Pflichtfeld:</label>
+              <input type="text" id="bcc" name="bcc" class="form-control">
+            </div>
+            <div class="form-group needs-validation">
+              <label for="subject">Bitte geben Sie den Betreff ein:</label>
+              <input type="text" id="subject" name="subject" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="body">Bitte geben Sie den Text der Mail ein:</label>
+              <textarea id="body" name="body" class="form-control" required></textarea>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="container-fluid p-0 mb-2">
+              <div class="row justify-content-start">
+                <div class="col-12 col-md-6 col-lg-3">
+                  <button class="btn btn-primary btn-block" onclick="pipelineoperationtestOpAusfuehren()">Ausführen</button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 mb-2 text-break" role="alert" style="display:none" id="opFormResult">
+            </div>
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none" id="opFormError">
+            </div>
+        </form>
+    </div>
+</div>

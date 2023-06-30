@@ -1,0 +1,106 @@
+<div class="row" xmlns:th="http://www.thymeleaf.org">
+    <hr/>
+    <div class="col-12 p-0">
+        <div class="mt-2 mb-2 text-break font-weight-bold">
+            Mit dieser Operation können Sie Mails über das OpenKIM-SMTP-Gateway senden
+        </div>
+        <div class="mt-2 mb-2 text-break font-weight-bold" th:if="${gatewayTIMode.name() == 'NO_TI'}">
+          Die Gateways sind im Betriebsmodus "Konnektor wird NICHT benutzt und es wird mit Internet/Intranet-Mailservern gearbeitet" eingestellt. Bitte tragen Sie in
+          die Adressfelder "normale" Mailadressen ein. Der Nutzername muss komplexer aufgebaut sein - Bsp.: kim-test@sberg.net#mail.routing.net:465.
+          Wie aus dem KIM-Umfeld bekannt, wird hier der Mailserver und Port codiert.
+        </div>
+        <div class="mt-2 mb-2 text-break font-weight-bold" th:if="${gatewayTIMode.name() == 'KONNEKTOR'}">
+          Die Gateways sind im Betriebsmodus "Konnektor wird benutzt. Ansonsten kann wird mit Internet/Intranet-Mailservern gearbeitet" eingestellt. Bitte tragen Sie in
+          die Adressfelder "normale" Mailadressen ein. Der Nutzername muss komplexer aufgebaut sein - Bsp.: kim-test@sberg.net#mail.routing.net:465.
+          Wie aus dem KIM-Umfeld bekannt, wird hier der Mailserver und Port codiert.
+          Außerdem wird Ihnen das Adressmapping angezeigt. Die Mail wird signiert und verschlüsselt. Deshalb müssen die Mailadressen auf bekannte KIM-Adressen gemappt werden.
+        </div>
+        <div class="mt-2 mb-2 text-break font-weight-bold" th:if="${gatewayTIMode.name() == 'FULLSTACK'}">
+          Die Gateways sind im Betriebsmodus "Konnektor + KIM-Fachdienste werden benutzt" eingestellt. Bitte tragen Sie in
+          die Adressfelder "normale" KIM-Adressen ein. Der Nutzername muss, wie in der KIM-Spezifikation erklärt, komplexer aufgebaut sein - Bsp.: kim-test@tm.kim.telematik#mail.tm.kim.telematik:465.
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 p-0">
+        <form id="opForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;" enctype="multipart/form-data">
+            <input type="hidden" id="opId" name="opId" th:value="${opId}">
+
+            <input th:if="${gatewayTIMode.name() == 'NO_TI'}" type="hidden" id="withKonnektor" name="withKonnektor" th:value="false">
+            <div class="form-group needs-validation" th:if="${gatewayTIMode.name() != 'NO_TI'}">
+              <label for="konnektorId">Auswahl des Konnektors</label>
+              <select class="form-control" id="konnektorId" name="konnektorId" required>
+                <option th:each="konn : ${konnektoren}" th:value="${konn.uuid}" th:text="${konn.ip}"></option>
+              </select>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="userName">Bitte geben Sie den Nutzernamen ein (Bsp.: kim-test@sberg.net#mail.routing.net:465):</label>
+              <input type="text" id="userName" name="userName" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="pwd">Bitte geben Sie das Passwort ein:</label>
+              <input type="password" id="pwd" name="pwd" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="from">Bitte geben Sie den Absender ein:</label>
+              <input type="text" id="from" name="from" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="to">Bitte geben Sie den/die Empfänger ein (wenn mehrere, dann mit Kommas getrennt):</label>
+              <input type="text" id="to" name="to" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="cc">Bitte geben Sie den/die Kopie-Empfänger ein (wenn mehrere, dann mit Kommas getrennt) - Kein Pflichtfeld:</label>
+              <input type="text" id="cc" name="cc" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="bcc">Bitte geben Sie den/die Blind-Kopie-Empfänger ein (wenn mehrere, dann mit Kommas getrennt) - Kein Pflichtfeld:</label>
+              <input type="text" id="bcc" name="bcc" class="form-control">
+            </div>
+            <div class="form-group needs-validation">
+              <label for="subject">Bitte geben Sie den Betreff ein:</label>
+              <input type="text" id="subject" name="subject" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="body">Bitte geben Sie den Text der Mail ein:</label>
+              <textarea id="body" name="body" class="form-control" required></textarea>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation" th:if="${gatewayTIMode.name() == 'KONNEKTOR'}">
+              <label for="addressMapping">Bitte geben Sie das Addressmapping ein (Bsp.: xxx@web.de=xxx@tm.kim.telematik,xxx2@web.de=xxx2@tm.kim.telematik):</label>
+              <textarea id="addressMapping" name="addressMapping" class="form-control" required></textarea>
+            </div>
+            <div class="container-fluid p-0 mb-2">
+              <div class="row justify-content-start">
+                <div class="col-12 col-md-6 col-lg-3">
+                  <button class="btn btn-primary btn-block" onclick="pipelineoperationtestOpAusfuehren()">Ausführen</button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 mb-2 text-break" role="alert" style="display:none" id="opFormResult">
+            </div>
+            <div class="alert alert-danger mt-2 mb-2 text-break" role="alert" style="display:none" id="opFormError">
+            </div>
+        </form>
+    </div>
+</div>

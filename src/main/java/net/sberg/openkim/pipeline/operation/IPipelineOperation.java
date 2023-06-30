@@ -43,7 +43,7 @@ public interface IPipelineOperation {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
-            context.getLogger().logLine(sw.toString());
+            context.getLogger().logLine(sw.toString(), true);
         };
     }
     public default boolean hasError(DefaultPipelineOperationContext defaultPipelineOperationContext, String... prefixes) {

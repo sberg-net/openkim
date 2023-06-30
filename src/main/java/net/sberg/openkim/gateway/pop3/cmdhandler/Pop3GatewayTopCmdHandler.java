@@ -19,6 +19,7 @@ package net.sberg.openkim.gateway.pop3.cmdhandler;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.sun.mail.pop3.POP3Message;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import org.apache.james.protocols.api.Request;
@@ -30,7 +31,6 @@ import org.apache.james.protocols.pop3.core.CapaCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.Message;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
@@ -97,8 +97,8 @@ public class Pop3GatewayTopCmdHandler extends AbstractPOP3CommandHandler impleme
                     return SYNTAX_ERROR;
                 }
                 Args args = optionalArgs.get();
-                Message message = ((Pop3GatewaySession) session).getPop3ClientFolder().getMessage(args.messageNumber);
-                InputStream stream = message.getInputStream();
+                POP3Message message = (POP3Message)((Pop3GatewaySession) session).getPop3ClientFolder().getMessage(args.messageNumber);
+                InputStream stream = message.top(optionalArgs.get().lineCount.get());
                 String msg = new String(stream.readAllBytes());
                 POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, "");
                 response.appendLine(msg + ".");

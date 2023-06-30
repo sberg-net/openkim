@@ -113,7 +113,7 @@ public class GetSignCardHandleOperation implements IPipelineOperation {
                     }
 
                     defaultPipelineOperationContext.setEnvironmentValue(GetSignCardHandleOperation.NAME, GetSignCardHandleOperation.ENV_RESULT_CARD_HANDLE_FOUND, selectedCard != null);
-                    defaultPipelineOperationContext.setEnvironmentValue(GetSignCardHandleOperation.NAME, GetSignCardHandleOperation.ENV_RESULT_CARD_HANDLE, selectedCard);
+                    defaultPipelineOperationContext.setEnvironmentValue(GetSignCardHandleOperation.NAME, GetSignCardHandleOperation.ENV_RESULT_CARD_HANDLE, selectedCard.getCardHandle());
 
                     if (selectedCard == null) {
                         logger.getDefaultLoggerContext().getMailSignEncryptErrorContext().getErrorCodes().add(EnumErrorCode.CODE_X010);

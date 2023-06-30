@@ -60,6 +60,7 @@ public class PipelineOperationTestController {
     public String ladeOpIdForm(Model model, @PathVariable String opId) throws Exception {
         model.addAttribute("konnektoren", konfigurationService.getKonfiguration().getKonnektoren());
         model.addAttribute("opId", opId);
+        model.addAttribute("gatewayTIMode", konfigurationService.getKonfiguration().getGatewayTIMode());
         return "pipelineoperationtest/"+opId.replaceAll("\\.","_")+"_Formular";
     }
 

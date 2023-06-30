@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-package net.sberg.openkim.pipeline.operation.konnektor;
+package net.sberg.openkim.pipeline.operation.mail;
 
 import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
@@ -31,6 +31,7 @@ import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
+import net.sberg.openkim.pipeline.operation.konnektor.KonnektorLoadAllCardInformationOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.ReadCardCertificateOperation;
 import org.apache.james.metrics.api.TimeMetric;
 import org.bouncycastle.asn1.cms.ContentInfo;
@@ -197,7 +198,7 @@ public class GetDecryptCardHandleOperation implements IPipelineOperation {
                 timeMetric.stopAndPublish();
 
                 defaultPipelineOperationContext.setEnvironmentValue(GetDecryptCardHandleOperation.NAME, GetDecryptCardHandleOperation.ENV_RESULT_CARD_HANDLE_FOUND, selectedCard != null);
-                defaultPipelineOperationContext.setEnvironmentValue(GetDecryptCardHandleOperation.NAME, GetDecryptCardHandleOperation.ENV_RESULT_CARD_HANDLE, selectedCard);
+                defaultPipelineOperationContext.setEnvironmentValue(GetDecryptCardHandleOperation.NAME, GetDecryptCardHandleOperation.ENV_RESULT_CARD_HANDLE, selectedCard.getCardHandle());
 
                 if (selectedCard == null) {
                     logger.getDefaultLoggerContext().getMailDecryptErrorContext().getErrorCodes().add(EnumErrorCode.CODE_4009);

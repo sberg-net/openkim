@@ -197,9 +197,6 @@ public class KonfigurationService {
         catch (Exception e) {}
 
         Konfiguration konfiguration = new ObjectMapper().readValue(str, Konfiguration.class);
-        if (encryptPasswords) {
-            konfiguration.decryptPwds(encryptionKeys);
-        }
         List<Konnektor> konnektorList = new ArrayList<>();
         if (this.konfiguration != null) {
             konnektorList.addAll(this.konfiguration.getKonnektoren());
@@ -207,6 +204,9 @@ public class KonfigurationService {
         this.konfiguration = konfiguration;
         if (konnektorList.size() > 0) {
             this.konfiguration.setKonnektoren(konnektorList);
+        }
+        if (encryptPasswords) {
+            konfiguration.decryptPwds(encryptionKeys);
         }
     }
 

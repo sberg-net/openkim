@@ -44,6 +44,8 @@ public class MailUtils {
 
     private static final Logger log = LoggerFactory.getLogger(MailUtils.class);
 
+    public static final String X_OPENKIM_TEST_ID = "X-OPENKIM-TEST-ID";
+    public static final String X_OPENKIM_ADDRESS_MAPPING = "X-OPENKIM-ADDRESS-MAPPING";
     public static final String X_KIM_DIENSTKENNUNG = "X-KIM-Dienstkennung";
     public static final String X_KIM_KAS_SIZE = "X-KIM-KAS-Size";
     public static final String X_KOM_LE_VERSION = "X-KOM-LE-Version";
@@ -337,6 +339,44 @@ public class MailUtils {
         props.put("mail.pop3.connectiontimeout", timeout);
         props.put("mail.pop3.timeout", timeout);
         props.put("mail.pop3.writetimeout", timeout);
+
+        return props;
+    }
+
+    public static final Properties fillSmtpMailProps(
+        Properties props,
+        EnumMailConnectionSecurity connectionSecurity,
+        EnumMailAuthMethod authMethod,
+        String host,
+        String port,
+        int timeout) throws Exception {
+        if (connectionSecurity.equals(EnumMailConnectionSecurity.STARTTLS)) {
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.ssl.enable", "false");
+        }
+        else if (connectionSecurity.equals(EnumMailConnectionSecurity.SSLTLS)) {
+            props.put("mail.smtp.starttls.enable", "false");
+            props.put("mail.smtp.ssl.enable", "true");
+        }
+        else if (connectionSecurity.equals(EnumMailConnectionSecurity.NONE)) {
+            props.put("mail.smtp.starttls.enable", "false");
+            props.put("mail.smtp.ssl.enable", "false");
+        }
+
+        if (authMethod.equals(EnumMailAuthMethod.NORMALPWD)) {
+            props.put("mail.smtp.auth", "true");
+        }
+        else {
+            props.put("mail.smtp.auth", "false");
+        }
+
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.ssl.trust", "*");
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.port", port);
+        props.put("mail.smtp.connectiontimeout", timeout);
+        props.put("mail.smtp.timeout", timeout);
+        props.put("mail.smtp.writetimeout", timeout);
 
         return props;
     }

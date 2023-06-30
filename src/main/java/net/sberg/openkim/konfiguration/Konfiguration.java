@@ -67,8 +67,11 @@ public class Konfiguration {
     @JsonIgnore
     private MultipartFile fachdienstCertFile;
 
-    private String xkimCmVersion = "OpenKIM_0.15.1";
+    @JsonIgnore
+    private String xkimCmVersion = "OpenKIM_0.17.0";
+    @JsonIgnore
     private String xkimPtVersion = "1.5.0-2";
+    @JsonIgnore
     private EnumKomLeVersion xkimPtShortVersion = EnumKomLeVersion.V1_5plus;
 
     private List<Konnektor> konnektoren = new ArrayList<>();

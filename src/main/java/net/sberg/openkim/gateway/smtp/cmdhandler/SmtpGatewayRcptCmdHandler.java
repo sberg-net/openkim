@@ -99,6 +99,7 @@ public class SmtpGatewayRcptCmdHandler extends AbstractGatewayHookableCmdHandler
             else {
                 DefaultLoggerContext loggerContext = ((SmtpGatewaySession) session).getLogger().getDefaultLoggerContext();
                 if (!loggerContext.getRecipientAddresses().contains(recipientAddress.asString().toLowerCase())) {
+                    ((SmtpGatewaySession) session).log("rcpt to: "+recipientAddress.asString().toLowerCase());
                     loggerContext.getRecipientAddresses().add(recipientAddress.asString().toLowerCase());
                 }
             }

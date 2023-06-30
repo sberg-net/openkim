@@ -19,6 +19,7 @@ package net.sberg.openkim.gateway.pop3.cmdhandler;
 import com.google.common.collect.ImmutableSet;
 import net.sberg.openkim.common.EnumMailAuthMethod;
 import net.sberg.openkim.common.EnumMailConnectionSecurity;
+import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.pop3.EnumPop3GatewayState;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
@@ -48,6 +49,7 @@ import org.xbill.DNS.Type;
 import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -415,7 +417,7 @@ public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implem
                 mailServerHost,
                 ((Pop3GatewaySession) session).getLogger().getDefaultLoggerContext().getMailServerPort(),
                 konfiguration.getPop3ClientIdleTimeoutInSeconds(),
-                konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)?konfiguration.getFachdienstCertFilename():null,
+                konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)?ICommonConstants.BASE_DIR + File.separator + konfiguration.getFachdienstCertFilename():null,
                 konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)?konfiguration.getFachdienstCertAuthPwd():null,
                 konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)
             );

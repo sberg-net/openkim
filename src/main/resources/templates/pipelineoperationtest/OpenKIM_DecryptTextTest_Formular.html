@@ -2,7 +2,7 @@
     <hr/>
     <div class="col-12 p-0">
         <div class="mt-2 mb-2 text-break font-weight-bold">
-            Holen einer JobNumber vom Konnektor
+            Entschlüsseln eines Textes mit dem ausgewählten Konnektor
         </div>
     </div>
 </div>
@@ -15,6 +15,20 @@
               <select class="form-control" id="konnektorId" name="konnektorId" required>
                 <option th:each="konn : ${konnektoren}" th:value="${konn.uuid}" th:text="${konn.ip}"></option>
               </select>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="icssn">Bitte geben Sie hier die ICSSN der zu benutzenden Karte an:</label>
+              <input type="text" id="icssn" name="icssn" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="decryptedText">Bitte geben Sie hier den verschlüsselten Text (Base64-encoded) ein:</label>
+              <textarea id="decryptedText" name="decryptedText" class="form-control" required></textarea>
               <div class="invalid-feedback">
                 Bitte angeben!
               </div>

@@ -194,6 +194,7 @@ public class SmtpGatewayMailHook implements MessageHook {
             tempMailFile.delete();
 
             String msgContent = null;
+            List<IErrorContext> errorContexts = new ArrayList();
             if (!logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
 
                 //check sender
@@ -213,10 +214,6 @@ public class SmtpGatewayMailHook implements MessageHook {
                 }
 
                 //check recipients
-                boolean senderInRecipients = logger.getDefaultLoggerContext().getRecipientAddresses().contains(logger.getDefaultLoggerContext().getSenderAddress());
-                if (senderInRecipients) {
-                    logger.getDefaultLoggerContext().getRecipientAddresses().remove(logger.getDefaultLoggerContext().getSenderAddress());
-                }
                 if (!checkMailAddresses(smtpGatewaySession, logger.getDefaultLoggerContext().getRecipientCerts(), logger.getDefaultLoggerContext().getRecipientAddresses(), false, true)) {
                     smtpGatewaySession.getSmtpClient().rset();
                     smtpGatewaySession.log("mail hook ends - error");
@@ -232,11 +229,7 @@ public class SmtpGatewayMailHook implements MessageHook {
                     smtpGatewaySession.getSmtpClient().rset();
                     return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext()), message, false);
                 }
-                if (senderInRecipients) {
-                    logger.getDefaultLoggerContext().getRecipientCerts().put(logger.getDefaultLoggerContext().getSenderAddress(), logger.getDefaultLoggerContext().getSenderCerts().get(logger.getDefaultLoggerContext().getSenderAddress()));
-                }
 
-                List<IErrorContext> errorContexts = new ArrayList();
                 if (!logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isEmpty()) {
                     errorContexts.add(logger.getDefaultLoggerContext().getMailaddressCertErrorContext());
                 }
@@ -348,6 +341,37 @@ public class SmtpGatewayMailHook implements MessageHook {
                 msgContent = new String(msgBytes);
             }
             else {
+                //send rcpt to
+                boolean successfulRcptTo = false;
+                for (Iterator<String> iterator = logger.getDefaultLoggerContext().getRecipientAddresses().iterator(); iterator.hasNext(); ) {
+                    String rcptAddress = iterator.next();
+                    int res = ((SmtpGatewaySession) session).getSmtpClient().rcpt("<" + rcptAddress + ">");
+                    if (!SMTPReply.isPositiveCompletion(res)) {
+                        logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext().add(rcptAddress, EnumErrorCode.CODE_X024);
+                    }
+                    else {
+                        successfulRcptTo = true;
+                    }
+                }
+
+                if (!successfulRcptTo) {
+                    errorContexts.add(logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext());
+                    smtpGatewaySession.getSmtpClient().rset();
+                    return sendDsn(logger, errorContexts, message, false);
+                }
+
+                if (!logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext().isEmpty()) {
+                    errorContexts.add(logger.getDefaultLoggerContext().getMailaddressRcptToErrorContext());
+                }
+
+                //send dsn for errors
+                if (!errorContexts.isEmpty()) {
+                    HookResult hookResult = sendDsn(logger, errorContexts, message, false);
+                    if (hookResult.equals(HookResult.DENY)) {
+                        return hookResult;
+                    }
+                }
+
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 message.writeTo(byteArrayOutputStream);
                 byteArrayOutputStream.close();

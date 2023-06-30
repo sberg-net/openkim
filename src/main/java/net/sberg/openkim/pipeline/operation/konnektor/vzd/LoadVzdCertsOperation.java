@@ -168,26 +168,26 @@ public class LoadVzdCertsOperation implements IPipelineOperation  {
                         throw new IllegalStateException("error on loading certs for address: " + x509CertificateResult.getMailAddress());
                     }
                     log.info(
-                            "cert result found for: " + x509CertificateResult.getMailAddress()
-                                    + " - "
-                                    + x509CertificateResult.getCerts().size()
-                                    + " certs found - "
-                                    + x509CertificateResult.getRsaCerts().size()
-                                    + " rsa certs found - telematik id result - "
-                                    + x509CertificateResult.getTelematikIdResult().getTelematikId()
-                                    + " "
-                                    + x509CertificateResult.getTelematikIdResult().getErrorCode()
+                        "cert result found for: " + x509CertificateResult.getMailAddress()
+                            + " - "
+                            + x509CertificateResult.getCerts().size()
+                            + " certs found - "
+                            + x509CertificateResult.getRsaCerts().size()
+                            + " rsa certs found - telematik id result - "
+                            + x509CertificateResult.getTelematikIdResult().getTelematikId()
+                            + " "
+                            + x509CertificateResult.getTelematikIdResult().getErrorCode()
                     );
                     logger.logLine(
-                            "cert result found for: " + x509CertificateResult.getMailAddress()
-                                    + " - "
-                                    + x509CertificateResult.getCerts().size()
-                                    + " certs found - "
-                                    + x509CertificateResult.getRsaCerts().size()
-                                    + " rsa certs found - telematik id result - "
-                                    + x509CertificateResult.getTelematikIdResult().getTelematikId()
-                                    + " "
-                                    + x509CertificateResult.getTelematikIdResult().getErrorCode()
+                        "cert result found for: " + x509CertificateResult.getMailAddress()
+                            + " - "
+                            + x509CertificateResult.getCerts().size()
+                            + " certs found - "
+                            + x509CertificateResult.getRsaCerts().size()
+                            + " rsa certs found - telematik id result - "
+                            + x509CertificateResult.getTelematikIdResult().getTelematikId()
+                            + " "
+                            + x509CertificateResult.getTelematikIdResult().getErrorCode()
                     );
                 }
                 if (result.isEmpty()) {

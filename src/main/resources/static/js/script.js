@@ -760,6 +760,16 @@ function pipelineoperationtestOpAusfuehren() {
     return;
   }
 
+  $('#opForm input[type=checkbox]').each(function(index, elem) {
+    fData.delete($(elem).attr('name'));
+    if ($(elem).prop('checked')) {
+      fData.append($(elem).attr('name'), "true");
+    }
+    else {
+      fData.append($(elem).attr('name'), "false");
+    }
+  });
+
   $("#opFormResult").attr("style", "display:none");
   $("#opFormResult").empty();
 

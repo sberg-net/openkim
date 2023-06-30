@@ -156,7 +156,7 @@ public class KasIncomingMailOperation implements IPipelineOperation {
                     if (messageFileOutput.exists()) {
                         messageFileOutput.delete();
                     }
-                    byte[] decKey = Base64.getDecoder().decode(kasMetaObj.getK());
+                    byte[] decKey = Base64.getDecoder().decode(kasMetaObj.getK().getBytes("UTF-8"));
                     secretKey = new SecretKeySpec(decKey, AesGcmHelper.ENCRYPT_ALGO);
                     AesGcmHelper.decryptWithStreamWithPrefixIV(messageFileOutput, apiResult.getBody(), secretKey);
                     logger.logLine("decrypt attachment from kas-service: " + kasMetaObj.getLink() + " ends");

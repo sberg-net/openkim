@@ -163,10 +163,10 @@ public class CheckEncryptedMailFormatOperation implements IPipelineOperation  {
 
             AuthEnvelopedData authEnvelopedData = CMSUtils.extractEnvelopedCMS(encryptedPart);
             EnvelopedData envelopedData = new EnvelopedData(
-                    authEnvelopedData.getOriginatorInfo(),
-                    authEnvelopedData.getRecipientInfos(),
-                    authEnvelopedData.getAuthEncryptedContentInfo(),
-                    authEnvelopedData.getUnauthAttrs()
+                authEnvelopedData.getOriginatorInfo(),
+                authEnvelopedData.getRecipientInfos(),
+                authEnvelopedData.getAuthEncryptedContentInfo(),
+                authEnvelopedData.getUnauthAttrs()
             );
             ContentInfo envelopedDataContentInfo = new ContentInfo(CMSObjectIdentifiers.envelopedData, envelopedData);
             CMSEnvelopedData cmsEnvelopedData = new CMSEnvelopedData(envelopedDataContentInfo.getEncoded());

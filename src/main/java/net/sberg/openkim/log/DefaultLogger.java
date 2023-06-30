@@ -40,6 +40,10 @@ public class DefaultLogger {
     private int depth;
 
     public void logLine(String line) {
+        logLine(line, false);
+    }
+
+    public void logLine(String line, boolean htmlPreMode) {
         if (defaultLoggerContext.isHtmlMode()) {
             logContent.append((depth > 0) ? "<br/><span style=\"white-space:nowrap;\" class=\"ml-" + depth + "\">" : "<br/><span style=\"white-space:nowrap;\">");
         } else {
@@ -48,7 +52,12 @@ public class DefaultLogger {
                 logContent.append(" ");
             }
         }
-        logContent.append(line);
+        if (defaultLoggerContext.isHtmlMode() && htmlPreMode) {
+            logContent.append("<pre>"+line+"</pre>");
+        }
+        else {
+            logContent.append(line);
+        }
         if (defaultLoggerContext.isHtmlMode()) {
             logContent.append("</span>");
         }

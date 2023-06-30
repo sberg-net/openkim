@@ -2,7 +2,7 @@
     <hr/>
     <div class="col-12 p-0">
         <div class="mt-2 mb-2 text-break font-weight-bold">
-            Holen einer JobNumber vom Konnektor
+            Mit dieser Operation können Sie eine Mail über einen Konnektor entschlüsseln und die Signatur prüfen lassen
         </div>
     </div>
 </div>
@@ -10,11 +10,26 @@
     <div class="col-12 p-0">
         <form id="opForm" xmlns:th="http://www.thymeleaf.org" onsubmit="return false;" enctype="multipart/form-data">
             <input type="hidden" id="opId" name="opId" th:value="${opId}">
+
             <div class="form-group needs-validation">
               <label for="konnektorId">Auswahl des Konnektors</label>
               <select class="form-control" id="konnektorId" name="konnektorId" required>
                 <option th:each="konn : ${konnektoren}" th:value="${konn.uuid}" th:text="${konn.ip}"></option>
               </select>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="userMailAddress">Bitte geben Sie den Empfänger ein:</label>
+              <input type="text" id="userMailAddress" name="userMailAddress" class="form-control" required>
+              <div class="invalid-feedback">
+                Bitte angeben!
+              </div>
+            </div>
+            <div class="form-group needs-validation">
+              <label for="encryptedMsg">Bitte geben Sie hier die komplette verschlüsselte Mail mit Headern ein:</label>
+              <textarea id="encryptedMsg" name="encryptedMsg" class="form-control" required></textarea>
               <div class="invalid-feedback">
                 Bitte angeben!
               </div>

@@ -17,7 +17,6 @@
 package net.sberg.openkim.gateway.pop3;
 
 import net.sberg.openkim.gateway.pop3.cmdhandler.*;
-import net.sberg.openkim.gateway.pop3.signreport.SignReportService;
 import net.sberg.openkim.pipeline.PipelineService;
 import org.apache.james.protocols.api.handler.*;
 import org.apache.james.protocols.pop3.POP3Session;
@@ -27,12 +26,12 @@ import java.util.List;
 
 public class Pop3GatewayProtocolHandlerChain extends ProtocolHandlerChainImpl {
 
-    public Pop3GatewayProtocolHandlerChain(PipelineService pipelineService, SignReportService signReportService) throws WiringException {
-        addAll(initDefaultHandlers(pipelineService, signReportService));
+    public Pop3GatewayProtocolHandlerChain(PipelineService pipelineService) throws WiringException {
+        addAll(initDefaultHandlers(pipelineService));
         wireExtensibleHandlers();
     }
 
-    protected List<ProtocolHandler> initDefaultHandlers(PipelineService pipelineService, SignReportService signReportService) {
+    protected List<ProtocolHandler> initDefaultHandlers(PipelineService pipelineService) {
         List<ProtocolHandler> handlers = new ArrayList<>();
 
         handlers.add(new Pop3GatewayPassCmdHandler(pipelineService));
@@ -44,7 +43,7 @@ public class Pop3GatewayProtocolHandlerChain extends ProtocolHandlerChainImpl {
         handlers.add(new Pop3GatewayRsetCmdHandler());
         handlers.add(new Pop3GatewayDeleCmdHandler());
         handlers.add(new Pop3GatewayNoopCmdHandler());
-        handlers.add(new Pop3GatewayRetrCmdHandler(pipelineService, signReportService));
+        handlers.add(new Pop3GatewayRetrCmdHandler(pipelineService));
         handlers.add(new Pop3GatewayTopCmdHandler());
         handlers.add(new Pop3GatewayStatCmdHandler());
         handlers.add(new Pop3GatewayQuitCmdHandler());

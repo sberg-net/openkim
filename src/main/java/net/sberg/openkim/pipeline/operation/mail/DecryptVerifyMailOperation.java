@@ -29,7 +29,6 @@ import net.sberg.openkim.log.error.EnumErrorCode;
 import net.sberg.openkim.pipeline.PipelineOperation;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.IPipelineOperation;
-import net.sberg.openkim.pipeline.operation.konnektor.GetDecryptCardHandleOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.vzd.EnumKomLeVersion;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.DecryptDocumentOperation;
 import net.sberg.openkim.pipeline.operation.konnektor.webservice.VerifySignedDocumentOperation;
@@ -67,7 +66,6 @@ public class DecryptVerifyMailOperation implements IPipelineOperation  {
 
     public static final String ENV_ENCRYPTED_MSG = "encryptedMsg";
     public static final String ENV_USER_MAIL_ADDRESS = "userMailAddress";
-    public static final String ENV_SIGN_REPORT_SERVICE = "signResportService";
     public static final String ENV_RESULT_MSG_BYTES = "resultMsgBytes";
 
     @Autowired
@@ -82,6 +80,8 @@ public class DecryptVerifyMailOperation implements IPipelineOperation  {
     private AddMailAttachmentOperation addMailAttachmentOperation;
     @Autowired
     private AddMailTextOperation addMailTextOperation;
+    @Autowired
+    private SignReportService signReportService;
 
     @Override
     public String getName() {
@@ -106,7 +106,6 @@ public class DecryptVerifyMailOperation implements IPipelineOperation  {
 
             MimeMessage encryptedMsg = (MimeMessage)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_ENCRYPTED_MSG);
             String userMailAddress = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_USER_MAIL_ADDRESS);
-            SignReportService signReportService = (SignReportService)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_SIGN_REPORT_SERVICE);
 
             //Header X-KOM-LE-Version available -> not encrypted
             if (encryptedMsg.getHeader(MailUtils.X_KOM_LE_VERSION) == null || encryptedMsg.getHeader(MailUtils.X_KOM_LE_VERSION).length == 0) {
@@ -195,7 +194,7 @@ public class DecryptVerifyMailOperation implements IPipelineOperation  {
                 logger.logLine("getDecryptCardHandle finished: " + decryptCardHandle);
 
                 //decrypt
-                defaultPipelineOperationContext.setEnvironmentValue(DecryptDocumentOperation.NAME, DecryptDocumentOperation.ENV_DOCUMENT, encryptedPart);
+                defaultPipelineOperationContext.setEnvironmentValue(DecryptDocumentOperation.NAME, DecryptDocumentOperation.ENV_DOCUMENT_BYTES, encryptedPart);
                 defaultPipelineOperationContext.setEnvironmentValue(DecryptDocumentOperation.NAME, DecryptDocumentOperation.ENV_CARDHANDLE, decryptCardHandle);
 
                 AtomicInteger failedCounter = new AtomicInteger();
