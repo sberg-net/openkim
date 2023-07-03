@@ -74,8 +74,8 @@ jobs:
           # type=semver,pattern={{major}}
           tags: |
             type=raw,value=latest
-            type=match,pattern=\d.\d.\d,value=v${{ steps.build_maven.outputs.version }}
-            type=match,pattern=\d.\d,value=v${{ steps.build_maven.outputs.version }}
+            type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
+            type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
             type=sha
 
       # Add support for more platforms with QEMU (optional)
