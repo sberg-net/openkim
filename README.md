@@ -7,6 +7,10 @@ https://fachportal.gematik.de/fachportal-import/files/gemSpec_CM_KOMLE_V1.16.0.p
 
 > Die Zulassung der Gematik ist noch nicht erfolgt!! OpenKIM darf deshalb nicht als KIM-Clientmodul betrieben werden.
 
+## Docker Images
+Docker Images stehen auf [Docker Hub](https://hub.docker.com/r/sbergit/openkim) zur Verfühgung.
+ARM64 Images folgen in Kürze.
+
 ## aktuelle Einsatzgebiete von OpenKIM
 Viele setzen OpenKIM als Monitoring-Werkzeug ein, um z.b. zu checken, 
 ob der TI-Konnektor mit der TI verbunden ist. Weitere Monitoring- und Diagnosemöglichkeiten sind
