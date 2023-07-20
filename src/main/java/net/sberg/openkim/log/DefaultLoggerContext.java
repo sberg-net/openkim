@@ -18,11 +18,13 @@ package net.sberg.openkim.log;
 
 import net.sberg.openkim.common.x509.X509CertificateResult;
 import net.sberg.openkim.fachdienst.Fachdienst;
+import net.sberg.openkim.konfiguration.EnumGatewayTIMode;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
 import net.sberg.openkim.log.error.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultLoggerContext {
 
@@ -47,10 +49,14 @@ public class DefaultLoggerContext {
     private String mailServerUsername;
     private String mailServerPassword;
     private de.gematik.kim.al.model.AccountLimit accountLimit = new de.gematik.kim.al.model.AccountLimit();
+
     private String senderAddress;
     private Map<String, X509CertificateResult> senderCerts = new HashMap<>();
+    private Map<String, String> senderAddressMapping = new HashMap<>();
+
     private List<String> recipientAddresses = new ArrayList<>();
     private Map<String, X509CertificateResult> recipientCerts = new HashMap<>();
+    private Map<String, Map<String, String>> recipientAddressMapping = new HashMap<>();
 
     private final MailaddressCertErrorContext mailaddressCertErrorContext = new MailaddressCertErrorContext();
     private final MailaddressKimVersionErrorContext mailaddressKimVersionErrorContext = new MailaddressKimVersionErrorContext();
@@ -252,15 +258,35 @@ public class DefaultLoggerContext {
         return mailServerPassword;
     }
 
-    public List<String> getRecipientAddresses() { return recipientAddresses; }
-
-    public Map<String, X509CertificateResult> getRecipientCerts() { return recipientCerts; }
-
-    public String getSenderAddress() {
-        return senderAddress;
+    public List<String> getRecipientAddresses(boolean origin) {
+        if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
+            return recipientAddresses;
+        }
+        if (origin) {
+            return recipientAddresses;
+        }
+        if (getRecipientAddressMapping().isEmpty()) {
+            return recipientAddresses;
+        }
+        return getRecipientAddressMapping().values().stream().map(stringStringMap -> stringStringMap.values()).flatMap(Collection::stream).collect(Collectors.toList());
     }
+    public Map<String, X509CertificateResult> getRecipientCerts() { return recipientCerts; }
+    public Map<String, Map<String, String>> getRecipientAddressMapping() { return recipientAddressMapping; }
 
+    public String getSenderAddress(boolean origin) {
+        if (konfiguration.getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK)) {
+            return senderAddress;
+        }
+        if (origin) {
+            return senderAddress;
+        }
+        if (getSenderAddressMapping().isEmpty()) {
+            return senderAddress;
+        }
+        return getSenderAddressMapping().get(senderAddress);
+    }
     public Map<String, X509CertificateResult> getSenderCerts() { return senderCerts; }
+    public Map<String, String> getSenderAddressMapping() { return senderAddressMapping; }
 
     public de.gematik.kim.al.model.AccountLimit getAccountLimit() {
         return accountLimit;

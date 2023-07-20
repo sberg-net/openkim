@@ -138,6 +138,77 @@ public class MailUtils {
         return resultMessage;
     }
 
+    public static final boolean checkAddressMapping(DefaultLogger logger, MimeMessage msg, boolean sendingMode) throws Exception {
+        try {
+            logger.logLine("checkAddressMapping");
+            String addressMappingStr = (msg.getHeader(MailUtils.X_OPENKIM_ADDRESS_MAPPING) != null && msg.getHeader(MailUtils.X_OPENKIM_ADDRESS_MAPPING).length > 0)
+                ? msg.getHeader(MailUtils.X_OPENKIM_ADDRESS_MAPPING)[0]
+                : null;
+            if (addressMappingStr == null) {
+                logger.logLine("checkAddressMapping finished - no mappings available");
+                return true;
+            }
+            //to|kim-test@sberg.net=uschi@web.de,from|basketmc@gmail.com=uschi@yahoo.de
+            String[] mappings = addressMappingStr.split(",");
+            for (int i = 0; i < mappings.length; i++) {
+                String recOrSender = mappings[i].split("\\|")[0].toLowerCase();
+                String mapping = mappings[i].split("\\|")[1];
+                String source = mapping.split("=")[0].toLowerCase();
+                String target = mapping.split("=")[1].toLowerCase();
+                if (!recOrSender.equals(FROM.toLowerCase())
+                    &&
+                    !recOrSender.equals(TO.toLowerCase())
+                    &&
+                    !recOrSender.equals(CC.toLowerCase())
+                    &&
+                    !recOrSender.equals(BCC.toLowerCase())
+                ) {
+                    throw new IllegalStateException("falsches Format");
+                }
+
+                if (recOrSender.equals(FROM.toLowerCase())) {
+                    logger.getDefaultLoggerContext().getSenderAddressMapping().put(source, target);
+                }
+                else {
+                    if (!logger.getDefaultLoggerContext().getRecipientAddressMapping().containsKey(recOrSender)) {
+                        logger.getDefaultLoggerContext().getRecipientAddressMapping().put(recOrSender, new HashMap<>());
+                    }
+                    logger.getDefaultLoggerContext().getRecipientAddressMapping().get(recOrSender).put(source, target);
+                }
+            }
+
+            if (sendingMode) {
+                String from = msg.getFrom()[0].toString().toLowerCase();
+                if (logger.getDefaultLoggerContext().getSenderAddressMapping().containsKey(from)) {
+                    msg.setFrom(logger.getDefaultLoggerContext().getSenderAddressMapping().get(from));
+                }
+
+                List<Message.RecipientType> types = List.of(Message.RecipientType.TO, Message.RecipientType.CC, Message.RecipientType.BCC);
+                for (Iterator<Message.RecipientType> iterator = types.iterator(); iterator.hasNext(); ) {
+                    Message.RecipientType type = iterator.next();
+                    Address[] addresses = msg.getRecipients(type);
+                    if (addresses != null && logger.getDefaultLoggerContext().getRecipientAddressMapping().containsKey(type.toString().toLowerCase())) {
+                        msg.removeHeader(type.toString().toLowerCase());
+                        for (int i = 0; i < addresses.length; i++) {
+                            if (logger.getDefaultLoggerContext().getRecipientAddressMapping().get(type.toString().toLowerCase()).containsKey(addresses[i].toString().toLowerCase())) {
+                                msg.addRecipient(type, new InternetAddress(logger.getDefaultLoggerContext().getRecipientAddressMapping().get(type.toString().toLowerCase()).get(addresses[i].toString().toLowerCase())));
+                            } else {
+                                msg.addRecipient(type, addresses[i]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+        catch (Exception e) {
+            log.error("error on checkAddressMapping", e);
+            logger.logLine("error on checkAddressMapping");
+            throw e;
+        }
+    }
+
     public static final boolean checkHeader(DefaultLogger logger, Konnektor konnektor, MimeMessage encryptedMsg, MimeMessage decryptedAndVerifiedMsg, String headerName) throws Exception {
         try {
             logger.logLine("check header: " + headerName);
@@ -298,7 +369,7 @@ public class MailUtils {
             authMethod,
             host,
             port,
-                pop3ClientIdleTimeoutInSeconds * 1000
+            pop3ClientIdleTimeoutInSeconds * 1000
         );
 
         if (createSSLSocketFactory) {

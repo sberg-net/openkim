@@ -135,6 +135,14 @@ public class ComposeEncryptedMailOperation implements IPipelineOperation  {
                 resultMsg.addHeader(MailUtils.X_OPENKIM_TEST_ID, openkimTestId);
             }
 
+            //check on openkim test message -> addressmapping
+            String addressMapping = (originMimeMessage.getHeader(MailUtils.X_OPENKIM_ADDRESS_MAPPING) != null && originMimeMessage.getHeader(MailUtils.X_OPENKIM_ADDRESS_MAPPING).length > 0)
+                    ? originMimeMessage.getHeader(MailUtils.X_OPENKIM_ADDRESS_MAPPING)[0]
+                    : null;
+            if (addressMapping != null) {
+                resultMsg.addHeader(MailUtils.X_OPENKIM_ADDRESS_MAPPING, addressMapping);
+            }
+
             resultMsg.addHeader(MailUtils.X_KIM_DIENSTKENNUNG, dienstkennung);
             resultMsg = MailUtils.setRecipients(logger, recipientCerts, originMimeMessage, resultMsg, Message.RecipientType.TO);
             resultMsg = MailUtils.setRecipients(logger, recipientCerts, originMimeMessage, resultMsg, Message.RecipientType.CC);

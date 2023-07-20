@@ -28,6 +28,7 @@ import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.mail.CreateDsnOperation;
 import net.sberg.openkim.pipeline.operation.mail.CreateEmbeddedMessageRfc822Operation;
 import net.sberg.openkim.pipeline.operation.mail.DecryptVerifyMailOperation;
+import net.sberg.openkim.pipeline.operation.mail.MailUtils;
 import net.sberg.openkim.pipeline.operation.mail.kas.KasIncomingMailOperation;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
@@ -110,6 +111,11 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             try {
                 MimeMessage message = (MimeMessage) pop3GatewaySession.getPop3ClientFolder().getMessage(Integer.parseInt(request.getArgument()));
+
+                if (!MailUtils.checkAddressMapping(logger, message, false)) {
+                    throw new IllegalStateException("error on checking of address mapping");
+                }
+
                 pop3GatewaySession.setGatewayState(EnumPop3GatewayState.PROCESS);
 
                 byte[] pop3msg = null;
@@ -144,7 +150,12 @@ public class Pop3GatewayRetrCmdHandler extends AbstractPOP3CommandHandler {
                         message = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(KasIncomingMailOperation.NAME, KasIncomingMailOperation.ENV_RESULT_MSG);
                     }
 
-                    pop3msg = decryptVerify(pop3GatewaySession.getLogger(), pop3GatewaySession.getLogger().getDefaultLoggerContext().getMailServerUsername(), message);
+                    String userMailAddress = pop3GatewaySession.getLogger().getDefaultLoggerContext().getMailServerUsername();
+                    if (!logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.FULLSTACK) && logger.getDefaultLoggerContext().getSenderAddressMapping().containsKey(userMailAddress)) {
+                        userMailAddress = logger.getDefaultLoggerContext().getSenderAddressMapping().get(userMailAddress);
+                    }
+
+                    pop3msg = decryptVerify(pop3GatewaySession.getLogger(), userMailAddress, message);
                     if (!logger.getDefaultLoggerContext().getMailSignVerifyErrorContext().isEmpty()) {
 
                         CreateDsnOperation createDsnOperation = (CreateDsnOperation) pipelineService.getOperation(CreateDsnOperation.BUILTIN_VENDOR + "." + CreateDsnOperation.NAME);

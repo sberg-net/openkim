@@ -129,17 +129,17 @@ public class SignEncryptMailTestOperation implements IPipelineOperation  {
 
             String to = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_TO);
             if (to != null && !to.isEmpty()) {
-                logger.getDefaultLoggerContext().getRecipientAddresses().addAll(Arrays.asList(to.split(",")));
+                logger.getDefaultLoggerContext().getRecipientAddresses(true).addAll(Arrays.asList(to.split(",")));
                 mimeMessage.setRecipients(Message.RecipientType.TO, to);
             }
             String cc = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_CC);
             if (cc != null && !cc.isEmpty()) {
-                logger.getDefaultLoggerContext().getRecipientAddresses().addAll(Arrays.asList(cc.split(",")));
+                logger.getDefaultLoggerContext().getRecipientAddresses(true).addAll(Arrays.asList(cc.split(",")));
                 mimeMessage.setRecipients(Message.RecipientType.CC, to);
             }
             String bcc = (String)defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_BCC);
             if (bcc != null && !bcc.isEmpty()) {
-                logger.getDefaultLoggerContext().getRecipientAddresses().addAll(Arrays.asList(bcc.split(",")));
+                logger.getDefaultLoggerContext().getRecipientAddresses(true).addAll(Arrays.asList(bcc.split(",")));
                 mimeMessage.setRecipients(Message.RecipientType.BCC, to);
             }
 
@@ -151,7 +151,7 @@ public class SignEncryptMailTestOperation implements IPipelineOperation  {
             }
 
             //check recipients
-            if (!checkMailAddresses(logger, logger.getDefaultLoggerContext().getRecipientCerts(), logger.getDefaultLoggerContext().getRecipientAddresses(), false, true)) {
+            if (!checkMailAddresses(logger, logger.getDefaultLoggerContext().getRecipientCerts(), logger.getDefaultLoggerContext().getRecipientAddresses(true), false, true)) {
                 logger.logLine("load recipient certs ends - error");
                 throw new IllegalStateException("load recipient certs ends - error");
             }

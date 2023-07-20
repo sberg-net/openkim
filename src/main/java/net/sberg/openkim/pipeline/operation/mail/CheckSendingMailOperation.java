@@ -72,7 +72,7 @@ public class CheckSendingMailOperation implements IPipelineOperation  {
 
             MimeMessage message = (MimeMessage) defaultPipelineOperationContext.getEnvironmentValue(NAME, ENV_MSG);
             List<X509CertificateResult> recipientCerts = new ArrayList<>(logger.getDefaultLoggerContext().getRecipientCerts().values());
-            String senderAddress = logger.getDefaultLoggerContext().getSenderAddress();
+            String senderAddress = logger.getDefaultLoggerContext().getSenderAddress(false);
 
             if (message.getFrom() == null || message.getFrom().length == 0) {
                 logger.logLine("no from header available for senderAddress: " + senderAddress);

@@ -177,7 +177,7 @@ public class SendDsnOperation implements IPipelineOperation  {
 
             mimeMessage = DsnHelper.createMessage(
                 originMessage,
-                logger.getDefaultLoggerContext().getSenderAddress(),
+                logger.getDefaultLoggerContext().getSenderAddress(false),
                 contentBuilder.toString(),
                 "",
                 "",
@@ -212,8 +212,8 @@ public class SendDsnOperation implements IPipelineOperation  {
             logger.logLine("dsn sending - smtp auth: " + res);
             if (res) {
                 String content = byteArrayOutputStream.toString();
-                String[] recs = new String[]{logger.getDefaultLoggerContext().getSenderAddress()};
-                res = client.sendSimpleMessage(logger.getDefaultLoggerContext().getSenderAddress(), recs, content);
+                String[] recs = new String[]{logger.getDefaultLoggerContext().getSenderAddress(false)};
+                res = client.sendSimpleMessage(logger.getDefaultLoggerContext().getSenderAddress(false), recs, content);
                 logger.logLine("dsn sending - smtp sent: " + res);
             }
 

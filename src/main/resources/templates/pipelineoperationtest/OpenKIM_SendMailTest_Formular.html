@@ -86,8 +86,8 @@
                 Bitte angeben!
               </div>
             </div>
-            <div class="form-group needs-validation" th:if="${gatewayTIMode.name() == 'KONNEKTOR'}">
-              <label for="addressMapping">Bitte geben Sie das Addressmapping ein (Bsp.: xxx@web.de=xxx@tm.kim.telematik,xxx2@web.de=xxx2@tm.kim.telematik):</label>
+            <div class="form-group needs-validation" th:if="${gatewayTIMode.name() != 'FULLSTACK'}">
+              <label for="addressMapping">Bitte geben Sie das Addressmapping ein (Bsp.: to|kim-test@sberg.net=uschi@web.de,from|basketmc@gmail.com=uschi@yahoo.de):</label>
               <textarea id="addressMapping" name="addressMapping" class="form-control" required></textarea>
             </div>
             <div class="container-fluid p-0 mb-2">

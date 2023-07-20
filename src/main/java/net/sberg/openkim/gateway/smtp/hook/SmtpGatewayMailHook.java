@@ -31,6 +31,7 @@ import net.sberg.openkim.pipeline.PipelineService;
 import net.sberg.openkim.pipeline.operation.DefaultPipelineOperationContext;
 import net.sberg.openkim.pipeline.operation.konnektor.vzd.LoadVzdCertsOperation;
 import net.sberg.openkim.pipeline.operation.mail.CheckSendingMailOperation;
+import net.sberg.openkim.pipeline.operation.mail.MailUtils;
 import net.sberg.openkim.pipeline.operation.mail.SendDsnOperation;
 import net.sberg.openkim.pipeline.operation.mail.SignEncryptMailOperation;
 import net.sberg.openkim.pipeline.operation.mail.kas.KasOutgoingMailOperation;
@@ -191,6 +192,9 @@ public class SmtpGatewayMailHook implements MessageHook {
 
             File tempMailFile = FileUtils.writeToFileDirectory((ByteArrayOutputStream) mailEnvelope.getMessageOutputStream(), "openkim", System.getProperty("java.io.tmpdir"));
             MimeMessage message = new MimeMessage(Session.getInstance(new Properties()), new FileInputStream(tempMailFile));
+            if (!MailUtils.checkAddressMapping(logger, message, true)) {
+                throw new IllegalStateException("error on checking of address mapping");
+            }
             tempMailFile.delete();
 
             String msgContent = null;
@@ -198,23 +202,23 @@ public class SmtpGatewayMailHook implements MessageHook {
             if (!logger.getDefaultLoggerContext().getKonfiguration().getGatewayTIMode().equals(EnumGatewayTIMode.NO_TI)) {
 
                 //check sender
-                List<String> senderAddresses = List.of(logger.getDefaultLoggerContext().getSenderAddress());
+                List<String> senderAddresses = List.of(logger.getDefaultLoggerContext().getSenderAddress(false));
                 if (!checkMailAddresses(smtpGatewaySession, logger.getDefaultLoggerContext().getSenderCerts(), senderAddresses, true, false)) {
                     smtpGatewaySession.getSmtpClient().rset();
                     smtpGatewaySession.log("mail hook ends - error");
                     return HookResult.DENY;
                 }
-                if (logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isError(logger.getDefaultLoggerContext().getSenderAddress())) {
+                if (logger.getDefaultLoggerContext().getMailaddressCertErrorContext().isError(logger.getDefaultLoggerContext().getSenderAddress(false))) {
                     smtpGatewaySession.getSmtpClient().rset();
                     return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressCertErrorContext()), message, true);
                 }
-                if (logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isError(logger.getDefaultLoggerContext().getSenderAddress())) {
+                if (logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext().isError(logger.getDefaultLoggerContext().getSenderAddress(false))) {
                     smtpGatewaySession.getSmtpClient().rset();
                     return sendDsn(logger, List.of(logger.getDefaultLoggerContext().getMailaddressKimVersionErrorContext()), message, true);
                 }
 
                 //check recipients
-                if (!checkMailAddresses(smtpGatewaySession, logger.getDefaultLoggerContext().getRecipientCerts(), logger.getDefaultLoggerContext().getRecipientAddresses(), false, true)) {
+                if (!checkMailAddresses(smtpGatewaySession, logger.getDefaultLoggerContext().getRecipientCerts(), logger.getDefaultLoggerContext().getRecipientAddresses(false), false, true)) {
                     smtpGatewaySession.getSmtpClient().rset();
                     smtpGatewaySession.log("mail hook ends - error");
                     return HookResult.DENY;
@@ -343,7 +347,7 @@ public class SmtpGatewayMailHook implements MessageHook {
             else {
                 //send rcpt to
                 boolean successfulRcptTo = false;
-                for (Iterator<String> iterator = logger.getDefaultLoggerContext().getRecipientAddresses().iterator(); iterator.hasNext(); ) {
+                for (Iterator<String> iterator = logger.getDefaultLoggerContext().getRecipientAddresses(true).iterator(); iterator.hasNext(); ) {
                     String rcptAddress = iterator.next();
                     int res = ((SmtpGatewaySession) session).getSmtpClient().rcpt("<" + rcptAddress + ">");
                     if (!SMTPReply.isPositiveCompletion(res)) {
