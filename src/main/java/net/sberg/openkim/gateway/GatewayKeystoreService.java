@@ -16,9 +16,9 @@
  */
 package net.sberg.openkim.gateway;
 
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 import net.sberg.openkim.common.FileUtils;
 import net.sberg.openkim.common.ICommonConstants;
-import org.jboss.netty.handler.ssl.util.SelfSignedCertificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

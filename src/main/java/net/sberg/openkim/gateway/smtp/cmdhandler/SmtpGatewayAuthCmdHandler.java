@@ -19,7 +19,6 @@ package net.sberg.openkim.gateway.smtp.cmdhandler;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.gateway.smtp.EnumSmtpGatewayState;
@@ -57,8 +56,6 @@ import org.xbill.DNS.Type;
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
@@ -94,21 +91,8 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
     private abstract static class AbstractSMTPLineHandler implements LineHandler<SMTPSession> {
 
         @Override
-        public Response onLine(SMTPSession session, ByteBuffer line) {
-            String charset = session.getCharset().name();
-            try {
-                byte[] l;
-                if (line.hasArray()) {
-                    l = line.array();
-                } else {
-                    l = new byte[line.remaining()];
-                    line.get(l);
-                }
-                return handleCommand(session, new String(l, charset));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException("No " + charset + " support!");
-            }
-
+        public Response onLine(SMTPSession session, byte[] line) {
+            return handleCommand(session, new String(line, session.getCharset()));
         }
 
         private Response handleCommand(SMTPSession session, String line) {
@@ -420,12 +404,15 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
                 KeyStore keyStore = KeyStore.getInstance("PKCS12");
                 keyStore.load(new FileInputStream(certfileName), passCharArray);
 
-                SSLContext sslContext = new SSLContextBuilder().loadKeyMaterial(keyStore, passCharArray).loadTrustMaterial(new TrustStrategy() {
-                    @Override
-                    public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                        return true;
-                    }
-                }).build();
+                SSLContext sslContext = new SSLContextBuilder()
+                    .loadKeyMaterial(keyStore, passCharArray)
+                    .loadTrustMaterial(keyStore, new TrustStrategy() {
+                        @Override
+                        public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                            return true;
+                        }
+                    })
+                    .build();
 
                 client = new AuthenticatingSMTPClient(true, sslContext);
                 client.setDefaultTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
@@ -433,7 +420,7 @@ public class SmtpGatewayAuthCmdHandler implements CommandHandler<SMTPSession>, E
                 ((SmtpGatewaySession) session).setSmtpClient(client);
             }
             else {
-                client = new AuthenticatingSMTPClient("TLS", konfiguration.getSmtpGatewayConnectionSec().equals(EnumMailConnectionSecurity.SSLTLS));
+                client = new AuthenticatingSMTPClient("TLS", true);
                 client.setDefaultTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
                 client.setConnectTimeout(((SmtpGatewaySession) session).getSmtpClientIdleTimeoutInSeconds() * 1000);
                 ((SmtpGatewaySession) session).setSmtpClient(client);

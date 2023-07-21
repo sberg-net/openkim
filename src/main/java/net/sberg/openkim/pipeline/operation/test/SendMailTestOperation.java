@@ -17,7 +17,6 @@
 package net.sberg.openkim.pipeline.operation.test;
 
 import net.sberg.openkim.common.EnumMailAuthMethod;
-import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.log.DefaultLogger;
@@ -92,7 +91,7 @@ public class SendMailTestOperation implements IPipelineOperation  {
             Properties props = new Properties();
             props = MailUtils.fillSmtpMailProps(
                 props,
-                EnumMailConnectionSecurity.NONE,
+                konfiguration.getSmtpGatewayConnectionSec(),
                 EnumMailAuthMethod.NORMALPWD,
                 konfiguration.getGatewayHost(),
                 konfiguration.getSmtpGatewayPort(),

@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.sberg</groupId>
     <artifactId>openkim</artifactId>
-    <version>0.17.2</version>
+    <version>0.18.0</version>
     <name>openkim</name>
     <description>Open KIM Client Modul</description>
 
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>org.apache.james.protocols</groupId>
             <artifactId>protocols-netty</artifactId>
-            <version>3.7.2</version>
+            <version>3.8.0</version>
             <exclusions>
                 <!-- exclude version 1.9 (with Vulnerabilities), newer version 1.10.0 is set later-->
                 <exclusion>
@@ -78,12 +78,12 @@
         <dependency>
             <groupId>org.apache.james</groupId>
             <artifactId>metrics-logger</artifactId>
-            <version>3.7.2</version>
+            <version>3.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.james.protocols</groupId>
             <artifactId>protocols-smtp</artifactId>
-            <version>3.7.2</version>
+            <version>3.8.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.james</groupId>
@@ -94,7 +94,7 @@
         <dependency>
             <groupId>org.apache.james.protocols</groupId>
             <artifactId>protocols-pop3</artifactId>
-            <version>3.7.2</version>
+            <version>3.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>

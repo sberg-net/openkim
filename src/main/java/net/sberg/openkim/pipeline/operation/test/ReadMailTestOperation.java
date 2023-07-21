@@ -17,7 +17,6 @@
 package net.sberg.openkim.pipeline.operation.test;
 
 import net.sberg.openkim.common.EnumMailAuthMethod;
-import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.log.DefaultLogger;
@@ -100,7 +99,7 @@ public class ReadMailTestOperation implements IPipelineOperation  {
             Properties props = new Properties();
             Session pop3ClientSession = MailUtils.createPop3ClientSession(
                 props,
-                EnumMailConnectionSecurity.NONE,
+                konfiguration.getPop3GatewayConnectionSec(),
                 EnumMailAuthMethod.NORMALPWD,
                 konfiguration.getGatewayHost(),
                 konfiguration.getPop3GatewayPort(),

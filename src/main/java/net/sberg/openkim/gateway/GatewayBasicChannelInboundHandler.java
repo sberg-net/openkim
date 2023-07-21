@@ -16,27 +16,27 @@
  */
 package net.sberg.openkim.gateway;
 
+import io.netty.channel.ChannelHandlerContext;
 import net.sberg.openkim.gateway.pop3.Pop3GatewaySession;
 import net.sberg.openkim.gateway.smtp.SmtpGatewaySession;
-import org.apache.james.protocols.api.Encryption;
 import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.netty.BasicChannelUpstreamHandler;
+import org.apache.james.protocols.netty.BasicChannelInboundHandler;
+import org.apache.james.protocols.netty.Encryption;
 import org.apache.james.protocols.netty.ProtocolMDCContextFactory;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GatewayBasicChannelUpstreamHandler extends BasicChannelUpstreamHandler {
+public class GatewayBasicChannelInboundHandler extends BasicChannelInboundHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GatewayBasicChannelUpstreamHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(GatewayBasicChannelInboundHandler.class);
 
-    public GatewayBasicChannelUpstreamHandler(ProtocolMDCContextFactory mdcContextFactory, Protocol protocol, Encryption secure) {
-        super(mdcContextFactory, protocol, secure);
+    public GatewayBasicChannelInboundHandler(ProtocolMDCContextFactory mdcContextFactory, Protocol protocol, Encryption secure, boolean proxyRequired) {
+        super(mdcContextFactory, protocol, secure, proxyRequired);
     }
 
     protected void cleanup(ChannelHandlerContext ctx) {
-        ProtocolSession session = (ProtocolSession) ctx.getAttachment();
+        ProtocolSession session = (ProtocolSession) ctx.channel().attr(SESSION_ATTRIBUTE_KEY).getAndSet(null);
         if (session != null) {
             if (session instanceof SmtpGatewaySession) {
                 try {
@@ -67,5 +67,6 @@ public class GatewayBasicChannelUpstreamHandler extends BasicChannelUpstreamHand
             session.resetState();
             session = null;
         }
+        ctx.close();
     }
 }

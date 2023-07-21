@@ -119,7 +119,7 @@ public class FileUtils {
         return f;
     }
 
-    public static final File writeToFileDirectory(ByteArrayOutputStream byteArrayOutputStream, String prefix, String storageFolder) throws Exception {
+    public static final File writeToFileDirectory(byte[] bytes, String prefix, String storageFolder) throws Exception {
         File f = new File(storageFolder);
         if (!f.exists()) {
             f.mkdirs();
@@ -128,7 +128,7 @@ public class FileUtils {
         f = new File(whereToSave);
         f.delete();
         OutputStream out = new FileOutputStream(new File(whereToSave));
-        out.write(byteArrayOutputStream.toByteArray());
+        out.write(bytes);
         out.flush();
         out.close();
         return f;

@@ -50,8 +50,6 @@ import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -147,21 +145,8 @@ public class Pop3GatewayAuthCmdHandler extends AbstractPOP3CommandHandler implem
     private abstract static class AbstractPOP3LineHandler implements LineHandler<POP3Session> {
 
         @Override
-        public Response onLine(POP3Session session, ByteBuffer line) {
-            String charset = session.getCharset().name();
-            try {
-                byte[] l;
-                if (line.hasArray()) {
-                    l = line.array();
-                } else {
-                    l = new byte[line.remaining()];
-                    line.get(l);
-                }
-                return handleCommand(session, new String(l, charset));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException("No " + charset + " support!");
-            }
-
+        public Response onLine(POP3Session session, byte[] line) {
+            return handleCommand(session, new String(line, session.getCharset()));
         }
 
         private Response handleCommand(POP3Session session, String line) {

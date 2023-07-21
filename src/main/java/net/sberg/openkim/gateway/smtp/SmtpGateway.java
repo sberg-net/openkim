@@ -18,6 +18,8 @@ package net.sberg.openkim.gateway.smtp;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import net.sberg.openkim.common.EnumMailConnectionSecurity;
+import net.sberg.openkim.common.ICommonConstants;
 import net.sberg.openkim.gateway.GatewayNettyServer;
 import net.sberg.openkim.gateway.smtp.hook.SmtpGatewayMailHook;
 import net.sberg.openkim.gateway.smtp.hook.SmtpGatewayQuitHook;
@@ -25,16 +27,22 @@ import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konfiguration.KonfigurationService;
 import net.sberg.openkim.log.LogService;
 import net.sberg.openkim.pipeline.PipelineService;
-import org.apache.james.protocols.api.Encryption;
+import org.apache.james.protocols.api.ClientAuth;
 import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.api.handler.WiringException;
-import org.jboss.netty.util.HashedWheelTimer;
+import org.apache.james.protocols.netty.Encryption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
 import java.util.Arrays;
 
 @Service
@@ -42,7 +50,6 @@ public class SmtpGateway {
 
     private static final Logger log = LoggerFactory.getLogger(SmtpGateway.class);
 
-    private HashedWheelTimer hashedWheelTimer;
     private GatewayNettyServer server;
     @Autowired
     private KonfigurationService konfigurationService;
@@ -50,6 +57,8 @@ public class SmtpGateway {
     private LogService logService;
     @Autowired
     private PipelineService pipelineService;
+    @Value("${gatewaykeystore.password}")
+    private String keyStorePwd;
 
     private boolean startSucces = false;
 
@@ -88,11 +97,7 @@ public class SmtpGateway {
                 log.info("***SMTP Gateway activated***");
             }
 
-            if (hashedWheelTimer == null) {
-                hashedWheelTimer = new HashedWheelTimer();
-            }
-
-            server = new GatewayNettyServer.Factory(hashedWheelTimer)
+            server = new GatewayNettyServer.Factory()
                 .protocol(createProtocol(konfiguration))
                 .secure(buildSSLContext(konfiguration))
                 .build();
@@ -111,6 +116,34 @@ public class SmtpGateway {
 
     private Encryption buildSSLContext(Konfiguration konfiguration) throws Exception {
         Encryption encryption = null;
+        if (!konfiguration.getSmtpGatewayConnectionSec().equals(EnumMailConnectionSecurity.NONE)) {
+            FileInputStream fis = null;
+            try {
+                KeyStore ks = KeyStore.getInstance("PKCS12", "BC");
+                fis = new FileInputStream(new File(ICommonConstants.BASE_DIR+ICommonConstants.OPENKIM_SERVER_KEYSTORE_FILENAME));
+                ks.load(fis, keyStorePwd.toCharArray());
+
+                // Set up key manager factory to use our key store
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                kmf.init(ks, keyStorePwd.toCharArray());
+
+                // Initialize the SSLContext to work with our key managers.
+                SSLContext context = SSLContext.getInstance("TLS");
+                context.init(kmf.getKeyManagers(), null, null);
+                if (konfiguration.getSmtpGatewayConnectionSec().equals(EnumMailConnectionSecurity.STARTTLS)) {
+                    encryption = Encryption.createStartTls(context, null, null, ClientAuth.NONE);
+                }
+                else {
+                    encryption = Encryption.createTls(context, null, null, ClientAuth.NONE);
+                }
+
+            } finally {
+                if (fis != null) {
+                    fis.close();
+                }
+                return encryption;
+            }
+        }
         return encryption;
     }
 

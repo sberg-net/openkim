@@ -141,7 +141,7 @@ public class SmtpGatewayEhloCmdHandler extends AbstractGatewayHookableCmdHandler
         return ImmutableList.<String>builder()
             .addAll(ESMTP_FEATURES)
             .addAll(getHooks().stream()
-                .flatMap(heloHook -> heloHook.implementedEsmtpFeatures().stream())
+                .flatMap(heloHook -> heloHook.implementedEsmtpFeatures(session).stream())
                 .collect(ImmutableList.toImmutableList()))
             .build();
     }

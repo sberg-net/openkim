@@ -17,76 +17,25 @@
 package net.sberg.openkim.gateway;
 
 import com.google.common.base.Preconditions;
-import org.apache.james.protocols.api.Encryption;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.DefaultEventLoopGroup;
 import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.netty.*;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.util.HashedWheelTimer;
 
 import javax.inject.Inject;
 import java.util.Optional;
 
 public class GatewayNettyServer extends AbstractAsyncServer {
-    protected final Encryption secure;
-    protected final Protocol protocol;
-    private final ChannelHandlerFactory frameHandlerFactory;
-    private final HashedWheelTimer hashedWheelTimer;
-    private ExecutionHandler eHandler;
-    private ChannelUpstreamHandler coreHandler;
-    private int maxCurConnections;
-    private int maxCurConnectionsPerIP;
-
-    private GatewayNettyServer(Protocol protocol, Encryption secure, ChannelHandlerFactory frameHandlerFactory, HashedWheelTimer hashedWheelTimer) {
-        this.protocol = protocol;
-        this.secure = secure;
-        this.frameHandlerFactory = frameHandlerFactory;
-        this.hashedWheelTimer = hashedWheelTimer;
-    }
-
-    protected ChannelUpstreamHandler createCoreHandler() {
-        return new GatewayBasicChannelUpstreamHandler(new ProtocolMDCContextFactory.Standard(), this.protocol, this.secure);
-    }
-
-    public synchronized void bind() throws Exception {
-        this.coreHandler = this.createCoreHandler();
-        super.bind();
-    }
-
-    private ChannelHandlerFactory getFrameHandlerFactory() {
-        return this.frameHandlerFactory;
-    }
-
-    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new AbstractSSLAwareChannelPipelineFactory(
-            this.getTimeout(),
-            this.maxCurConnections,
-            this.maxCurConnectionsPerIP,
-            group,
-            this.secure,
-            this.eHandler,
-            this.getFrameHandlerFactory(),
-            this.hashedWheelTimer
-        ) {
-            protected ChannelUpstreamHandler createHandler() {
-                return GatewayNettyServer.this.coreHandler;
-            }
-        };
-    }
-
     public static class Factory {
-        private final HashedWheelTimer hashedWheelTimer;
         private Protocol protocol;
+        private boolean proxyRequired;
         private Optional<Encryption> secure;
         private Optional<ChannelHandlerFactory> frameHandlerFactory;
 
         @Inject
-        public Factory(HashedWheelTimer hashedWheelTimer) {
-            this.hashedWheelTimer = hashedWheelTimer;
-            this.secure = Optional.empty();
-            this.frameHandlerFactory = Optional.empty();
+        public Factory() {
+            secure = Optional.empty();
+            frameHandlerFactory = Optional.empty();
         }
 
         public GatewayNettyServer.Factory protocol(Protocol protocol) {
@@ -100,19 +49,82 @@ public class GatewayNettyServer extends AbstractAsyncServer {
             return this;
         }
 
+        public GatewayNettyServer.Factory proxyRequired(boolean proxyRequired) {
+            this.proxyRequired = proxyRequired;
+            return this;
+        }
+
         public GatewayNettyServer.Factory frameHandlerFactory(ChannelHandlerFactory frameHandlerFactory) {
             this.frameHandlerFactory = Optional.ofNullable(frameHandlerFactory);
             return this;
         }
 
         public GatewayNettyServer build() {
-            Preconditions.checkState(this.protocol != null, "'protocol' is mandatory");
-            return new GatewayNettyServer(
-                this.protocol,
-                this.secure.orElse(null),
-                this.frameHandlerFactory.orElse(new LineDelimiterBasedChannelHandlerFactory(8192)),
-                this.hashedWheelTimer
-            );
+            Preconditions.checkState(protocol != null, "'protocol' is mandatory");
+            return new GatewayNettyServer(protocol,
+                secure.orElse(null),
+                proxyRequired,
+                frameHandlerFactory.orElse(new LineDelimiterBasedChannelHandlerFactory(AbstractChannelPipelineFactory.MAX_LINE_LENGTH)));
         }
+    }
+
+    protected final Encryption secure;
+    protected final Protocol protocol;
+    private final ChannelHandlerFactory frameHandlerFactory;
+    private int maxCurConnections;
+    private int maxCurConnectionsPerIP;
+    private boolean proxyRequired;
+
+    private GatewayNettyServer(Protocol protocol, Encryption secure, boolean proxyRequired, ChannelHandlerFactory frameHandlerFactory) {
+        this.protocol = protocol;
+        this.secure = secure;
+        this.proxyRequired = proxyRequired;
+        this.frameHandlerFactory = frameHandlerFactory;
+    }
+
+    public void setMaxConcurrentConnections(int maxCurConnections) {
+        if (isBound()) {
+            throw new IllegalStateException("Server running already");
+        }
+        this.maxCurConnections = maxCurConnections;
+    }
+
+    public void setMaxConcurrentConnectionsPerIP(int maxCurConnectionsPerIP) {
+        if (isBound()) {
+            throw new IllegalStateException("Server running already");
+        }
+        this.maxCurConnectionsPerIP = maxCurConnectionsPerIP;
+    }
+
+    protected ChannelInboundHandlerAdapter createCoreHandler() {
+        return new GatewayBasicChannelInboundHandler(new ProtocolMDCContextFactory.Standard(), protocol, secure, proxyRequired);
+    }
+
+    @Override
+    public synchronized void bind() throws Exception {
+        super.bind();
+    }
+
+    private ChannelHandlerFactory getFrameHandlerFactory() {
+        return frameHandlerFactory;
+    }
+
+    @Override
+    protected AbstractChannelPipelineFactory createPipelineFactory() {
+        return new AbstractSSLAwareChannelPipelineFactory(
+            getTimeout(),
+            maxCurConnections,
+            maxCurConnectionsPerIP,
+            proxyRequired,
+            secure,
+            getFrameHandlerFactory(),
+            new DefaultEventLoopGroup(16)
+        ) {
+          @Override
+         protected ChannelInboundHandlerAdapter createHandler() {
+                return createCoreHandler();
+            }
+        };
+
     }
 }

@@ -35,6 +35,7 @@ import net.sberg.openkim.pipeline.operation.mail.MailUtils;
 import net.sberg.openkim.pipeline.operation.mail.SendDsnOperation;
 import net.sberg.openkim.pipeline.operation.mail.SignEncryptMailOperation;
 import net.sberg.openkim.pipeline.operation.mail.kas.KasOutgoingMailOperation;
+import org.apache.commons.io.output.AbstractByteArrayOutputStream;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
@@ -190,7 +191,7 @@ public class SmtpGatewayMailHook implements MessageHook {
         try {
             smtpGatewaySession.log("mail hook begins");
 
-            File tempMailFile = FileUtils.writeToFileDirectory((ByteArrayOutputStream) mailEnvelope.getMessageOutputStream(), "openkim", System.getProperty("java.io.tmpdir"));
+            File tempMailFile = FileUtils.writeToFileDirectory(((AbstractByteArrayOutputStream) mailEnvelope.getMessageOutputStream()).toByteArray(), "openkim", System.getProperty("java.io.tmpdir"));
             MimeMessage message = new MimeMessage(Session.getInstance(new Properties()), new FileInputStream(tempMailFile));
             if (!MailUtils.checkAddressMapping(logger, message, true)) {
                 throw new IllegalStateException("error on checking of address mapping");

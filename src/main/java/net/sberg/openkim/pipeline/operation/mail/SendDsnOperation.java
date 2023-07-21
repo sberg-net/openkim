@@ -16,7 +16,6 @@
  */
 package net.sberg.openkim.pipeline.operation.mail;
 
-import net.sberg.openkim.common.EnumMailConnectionSecurity;
 import net.sberg.openkim.common.metrics.DefaultMetricFactory;
 import net.sberg.openkim.konfiguration.Konfiguration;
 import net.sberg.openkim.konnektor.Konnektor;
@@ -200,7 +199,7 @@ public class SendDsnOperation implements IPipelineOperation  {
                 client = new AuthenticatingSMTPClient(true, sslContext);
             }
             else {
-                client = new AuthenticatingSMTPClient("TLS", konfiguration.getSmtpGatewayConnectionSec().equals(EnumMailConnectionSecurity.SSLTLS));
+                client = new AuthenticatingSMTPClient("TLS", true);
             }
             client.connect(logger.getDefaultLoggerContext().getMailServerHost(), Integer.parseInt(logger.getDefaultLoggerContext().getMailServerPort()));
             client.login();
