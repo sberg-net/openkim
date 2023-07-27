@@ -369,7 +369,8 @@ public class MailUtils {
             authMethod,
             host,
             port,
-            pop3ClientIdleTimeoutInSeconds * 1000
+            pop3ClientIdleTimeoutInSeconds * 1000,
+            !createSSLSocketFactory
         );
 
         if (createSSLSocketFactory) {
@@ -385,7 +386,8 @@ public class MailUtils {
         EnumMailAuthMethod authMethod,
         String host,
         String port,
-        int timeout) throws Exception {
+        int timeout,
+        boolean trustAllHosts) throws Exception {
         if (connectionSecurity.equals(EnumMailConnectionSecurity.STARTTLS)) {
             props.put("mail.pop3.starttls.enable", "true");
             props.put("mail.pop3.ssl.enable", "false");
@@ -401,6 +403,10 @@ public class MailUtils {
             props.put("mail.pop3.auth", "true");
         } else {
             props.put("mail.pop3.auth", "false");
+        }
+
+        if (trustAllHosts) {
+            props.put("mail.pop3.ssl.trust", "*");
         }
 
         props.put("mail.transport.protocol", "pop3");
@@ -420,7 +426,8 @@ public class MailUtils {
         EnumMailAuthMethod authMethod,
         String host,
         String port,
-        int timeout) throws Exception {
+        int timeout,
+        boolean trustAllHosts) throws Exception {
         if (connectionSecurity.equals(EnumMailConnectionSecurity.STARTTLS)) {
             props.put("mail.smtp.starttls.enable", "true");
             props.put("mail.smtp.ssl.enable", "false");
@@ -442,7 +449,9 @@ public class MailUtils {
         }
 
         props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.ssl.trust", "*");
+        if (trustAllHosts) {
+            props.put("mail.smtp.ssl.trust", "*");
+        }
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", port);
         props.put("mail.smtp.connectiontimeout", timeout);

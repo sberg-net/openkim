@@ -124,11 +124,11 @@ public class SmtpGateway {
                 ks.load(fis, keyStorePwd.toCharArray());
 
                 // Set up key manager factory to use our key store
-                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance("PKIX", "BCJSSE");
                 kmf.init(ks, keyStorePwd.toCharArray());
 
                 // Initialize the SSLContext to work with our key managers.
-                SSLContext context = SSLContext.getInstance("TLS");
+                SSLContext context = SSLContext.getInstance("TLS", "BCJSSE");
                 context.init(kmf.getKeyManagers(), null, null);
                 if (konfiguration.getSmtpGatewayConnectionSec().equals(EnumMailConnectionSecurity.STARTTLS)) {
                     encryption = Encryption.createStartTls(context, null, null, ClientAuth.NONE);
@@ -137,7 +137,11 @@ public class SmtpGateway {
                     encryption = Encryption.createTls(context, null, null, ClientAuth.NONE);
                 }
 
-            } finally {
+            }
+            catch (Exception e) {
+                log.error("error on starting the smtp gateway - bulding ssl context", e);
+            }
+            finally {
                 if (fis != null) {
                     fis.close();
                 }

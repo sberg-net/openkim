@@ -95,7 +95,8 @@ public class SendMailTestOperation implements IPipelineOperation  {
                 EnumMailAuthMethod.NORMALPWD,
                 konfiguration.getGatewayHost(),
                 konfiguration.getSmtpGatewayPort(),
-                konfiguration.getSmtpGatewayIdleTimeoutInSeconds() * 1000
+                konfiguration.getSmtpGatewayIdleTimeoutInSeconds() * 1000,
+                true
             );
             Session session = Session.getInstance(props);
 

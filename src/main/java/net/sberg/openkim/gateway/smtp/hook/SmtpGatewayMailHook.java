@@ -388,7 +388,7 @@ public class SmtpGatewayMailHook implements MessageHook {
                 smtpGatewaySession.log("mail hook ends");
                 return HookResult.OK;
             } else {
-                smtpGatewaySession.log("mail hook ends - error");
+                smtpGatewaySession.log("mail hook ends on sendShortMessageData - "+smtpGatewaySession.getSmtpClient().getReplyCode()+" - "+smtpGatewaySession.getSmtpClient().getReplyString()+" - error");
                 return HookResult.DENY;
             }
         } catch (Exception e) {

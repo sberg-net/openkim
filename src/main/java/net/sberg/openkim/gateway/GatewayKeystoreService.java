@@ -16,9 +16,20 @@
  */
 package net.sberg.openkim.gateway;
 
-import io.netty.handler.ssl.util.SelfSignedCertificate;
-import net.sberg.openkim.common.FileUtils;
 import net.sberg.openkim.common.ICommonConstants;
+import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.cert.X509ExtensionUtils;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DigestCalculator;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,17 +37,17 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
+import java.math.BigInteger;
+import java.security.*;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.ECGenParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
+import java.util.Date;
 
 @Service
 public class GatewayKeystoreService {
@@ -57,35 +68,59 @@ public class GatewayKeystoreService {
     @Value("${gatewaykeystore.password}")
     private String password;
 
+    private SubjectKeyIdentifier createSubjectKeyId(final PublicKey publicKey) throws OperatorCreationException {
+        final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
+        final DigestCalculator digCalc =
+                new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
+
+        return new X509ExtensionUtils(digCalc).createSubjectKeyIdentifier(publicKeyInfo);
+    }
+
+    private AuthorityKeyIdentifier createAuthorityKeyId(final PublicKey publicKey)
+            throws OperatorCreationException
+    {
+        final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
+        final DigestCalculator digCalc =
+                new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
+
+        return new X509ExtensionUtils(digCalc).createAuthorityKeyIdentifier(publicKeyInfo);
+    }
+
     public void createSelfSigned() throws Exception {
         if (log.isInfoEnabled()) {
             log.info("***generateSelfSigned keys and cert - BEGIN***");
         }
 
-        SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate("eldix4kim.sberg.net", SecureRandom.getInstance("NativePRNG"), keysize);
+        KeyPairGenerator kg = KeyPairGenerator.getInstance("EC", "BC");
+        ECGenParameterSpec kpgparams = new ECGenParameterSpec("brainpoolP256r1");
+        kg.initialize(kpgparams);
 
-        CertificateFactory fact = CertificateFactory.getInstance("X.509");
-        FileInputStream is = new FileInputStream(selfSignedCertificate.certificate());
-        X509Certificate cer = (X509Certificate) fact.generateCertificate(is);
-        is.close();
+        KeyPair keyPair = kg.generateKeyPair();
 
-        Certificate[] chain = new Certificate[]{cer};
+        final Instant now = Instant.now();
+        final Date notBefore = Date.from(now);
+        final Date notAfter = Date.from(now.plus(Duration.ofDays(365)));
+        final ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256withECDSA").build(keyPair.getPrivate());
+        final X500Name x500Name = new X500Name("CN=" + "eldix4kim.sberg.net");
 
-        String privKeyContent = FileUtils.readFileContent(selfSignedCertificate.privateKey().getAbsolutePath());
-        String privateKeyPEM = privKeyContent
-            .replace(BEGIN_KEY, "")
-            .replaceAll(System.lineSeparator(), "")
-            .replace(END_KEY, "");
+        final X509v3CertificateBuilder certificateBuilder =
+            new JcaX509v3CertificateBuilder(x500Name,
+                BigInteger.valueOf(now.toEpochMilli()),
+                notBefore,
+                notAfter,
+                x500Name,
+                keyPair.getPublic())
+                .addExtension(Extension.subjectKeyIdentifier, false, createSubjectKeyId(keyPair.getPublic()))
+                .addExtension(Extension.authorityKeyIdentifier, false, createAuthorityKeyId(keyPair.getPublic()))
+                .addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
 
-        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM.getBytes("UTF-8"));
-
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        PrivateKey privKey = kf.generatePrivate(spec);
+        X509Certificate x509Certificate = new JcaX509CertificateConverter()
+                .setProvider(new BouncyCastleProvider()).getCertificate(certificateBuilder.build(contentSigner));
+        Certificate[] chain = new Certificate[]{x509Certificate};
 
         KeyStore keyStore = KeyStore.getInstance("PKCS12", "BC");
         keyStore.load(null, null);
-        keyStore.setKeyEntry(ICommonConstants.OPENKIM_SERVER_KEYSTORE_ALIAS, privKey, password.toCharArray(), chain);
+        keyStore.setKeyEntry(ICommonConstants.OPENKIM_SERVER_KEYSTORE_ALIAS, keyPair.getPrivate(), password.toCharArray(), chain);
         keyStore.store(
             new FileOutputStream(new File(ICommonConstants.BASE_DIR + ICommonConstants.OPENKIM_SERVER_KEYSTORE_FILENAME)),
             password.toCharArray()
