@@ -7,37 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.2]
+
 ### Added
-```
-```
 
-### Changed
-```
-```
-
-### Fixed
-```
-```
+- arm64 Docker Image
 
 ## [0.18.1]
 
-### Added
-```
-```
-
-### Changed
-```
-```
-
 ### Fixed
-```
+
 - integration des BouncyCastleJsseProvider und bouncy castle versionen 1.75
-```
+
 
 ## [0.17.0]
 
 ### Added
-```
+
 - Fehlerbehebungen
 - 6 Pipeline-Operationen, die der Nutzer über die OpenKIM-Oberfläche testen kann
   - Verschlüsseln eines beliebigen Textes mit einem Konnektor der Wahl, 
@@ -47,61 +33,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Empfangen einer Mail über das OpenKIM-POP3-Gateway
   - Signieren und Verschlüsseln einer Mail (ohne Versand) und Ausgabe der Mail
   - Entschlüsseln und Signaturüberprüfung einer verschlüsselten Mail, die der Nutzer komplett angeben muss
-```
-
-### Changed
-```
-```
-
-### Fixed
-```
-```
 
 ## [0.16.0]
 
 ### Added
-```
+
 - Integration von KAS
 - Fehlerbehebungen
-```
-
-### Changed
-```
-```
-
-### Fixed
-```
-```
-
-## [0.15.1]
-
-### Added
-```
-```
-
-### Changed
-```
-```
-
-### Fixed
-```
-```
 
 ## [0.15.0]
 
 ### Added
-```
+
 - Integrieren von Testmöglichkeiten für alle gewünschten Pipeline-Operationen
 - Aufruf der Tests von Weboberfläche
-```
-
-### Changed
-```
-```
-
-### Fixed
-```
-```
 
 ## [0.14.1]
 
