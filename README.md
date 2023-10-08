@@ -9,7 +9,6 @@ https://fachportal.gematik.de/fachportal-import/files/gemSpec_CM_KOMLE_V1.16.0.p
 
 ## Docker Images
 Docker Images stehen auf [Docker Hub](https://hub.docker.com/r/sbergit/openkim) zur Verfühgung.
-ARM64 Images folgen in Kürze.
 
 ## aktuelle Einsatzgebiete von OpenKIM
 Viele setzen OpenKIM als Monitoring-Werkzeug ein, um z.b. zu checken, 
