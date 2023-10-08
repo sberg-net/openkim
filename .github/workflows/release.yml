@@ -51,8 +51,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_name: sberg-net/openkim
-          # Personal access tokens (classic): `repo, user, admin:repo_hook`
-          #repo_token: ${{ secrets.ACCESS_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/openkim-${{ steps.build_maven.outputs.version }}.jar
           tag: OpenKIM-${{ steps.build_maven.outputs.version }}
@@ -64,24 +62,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          # list of Docker images to use as base name for tags
-          # ghcr.io/sbergit/openkim
           images: |
             sbergit/openkim
-          # generate Docker tags based on the following events/attributes
-          # type=raw,value=latest,enable={{is_default_branch}}
-          # type=semver,pattern={{major}}.{{minor}}
-          # type=semver,pattern={{major}}
           tags: |
             type=raw,value=latest
             type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
-            type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
-            type=sha
-
-      # Add support for more platforms with QEMU (optional)
-      # https://github.com/docker/setup-qemu-action
-      #- name: Set up QEMU
-      #  uses: docker/setup-qemu-action@v2
+            #type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
+            #type=sha
 
       - name: Set up Docker Buildx
         if: steps.checkTag.outputs.exists == 'false'
@@ -100,18 +87,10 @@ jobs:
 
       - name: Login to DockerHub
         if: steps.checkTag.outputs.exists == 'false'
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: sbergit
           password: ${{ secrets.DOCKER_HUB }}
-
-     # - name: Login to GitHub Container Registry
-     #   if: steps.checkTag.outputs.exists == 'false'
-     #   uses: docker/login-action@v1
-     #   with:
-     #     registry: ghcr.io
-     #     username: ${{ github.actor }}
-     #     password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         if: steps.checkTag.outputs.exists == 'false'
@@ -119,7 +98,7 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
