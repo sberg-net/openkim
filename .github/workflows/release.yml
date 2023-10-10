@@ -34,6 +34,7 @@ jobs:
       - name: Print the version & release Notes
         run: |
           echo "The version we just got is ${{ steps.getProjectPomVersion.outputs.version }}"
+          echo "Release Changes: ${{ steps.changelog_reader.outputs.changes }}"
           echo "Release Notes: ${{ steps.extract-release-notes.outputs.release_notes }}"
           exit 1
 
