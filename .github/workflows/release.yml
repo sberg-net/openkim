@@ -15,6 +15,15 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Get Project Version from pom.xml
+        id: getProjectPomVersion
+        uses: entimaniac/read-pom-version-action@1.0.0
+
+      - name: Print the version
+        run: |
+          echo "The version we just got is ${{ steps.getProjectPomVersion.outputs.version }}"
+          exit 1
+
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
