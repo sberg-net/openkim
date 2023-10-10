@@ -26,7 +26,7 @@ jobs:
       - name: Print the version & release Notes
         run: |
           echo "The version we just got is ${{ steps.getProjectPomVersion.outputs.version }}"
-          echo "Release Notes: "${{ steps.extract-release-notes.outputs.release_notes }}"
+          echo "Release Notes: ${{ steps.extract-release-notes.outputs.release_notes }}"
           exit 1
 
       - name: Set up JDK 17
