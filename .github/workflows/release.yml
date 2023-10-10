@@ -27,17 +27,28 @@ jobs:
           version: ${{ steps.pom-project-version.outputs.version }}
 
       - uses: mukunku/tag-exists-action@v1.1.0
-        id: check-tag-for-pom-version
+        id: tag-for-pom-version
         with:
           tag: OpenKIM-${{ steps.pom-project-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Print the version & release Notes
+      - name: Validate tag exist
+        if: steps.tag-for-pom-version.outputs.exists == 'true'
         run: |
-          echo "pom.xml version: ${{ steps.pom-project-version.outputs.version }}"
-          echo "Change Log for this version (${{ steps.pom-project-version.outputs.version }}): ${{ steps.changelog_for_pom_version.outputs.changes }}"
-          echo "Tag for version (${{ steps.pom-project-version.outputs.version }}) exist: ${{ steps.check-tag-for-pom-version.outputs.exists }}"
+          echo "Tag vor Version (${{ steps.pom-project-version.outputs.version }}) already exist."
+          echo "Workflow canceled"
+          exit 1
+
+      - name: Validate changelog exist
+        if: ! steps.changelog_for_pom_version.outputs.version
+        run: |
+          echo "Changeloh for Version (${{ steps.pom-project-version.outputs.version }}) not found."
+          echo "Workflow canceled"
+          exit 1
+
+      - name: Stop
+        run: |
           exit 1
 
       - name: Set up JDK 17
