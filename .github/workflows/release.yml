@@ -41,7 +41,7 @@ jobs:
           exit 1
 
       - name: Validate changelog exist
-        if: ! steps.changelog_for_pom_version.outputs.version
+        if: ${{ ! steps.changelog_for_pom_version.outputs.version }}
         run: |
           echo "Changeloh for Version (${{ steps.pom-project-version.outputs.version }}) not found."
           echo "Workflow canceled"
