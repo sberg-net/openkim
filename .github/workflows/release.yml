@@ -30,6 +30,8 @@ jobs:
         id: check-tag-for-pom-version
         with:
           tag: OpenKIM-${{ steps.pom-project-version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print the version & release Notes
         run: |
