@@ -26,10 +26,16 @@ jobs:
           validation_level: warn
           version: ${{ steps.pom-project-version.outputs.version }}
 
+      - uses: mukunku/tag-exists-action@v1.1.0
+        id: check-tag-for-pom-version
+        with:
+          tag: OpenKIM-${{ steps.pom-project-version.outputs.version }}
+
       - name: Print the version & release Notes
         run: |
           echo "pom.xml version: ${{ steps.pom-project-version.outputs.version }}"
           echo "Change Log for this version (${{ steps.pom-project-version.outputs.version }}): ${{ steps.changelog_for_pom_version.outputs.changes }}"
+          echo "Tag for version (${{ steps.pom-project-version.outputs.version }}) exist: ${{ steps.check-tag-for-pom-version.outputs.exists }}"
           exit 1
 
       - name: Set up JDK 17
@@ -51,13 +57,6 @@ jobs:
           mvn -B package --file pom.xml
           VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[.*')
           echo "::set-output name=version::$VERSION"
-
-      - uses: mukunku/tag-exists-action@v1.1.0
-        id: checkTag
-        with:
-          tag: OpenKIM-${{ steps.build_maven.outputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish new version
         if: steps.checkTag.outputs.exists == 'false'
