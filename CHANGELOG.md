@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - arm64 docker image
 
+[0.12.0]: https://github.com/sberg-net/openkim/releases/tag/OpenKIM-0.18.2
+
 ## [0.18.1]
 
 ### Fixed
