@@ -16,26 +16,20 @@ jobs:
           fetch-depth: 2
 
       - name: Get Project Version from pom.xml
-        id: getProjectPomVersion
+        id: pom-project-version
         uses: entimaniac/read-pom-version-action@1.0.0
 
-      - name: Extract release notes
-        id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v1
-
-      - name: Get Changelog Entry
-        id: changelog_reader
+      - name: Get Changelog Entry based on pom.xml version
+        id: changelog_for_pom_version
         uses: mindsers/changelog-reader-action@v2
         with:
           validation_level: warn
-          version: ${{ steps.getProjectPomVersion.outputs.version }}
-          path: ./CHANGELOG.md
+          version: ${{ steps.pom-project-version.outputs.version }}
 
       - name: Print the version & release Notes
         run: |
-          echo "The version we just got is ${{ steps.getProjectPomVersion.outputs.version }}"
-          echo "Release Changes: ${{ steps.changelog_reader.outputs.changes }}"
-          echo "Release Notes: ${{ steps.extract-release-notes.outputs.release_notes }}"
+          echo "pom.xml version: ${{ steps.pom-project-version.outputs.version }}"
+          echo "Change Log for this version (${{ steps.pom-project-version.outputs.version }}): ${{ steps.changelog_reader.outputs.changes }}"
           exit 1
 
       - name: Set up JDK 17
