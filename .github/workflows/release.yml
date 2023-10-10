@@ -23,6 +23,14 @@ jobs:
         id: extract-release-notes
         uses: ffurrer2/extract-release-notes@v1
 
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          validation_level: warn
+          version: ${{ steps.getProjectPomVersion.outputs.version }}
+          path: ./CHANGELOG.md
+
       - name: Print the version & release Notes
         run: |
           echo "The version we just got is ${{ steps.getProjectPomVersion.outputs.version }}"
