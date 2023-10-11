@@ -61,7 +61,7 @@ jobs:
       - name: Publish new version
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_name: sberg-net/openkim
+          repo_name: derlinuxer/openkim
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/openkim-${{ steps.pom-data.outputs.version }}.jar
           tag: OpenKIM-${{ steps.pom-data.outputs.version }}
@@ -73,7 +73,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            sbergit/openkim
+            derlinuxer/openkim
           tags: |
             type=raw,value=latest
             type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.pom-data.outputs.version }}
@@ -96,7 +96,7 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: sbergit
+          username: derlinuxer
           password: ${{ secrets.DOCKER_HUB }}
 
       - name: Build and push
