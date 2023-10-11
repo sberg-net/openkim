@@ -23,8 +23,9 @@ jobs:
         id: changelog_for_pom_version
         uses: mindsers/changelog-reader-action@v2
         with:
-          validation_level: warn
           version: ${{ steps.pom-data.outputs.version }}
+          validation_level: error
+          validation_depth: 5
 
       - uses: mukunku/tag-exists-action@v1.1.0
         id: tag-for-pom-version
@@ -35,14 +36,7 @@ jobs:
 
       - name: Validate tag exist
         if: steps.tag-for-pom-version.outputs.exists == 'true'
-        run: |
-          echo "Tag vor Version (${{ steps.pom-data.outputs.version }}) already exist."
-          echo "Workflow manualy canceled"
-          exit 1
-
-      - name: exit
-        run: |
-          exit 1
+        uses: styfle/cancel-workflow-action@0.12.0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
