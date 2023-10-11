@@ -35,9 +35,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: error message on tag exist
+      - name: error message & exit on tag exist
         if: steps.tag-for-pom-version.outputs.exists == 'true'
-        run: echo "::error::Tag for version ${{ steps.pom-data.outputs.version }} already exist."
+        run: | 
+          echo "::error::Tag for version ${{ steps.pom-data.outputs.version }} already exist."
+          exit 1
 
       - name: cancel action on tag exist
         if: steps.tag-for-pom-version.outputs.exists == 'true'
