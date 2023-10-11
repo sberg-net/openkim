@@ -105,7 +105,7 @@ jobs:
       - name: Publish new version 
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_name: $ {{ github.repository }}
+          repo_name: ${{ github.repository }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/openkim-${{ steps.pom-data.outputs.version }}.jar
           tag: OpenKIM-${{ steps.pom-data.outputs.version }}
