@@ -37,22 +37,11 @@ jobs:
         if: steps.tag-for-pom-version.outputs.exists == 'true'
         run: |
           echo "Tag vor Version (${{ steps.pom-project-version.outputs.version }}) already exist."
-          echo "Workflow canceled"
-          exit 1
-
-      - name: Validate changelog exist
-        if: ${{ ! steps.changelog_for_pom_version.outputs.version }}
-        run: |
-          echo "Changeloh for Version (${{ steps.pom-project-version.outputs.version }}) not found."
-          echo "Workflow canceled"
-          exit 1
-
-      - name: Stop
-        run: |
+          echo "Workflow manualy canceled"
           exit 1
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'zulu'
@@ -68,22 +57,18 @@ jobs:
         id: build_maven
         run: |
           mvn -B package --file pom.xml
-          VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[.*')
-          echo "::set-output name=version::$VERSION"
-
+          
       - name: Publish new version
-        if: steps.checkTag.outputs.exists == 'false'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_name: sberg-net/openkim
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/openkim-${{ steps.build_maven.outputs.version }}.jar
-          tag: OpenKIM-${{ steps.build_maven.outputs.version }}
+          file: target/openkim-${{ steps.pom-project-version.outputs.version }}.jar
+          tag: OpenKIM-${{ steps.pom-project-version.outputs.version }}
           overwrite: false
-          body: ${{ steps.extract-release-notes.outputs.release_notes }}
+          body: ${{ steps.changelog_for_pom_version.outputs.changes }}
 
       - name: Docker meta
-        if: steps.checkTag.outputs.exists == 'false'
         id: meta
         uses: docker/metadata-action@v3
         with:
@@ -91,17 +76,15 @@ jobs:
             sbergit/openkim
           tags: |
             type=raw,value=latest
-            type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
-            #type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
+            type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.pom-project-version.outputs.version }}
+            #type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.pom-project-version.outputs.version }}
             #type=sha
 
       - name: Set up Docker Buildx
-        if: steps.checkTag.outputs.exists == 'false'
         id: buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Inspect builder
-        if: steps.checkTag.outputs.exists == 'false'
         run: |
           echo "Name:      ${{ steps.buildx.outputs.name }}"
           echo "Endpoint:  ${{ steps.buildx.outputs.endpoint }}"
@@ -111,14 +94,12 @@ jobs:
           echo "Tags:      ${{ steps.meta.outputs.tags }}"
 
       - name: Login to DockerHub
-        if: steps.checkTag.outputs.exists == 'false'
         uses: docker/login-action@v3
         with:
           username: sbergit
           password: ${{ secrets.DOCKER_HUB }}
 
       - name: Build and push
-        if: steps.checkTag.outputs.exists == 'false'
         uses: docker/build-push-action@v2
         with:
           context: .
