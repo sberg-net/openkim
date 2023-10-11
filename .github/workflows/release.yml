@@ -40,6 +40,10 @@ jobs:
           echo "Workflow manualy canceled"
           exit 1
 
+      - name: exit
+        run: |
+          exit 1
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
