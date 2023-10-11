@@ -57,20 +57,10 @@ jobs:
         id: build_maven
         run: |
           mvn -B package --file pom.xml
-          
-      - name: Publish new version
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_name: derlinuxer/openkim
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/openkim-${{ steps.pom-data.outputs.version }}.jar
-          tag: OpenKIM-${{ steps.pom-data.outputs.version }}
-          overwrite: false
-          body: ${{ steps.changelog_for_pom_version.outputs.changes }}
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
           images: |
             #sbergit/openkim
@@ -83,7 +73,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Inspect builder
         run: |
@@ -102,8 +92,8 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
+      - name: Build and push docker images
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile
@@ -113,3 +103,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Publish new version 
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_name: derlinuxer/openkim
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/openkim-${{ steps.pom-data.outputs.version }}.jar
+          tag: OpenKIM-${{ steps.pom-data.outputs.version }}
+          overwrite: false
+          body: ${{ steps.changelog_for_pom_version.outputs.changes }}
