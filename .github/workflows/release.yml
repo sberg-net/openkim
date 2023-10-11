@@ -15,28 +15,28 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Get Project Version from pom.xml
-        id: pom-project-version
-        uses: entimaniac/read-pom-version-action@1.0.0
+      - name: Extract data from pom.xml
+        id: pom-data
+        uses: andreacomo/maven-gav-extractor@v2
 
       - name: Get Changelog Entry based on pom.xml version
         id: changelog_for_pom_version
         uses: mindsers/changelog-reader-action@v2
         with:
           validation_level: warn
-          version: ${{ steps.pom-project-version.outputs.version }}
+          version: ${{ steps.pom-data.outputs.version }}
 
       - uses: mukunku/tag-exists-action@v1.1.0
         id: tag-for-pom-version
         with:
-          tag: OpenKIM-${{ steps.pom-project-version.outputs.version }}
+          tag: OpenKIM-${{ steps.pom-data.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate tag exist
         if: steps.tag-for-pom-version.outputs.exists == 'true'
         run: |
-          echo "Tag vor Version (${{ steps.pom-project-version.outputs.version }}) already exist."
+          echo "Tag vor Version (${{ steps.pom-data.outputs.version }}) already exist."
           echo "Workflow manualy canceled"
           exit 1
 
@@ -63,8 +63,8 @@ jobs:
         with:
           repo_name: sberg-net/openkim
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/openkim-${{ steps.pom-project-version.outputs.version }}.jar
-          tag: OpenKIM-${{ steps.pom-project-version.outputs.version }}
+          file: target/openkim-${{ steps.pom-data.outputs.version }}.jar
+          tag: OpenKIM-${{ steps.pom-data.outputs.version }}
           overwrite: false
           body: ${{ steps.changelog_for_pom_version.outputs.changes }}
 
@@ -76,8 +76,8 @@ jobs:
             sbergit/openkim
           tags: |
             type=raw,value=latest
-            type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.pom-project-version.outputs.version }}
-            #type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.pom-project-version.outputs.version }}
+            type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.pom-data.outputs.version }}
+            #type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.pom-data.outputs.version }}
             #type=sha
 
       - name: Set up Docker Buildx
