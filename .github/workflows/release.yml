@@ -27,14 +27,19 @@ jobs:
           validation_level: error
           validation_depth: 5
 
-      - uses: mukunku/tag-exists-action@v1.1.0
+      - name: check tag on version
+        uses: mukunku/tag-exists-action@v1.1.0
         id: tag-for-pom-version
         with:
           tag: OpenKIM-${{ steps.pom-data.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate tag exist
+      - name: error message on tag exist
+        if: steps.tag-for-pom-version.outputs.exists == 'true'
+        run: echo "::error::Tag for version ${{ steps.pom-data.outputs.version }} already exist."
+
+      - name: cancel action on tag exist
         if: steps.tag-for-pom-version.outputs.exists == 'true'
         uses: andymckay/cancel-action@0.3
 
