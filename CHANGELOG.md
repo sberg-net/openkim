@@ -16,9 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.19.0]
 
 ### Added
-- arm64 docker image to dockerHub
 
-### Fixed
+- arm64 docker image to dockerHub
 
 ## [0.18.1]
 
