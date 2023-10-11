@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Fixed
+
 ## [0.18.2]
 
 ### Added
-
+- arm64 docker image to dockerHub
 
 ## [0.18.1]
 
