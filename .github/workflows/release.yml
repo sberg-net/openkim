@@ -38,7 +38,7 @@ jobs:
       - name: cancel action on tag exist
         if: steps.tag-for-pom-version.outputs.exists == 'true'
         run: | 
-          echo "::error::Tag for version ${{ steps.pom-data.outputs.version }} already exist. Action will manually cancelled"
+          echo "::error::Tag for version ${{ steps.pom-data.outputs.version }} already exist."
           exit 1
 
       - name: Set up JDK 17
