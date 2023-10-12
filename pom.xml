@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.sberg</groupId>
     <artifactId>openkim</artifactId>
-    <version>0.18.2</version>
+    <version>0.19.0</version>
     <name>openkim</name>
     <description>Open KIM Client Modul</description>
 

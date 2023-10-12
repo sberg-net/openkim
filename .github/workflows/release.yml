@@ -8,15 +8,41 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+    if: ${{ ! contains(github.event.head_commit.message, '[ci skip]') }}
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
 
+      - name: Extract data from pom.xml
+        id: pom-data
+        uses: andreacomo/maven-gav-extractor@v2
+
+      - name: Get Changelog Entry based on pom.xml version
+        id: changelog_for_pom_version
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ steps.pom-data.outputs.version }}
+          validation_level: error
+          validation_depth: 5
+
+      - name: check tag on version
+        uses: mukunku/tag-exists-action@v1.1.0
+        id: tag-for-pom-version
+        with:
+          tag: OpenKIM-${{ steps.pom-data.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: cancel action on tag exist
+        if: steps.tag-for-pom-version.outputs.exists == 'true'
+        run: | 
+          echo "::error::Tag for version ${{ steps.pom-data.outputs.version }} already exist."
+          exit 1
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'zulu'
@@ -28,55 +54,28 @@ jobs:
           git config --global user.name "Release Bot"
           git clone https://github.com/gematik/api-telematik.git
 
-      - name: Extract release notes
-        id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v1
-
       - name: Build with Maven
         id: build_maven
         run: |
           mvn -B package --file pom.xml
-          VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[.*')
-          echo "::set-output name=version::$VERSION"
-
-      - uses: mukunku/tag-exists-action@v1.1.0
-        id: checkTag
-        with:
-          tag: OpenKIM-${{ steps.build_maven.outputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish new version
-        if: steps.checkTag.outputs.exists == 'false'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_name: sberg-net/openkim
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/openkim-${{ steps.build_maven.outputs.version }}.jar
-          tag: OpenKIM-${{ steps.build_maven.outputs.version }}
-          overwrite: false
-          body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
       - name: Docker meta
-        if: steps.checkTag.outputs.exists == 'false'
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
           images: |
-            sbergit/openkim
+            ${{ secrets.DOCKER_HUB_USER }}/openkim
           tags: |
             type=raw,value=latest
-            type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
-            #type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.build_maven.outputs.version }}
+            type=match,pattern=[0-9]+.[0-9]+.[0-9]+,value=v${{ steps.pom-data.outputs.version }}
+            #type=match,pattern=[0-9]+.[0-9]+,value=v${{ steps.pom-data.outputs.version }}
             #type=sha
 
       - name: Set up Docker Buildx
-        if: steps.checkTag.outputs.exists == 'false'
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Inspect builder
-        if: steps.checkTag.outputs.exists == 'false'
         run: |
           echo "Name:      ${{ steps.buildx.outputs.name }}"
           echo "Endpoint:  ${{ steps.buildx.outputs.endpoint }}"
@@ -86,15 +85,13 @@ jobs:
           echo "Tags:      ${{ steps.meta.outputs.tags }}"
 
       - name: Login to DockerHub
-        if: steps.checkTag.outputs.exists == 'false'
         uses: docker/login-action@v3
         with:
-          username: sbergit
-          password: ${{ secrets.DOCKER_HUB }}
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build and push
-        if: steps.checkTag.outputs.exists == 'false'
-        uses: docker/build-push-action@v2
+      - name: Build and push docker images
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile
@@ -104,3 +101,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Publish new version 
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/openkim-${{ steps.pom-data.outputs.version }}.jar
+          tag: OpenKIM-${{ steps.pom-data.outputs.version }}
+          overwrite: false
+          body: ${{ steps.changelog_for_pom_version.outputs.changes }}
