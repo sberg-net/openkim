@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.19.1]
 
-### Fixed
+### Security
 - Vulnerabilities updates
   - spring-boot-parent
   - webjars-locator
