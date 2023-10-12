@@ -12,7 +12,7 @@
     <artifactId>openkim</artifactId>
     <version>0.19.1</version>
     <name>openkim</name>
-    <description>Open KIM Client Modul</description>
+    <description>Open KIM Client Modul </description>
 
     <properties>
         <logback.version>1.4.5</logback.version>
