@@ -13,7 +13,6 @@
                 <ul class="nav flex-column">
                     <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','MONITORING')">
                         <a class="nav-link"
-                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/') ? 'active':''}"
                            th:href="@{/}">
                             <span data-feather="settings"></span>
                             Minimale Konfiguration
@@ -21,7 +20,6 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','MONITORING')">
                         <a class="nav-link"
-                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/dashboard') ? 'active':''}"
                            th:href="@{/dashboard}">
                             <span data-feather="activity"></span>
                             Dashboard
@@ -29,7 +27,6 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
                       <a class="nav-link"
-                         th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/user/settings') ? 'active':''}"
                          th:href="@{/user/settings}">
                         <span data-feather="user"></span>
                         Benutzereinstellungen
@@ -37,7 +34,6 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link"
-                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/konfiguration') ? 'active':''}"
                            th:href="@{/konfiguration}">
                             <span data-feather="settings"></span>
                             Konfiguration
@@ -45,7 +41,6 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link"
-                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/pop3log') ? 'active':''}"
                            th:href="@{/pop3log}">
                             <span data-feather="info"></span>
                             POP3 Gateway Logs
@@ -53,7 +48,6 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link"
-                           th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/smtplog') ? 'active':''}"
                            th:href="@{/smtplog}">
                             <span data-feather="info"></span>
                             SMTP Gateway Logs
@@ -61,7 +55,6 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                       <a class="nav-link"
-                         th:classappend="${#ctx.springRequestContext.requestUri.endsWith('/pipelineoperationtest') ? 'active':''}"
                          th:href="@{/pipelineoperationtest}">
                         <span data-feather="info"></span>
                         Test der Pipeline-Operationen
