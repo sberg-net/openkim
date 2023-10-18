@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [0.19.2]
+
+### Fixes
+- Startseite kann nicht aufgerufen werden (thymeleaf template exeception, Änderungen in Version 3.1)
+
 ## [0.19.1]
 
 ### Security
