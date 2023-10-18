@@ -48,6 +48,12 @@ public class PipelineOperationTestController {
     @Autowired
     private KonfigurationService konfigurationService;
 
+    @RequestMapping(value = "/pipelineoperationtest", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public String entryPoint() throws Exception {
+        return "pipelineoperationtest/pipelineoperationtest";
+    }
+
     @RequestMapping(value = "/pipelineoperationtest/uebersicht", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public String uebersicht(Model model) throws Exception {

@@ -45,6 +45,12 @@ public class KonfigurationController extends AbstractWebController {
     @Autowired
     private ServerStateService serverStateService;
 
+    @RequestMapping(value = "/konfiguration", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public String entryPoint() throws Exception {
+        return "konfiguration/konfiguration";
+    }
+
     @RequestMapping(value = "/konfiguration/init/dev", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     @ResponseBody

@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Controller
@@ -42,14 +41,19 @@ public class DashboardController {
     @Autowired
     private KonfigurationService konfigurationService;
 
+    @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public String entryPoint() throws Exception {
+        return "dashboard/dashboard";
+    }
+
     @RequestMapping(value = "/dashboard/uebersicht", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public String execute(Model model) throws Exception {
         Konfiguration konfiguration = konfigurationService.getKonfiguration();
         List<KonnektorMonitoringResult> result = new ArrayList<>();
         try {
-            for (Iterator<Konnektor> iterator = konfiguration.getKonnektoren().iterator(); iterator.hasNext(); ) {
-                Konnektor konnektor = iterator.next();
+            for (Konnektor konnektor : konfiguration.getKonnektoren()) {
                 result.add(konnektor.getKonnektorMonitoringResult());
             }
             model.addAttribute("fehler", false);
@@ -72,11 +76,10 @@ public class DashboardController {
     @RequestMapping(value = "/api/dashboard/uebersicht", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     @ResponseBody
-    public List apiExecute() throws Exception {
+    public List<KonnektorMonitoringResult> apiExecute() throws Exception {
         Konfiguration konfiguration = konfigurationService.getKonfiguration();
         List<KonnektorMonitoringResult> result = new ArrayList<>();
-        for (Iterator<Konnektor> iterator = konfiguration.getKonnektoren().iterator(); iterator.hasNext(); ) {
-            Konnektor konnektor = iterator.next();
+        for (Konnektor konnektor : konfiguration.getKonnektoren()) {
             result.add(konnektor.getKonnektorMonitoringResult());
         }
         return result;

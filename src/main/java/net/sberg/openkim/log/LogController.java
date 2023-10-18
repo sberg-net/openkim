@@ -34,6 +34,18 @@ public class LogController extends AbstractWebController {
     @Autowired
     private LogService logService;
 
+    @RequestMapping(value = "/pop3log", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public String entryPointPop3() throws Exception {
+        return "log/pop3log";
+    }
+
+    @RequestMapping(value = "/smtplog", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public String entryPointSmtp() throws Exception {
+        return "log/smtplog";
+    }
+
     @RequestMapping(value = "/log/uebersicht/{typ}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public String uebersicht(Model model, @PathVariable EnumLogTyp typ) throws Exception {
