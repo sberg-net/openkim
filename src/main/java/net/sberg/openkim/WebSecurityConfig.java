@@ -26,9 +26,12 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @EnableWebSecurity
 @Configuration
@@ -51,35 +54,49 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
         http
-                .sessionManagement()
+            .sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .invalidSessionUrl("/login")
-                .and()
-                .csrf()
-                .and()
-                .authorizeHttpRequests((request) -> request
-                        .requestMatchers("/", "/konfiguration/**,", "/minimalkonfiguration/**",
-                                "/openkimkeystore/**", "/konnektor/**", "/log/**", "/pop3log/**", "/smtplog/**",
-                                "/dashboard/**", "/konnvzd/**", "/konnwebservice/**", "/konnntp/**",
-                                "/pipelineoperationtest/**", "/user/**")
-                        .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
-                        .anyRequest().authenticated()
-                )
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .permitAll()
-                )
-                .logout((logout) -> logout
-                        .permitAll()
-                        .logoutSuccessUrl("/login"));
+            )
+            .authorizeHttpRequests((resourceRequest) -> resourceRequest
+                .requestMatchers(
+                    antMatcher("/webjars/**"),
+                    antMatcher("/js/**"),
+                    antMatcher("/css/**"),
+                    antMatcher("/img/**"),
+                    antMatcher("/fonts/**"),
+                    antMatcher("/dev/**")
+                ).permitAll()
+            )
+            .authorizeHttpRequests((request) -> request
+                .requestMatchers(
+                    antMatcher("/"),
+                    antMatcher("/konfiguration/**,"),
+                    antMatcher("/minimalkonfiguration/**"),
+                    antMatcher("/openkimkeystore/**"),
+                    antMatcher("/konnektor/**"),
+                    antMatcher("/log/**"),
+                    antMatcher("/pop3log/**"),
+                    antMatcher("/pop3log/**"),
+                    antMatcher("/dashboard/**"),
+                    antMatcher("/konnvzd/**"),
+                    antMatcher("/konnwebservice/**"),
+                    antMatcher("/konnwebservice/**"),
+                    antMatcher("/konnntp/**"),
+                    antMatcher("/pipelineoperationtest/**"),
+                    antMatcher("/user/**"))
+                .hasAnyRole(EnumAuthRole.ROLE_ADMIN.getSuffix(), EnumAuthRole.ROLE_MONITORING.getSuffix())
+                .anyRequest().authenticated()
+            )
+            .formLogin((form) -> form
+                .loginPage("/login")
+                .permitAll()
+            )
+            .logout((logout) -> logout
+                .logoutSuccessUrl("/login")
+                .permitAll()
+            );
         return http.build();
-    }
-
-    // ignore resource paths and /dev/* in spring secure to have access without rules
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/webjars/**", "/js/**", "/css/**",
-                "/img/**", "/fonts/**", "/dev/**");
     }
 
     @Autowired

@@ -39,6 +39,12 @@ public class MinimalKonfigurationController extends AbstractWebController {
     @Autowired
     private KonfigurationService konfigurationService;
 
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    public String entryPoint() throws Exception {
+        return "minimalkonfiguration/minimalKonfiguration";
+    }
+
     @RequestMapping(value = "/minimalkonfiguration/lade", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
     public String lade(Model model) throws Exception {
