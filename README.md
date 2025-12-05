@@ -3,7 +3,7 @@
 [![Release](https://github.com/sberg-net/openkim/actions/workflows/release.yml/badge.svg)](https://github.com/sberg-net/openkim/actions/workflows/release.yml)
 
 Implementieren eines KIM-Client-Moduls laut Spezifikation:
-https://fachportal.gematik.de/fachportal-import/files/gemSpec_CM_KOMLE_V1.16.0.pdf
+https://gemspec.gematik.de/docs/gemSpec/gemSpec_CM_KOMLE/latest/
 
 > Die Zulassung der Gematik ist noch nicht erfolgt!! OpenKIM darf deshalb nicht als KIM-Clientmodul betrieben werden.
 
